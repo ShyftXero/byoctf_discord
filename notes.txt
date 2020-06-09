@@ -1,0 +1,12 @@
+how can they trust us to not just view the answers they submit? 
+
+they register a validation callback url that accepts standard parameters
+
+
+
+
+    server will post to http://<callback_url>/<chall_id>/submit
+        flag
+    returns status  
+        {"status":"correct"}
+        {"status":"incorrect"}
