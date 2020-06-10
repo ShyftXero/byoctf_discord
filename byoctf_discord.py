@@ -5,18 +5,26 @@ import json
 
 import requests
 from terminaltables import AsciiTable
+import discord
 from discord.ext import commands
 
-from tokens import DISCORD_TOKEN
+from secrets import DISCORD_TOKEN
 import database as db
+
+
+import json
+
+from settings import SETTINGS
 
 
 
 bot = commands.Bot(command_prefix='!')
 
 def username(ctx):
-    return ctx.author.name+ctx.author.discriminator
-
+    if hasattr(ctx, "author"): 
+        return ctx.author.name+ctx.author.discriminator
+    elif type(ctx) == discord.User:
+        return ctx.name+ctx.discriminator
 
 @bot.event
 async def on_ready():
@@ -25,6 +33,9 @@ async def on_ready():
 @db.db_session()
 @bot.command(name='register', help='register on the scoreboard. !register <teamname>')
 async def register(ctx, teamname):
+    if SETTINGS['registration'] == 'disabled':
+        await ctx.send("registration is disabled")
+        return
     # print('Registering ', ctx.author.name , type(ctx.author.name), )
     # users = db.select([u, type(u),dir(u)] for u in db.User)
     # print(users)
@@ -61,7 +72,16 @@ async def register(ctx, teamname):
 
 
 
+@bot.command(name='status', help="shows status information about the CTF")
+async def status(ctx):
 
+    msg = SETTINGS
+
+    msg = f"CTF start time \t\t\t\t`{SETTINGS['ctf_start']}`\n"
+    msg += f"CTF end time \t\t\t\t`{SETTINGS['ctf_end']}`\n"
+    msg += f"CTF paused \t\t\t\t`{SETTINGS['ctf_paused']}`\n"
+    msg += f"CTF status message \t\t\t\t`{SETTINGS['status']}`\n"
+    await ctx.send(msg)
 
 
 @bot.command(name='scores', help='shows your indivivually earned points, your teams collective points, and the top 3 teams without their scores. ')
@@ -74,36 +94,32 @@ async def scores(ctx):
         
         points = db.getScore(user)
 
-        # print(points, type(points), dir(points))
         msg += f'Your score is `{points}`\n'
-        # team scores
-
+        # teammates scores
         teammates = db.getTeammateScores(user)
-
-
         teammates.insert(0, ['Teammate', 'Score'])
         table = AsciiTable(teammates)
-
         msg += f'\nTeam `{user.team.name}` scores ```{table.table}```\n'
-
-        #top 3 team scores
-        scores = db.getTopTeams(num=3)
-        scores.insert(0, ['Team Name', 'Score'])
-        table = AsciiTable(scores)
         
-        msg += f'Top 3 Team scores \n```{table.table}```'
-
-        # print(db.getMostCommonFlagSolves()) # this is broken... 
-
-
-        topPlayers = db.topPlayers(num=4)
-        data = [(p.name, p.team.name, v) for p,v in topPlayers]
-        data.insert(0, ['Player', 'Team', 'Score'])
-        table = AsciiTable(data)
-        msg += f'Top 4 Players\n```{table.table}```'
-
-
         await ctx.send(msg)
+
+
+        if SETTINGS['scoreboard'] == 'public':
+            #top 3 team scores
+            scores = db.getTopTeams(num=3)
+            scores.insert(0, ['Team Name', 'Score'])
+            table = AsciiTable(scores)
+            
+            msg += f'Top 3 Team scores \n```{table.table}```'
+
+            # top players in the game
+            topPlayers = db.topPlayers(num=4)
+            data = [(p.name, p.team.name, v) for p,v in topPlayers]
+            data.insert(0, ['Player', 'Team', 'Score'])
+            table = AsciiTable(data)
+            msg += f'Top 4 Players\n```{table.table}```'
+
+            await ctx.send(msg)
 
 
 
@@ -116,7 +132,7 @@ async def submit(ctx, submitted_flag: str = None):
         ctx.send("You have submitted the test flag successfuly...")
         return 
 
-    print(f"{username(ctx)} submitted '{submitted_flag}'")
+    print(f"{username(ctx)} is attempting to submit '{submitted_flag}'")
     
     with db.db_session:
         # is this a valid flag
@@ -159,7 +175,13 @@ async def submit(ctx, submitted_flag: str = None):
 
         msg = "Correct!\n"
 
-
+        challenge = db.select(c for c in db.Challenge if flag in c.flags).first()
+        
+        if challenge:     # was this flag part of a challenge? 
+            # print("challenge: ", challenge, type(challenge), dir(challenge))
+            msg += f'You submitted a flag for challenge `{challenge.title}`.\n'
+        
+        
         reward = flag.value 
         if flag.unsolved == True:
             
@@ -176,7 +198,20 @@ async def submit(ctx, submitted_flag: str = None):
         msg += f'Your score is now `{db.getScore(user)}`'
         print(msg)
         await ctx.send(msg)
-       
+
+@bot.command(name='tip', help="send a tip (in points) to another player e.g. !tip @user <some_points> ['some message here']")
+async def tip(ctx, target_user: discord.User , tip_amount: float, msg=None):
+    # print(username(target_user))
+
+    if msg == None:
+        msg  = "Thank you for being a friend." # make this a random friendly message. 
+
+    await ctx.send(f'<@{ctx.author.id}> is sending a tip of `{tip_amount}` points to <@{target_user.id}> with message ```{msg}```')
+    await ctx.send("this is not implemented yet... just testing the UI/UX")
+
+
+
+
 # @bot.event
 # async def on_message(message):
 #     if message.author == bot.user:
@@ -193,5 +228,4 @@ async def submit(ctx, submitted_flag: str = None):
 #             break
 
 
-# bot.add_command(submit)
 bot.run(DISCORD_TOKEN)
