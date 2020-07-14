@@ -28,6 +28,7 @@ with db_session:
     r3d = db.User(name='Combaticus#8292', team=secondteam)
 
     #flags
+    flag_seed = db.Flag(flag="FLAG{seedmoney}", value=100, author=bot)
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=shyft)
     flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200,  author=shyft)
     flag_qwer = db.Flag(flag="FLAG{qwer}", value=200,  author=fie)
@@ -49,13 +50,41 @@ with db_session:
     
 
     #hints
+    c1_h1 = db.Hint(text='try asdf', cost=10, challenge=c1)
+    c1_h2 = db.Hint(text='try ASDF', cost=10, challenge=c1)
+    
+    c2_h1 = db.Hint(text='try qw', cost=20, challenge=c2)
+    c2_h2 = db.Hint(text='try last hint + er', cost=30, challenge=c2)
+    
+    c5_h1 = db.Hint(text='try DO_SOLVE', cost=50, challenge=c5)
+
+    # seed funds
+    shyft_seed = db.Transaction(sender=bot, recipient=shyft, value=1000, type='seed')
+    fie_seed = db.Transaction(sender=bot, recipient=fie, value=1000, type='seed')
+    r3d_seed = db.Transaction(sender=bot, recipient=r3d, value=1000, type='seed')
+
+    # seed funds via solve # can't have team members have same solve... 
+    createSolve(value=flag_seed.value, user=shyft, flag=flag_seed)
+    createSolve(value=flag_seed.value, user=r3d, flag=flag_seed)
+    
+
+    commit()
+    #hint buys
+
+    shyft_hb_c1 = buyHint(user=shyft, challenge_id=c1.id)
+    # shyft_hb_c5 = buyHint(user=shyft, challenge_id=c5.id)
+
+    fie_hb_c5 = buyHint(user=fie, challenge_id=c5.id)
+
+    r3d_hb_c2 = buyHint(user=r3d, challenge_id=c2.id)
+
 
     #solves
-    s1 = Solve(value=flag_asdf.value, user=fie, flag=flag_asdf)
-    s2 = Solve(value=flag_ASDF.value, user=fie, flag=flag_ASDF)
-    s3 = Solve(value=flag_qwer.value, user=shyft, flag=flag_qwer)
-    s4 = Solve(value=flag_asdf.value, user=r3d, flag=flag_asdf)
-    s5 = Solve(value=flag_zxcv.value, user=fie, flag=flag_zxcv)
+    createSolve(value=flag_asdf.value, user=fie, flag=flag_asdf)
+    createSolve(value=flag_ASDF.value, user=fie, flag=flag_ASDF)
+    createSolve(value=flag_qwer.value, user=shyft, flag=flag_qwer)
+    createSolve(value=flag_asdf.value, user=r3d, flag=flag_asdf)
+    createSolve(value=flag_zxcv.value, user=fie, flag=flag_zxcv)
 
     # # show()
     commit()

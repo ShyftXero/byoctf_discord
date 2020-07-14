@@ -2,7 +2,7 @@
 import fire
 from settings import SETTINGS
 
-from terminaltables import AsciiTable
+from terminaltables import GithubFlavoredMarkdownTable as mdTable
 
 import database as db
 
@@ -12,11 +12,11 @@ class Commands:
     def showall(self):
         data = [(k,SETTINGS[k]) for k in SETTINGS.iterkeys()]
         data.insert(0, ['Setting', 'Value'])
-        table = AsciiTable(data)
+        table = mdTable(data)
         print(table.table)
 
     def setkey(self, key=None, val=None):
-        if key and val:
+        if key != None and val != None:
             print(f'setting {key} to "{val}"') 
             SETTINGS[key] = val
         else:
@@ -25,6 +25,9 @@ class Commands:
     def getkey(self, key=None):
         print(SETTINGS.get(key, default="Key not found"))
         # print(type(SETTINGS.get(key))) # fire is pretty smart and assigns an appropriate data type
+
+    def dashboard(self):
+        pass
 
 
     def pause_ctf(self):
@@ -62,6 +65,10 @@ class Commands:
         # print("Re initialized diskcache in ", CACHE_PATH)
         print("re-initialized diskcache.")
 
+    def shell(self):
+        import os
+        os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
+
     def set_team(self, username, team ):
         """username is the discord name and discriminator "user#1234" 
             team is the string of the team name "bestteam"
@@ -69,23 +76,66 @@ class Commands:
         with db.db_session:
             user = db.User.get(name=username)
             team = db.Team.get(name=team)
-            user.team = team
-            db.commit()
+            if user and team:
+                print(f'{user.name} is currently on team {user.team.name}.')
+                res = input(f'Update to {team.name}? [y/N]')
+                if res.lower() == 'y':
+                    user.team = team
+                    db.commit()
 
+    def grant_points(self, user:str, amount:int):
+        ''' remember to use '"user#1234"' as the cmdline parameter for user'''
+    
+        with db.db_session:
+            botuser = db.User.get(name='BYOCTF_Automaton#7840')
+            user = db.User.get(name=user)
+            if user:
+                t = db.Transaction(     
+                sender=botuser, 
+                recipient=user,
+                value=amount,
+                type='admin grant',
+                message='admin granted points'
+                )
+                db.commit()
+                print(f'granted {amount} points to {user.name}')
+            else:
+                print('invalid user')
+
+
+    def get_score(self, user:str):
+        ''' remember to use '"user#1234"' as the cmdline parameter for user'''
+        print(f'User {user} has {db.getScore(user)} points')
+
+    def dump_trans(self):
+        with db.db_session:
+            ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))
+
+            ts.insert(0, ["Trans ID", "Value", 'Type','Sender', 'Recipient', 'Message', 'Time'])
+            table = mdTable(ts)
+            print(table.table)
 
     def FULL_RESET(self):
         confirm = input("are you sure? [y/N]")
         if confirm.lower() != 'y':
             print('aborting... ')
             return
+        
+        import os     
+        cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
+        print(f"killing bot via {cmd}")
+        os.system(cmd)
+    
+        print('Deleting logs')
+        os.remove('byoctf.log')
 
-        
-        import os
-        
         print("Deleting and recreating database")
         os.remove('byoctf.db')
         from database import db
         self.reinit_config()
+
+        print('populating test data')
+        os.system("python populateTestData.py")
 
     def toggle_chall(self, chall_id:int):
         try:

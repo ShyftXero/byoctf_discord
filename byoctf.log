@@ -1,0 +1,103 @@
+2020-07-13 19:51:19.036 | DEBUG    | database:buyHint:268 - got challenge_id 1 and user shyft#0760
+2020-07-13 19:51:19.042 | DEBUG    | database:buyHint:268 - got challenge_id 5 and user notfie#4785
+2020-07-13 19:51:19.044 | DEBUG    | database:buyHint:268 - got challenge_id 2 and user Combaticus#8292
+2020-07-13 19:51:34.065 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 19:51:34.065 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 19:51:57.737 | DEBUG    | database:buyHint:268 - got challenge_id 2 and user shyft#0760
+2020-07-13 19:51:57.737 | DEBUG    | database:buyHint:268 - got challenge_id 2 and user shyft#0760
+2020-07-13 19:54:13.609 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 19:54:13.609 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 19:54:32.456 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 19:54:32.456 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 19:58:42.212 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 19:58:42.212 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 19:58:48.927 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 19:58:48.927 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:01:30.068 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:01:30.068 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:01:38.863 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:01:38.863 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:02:14.613 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:02:14.613 | DEBUG    | __main__:on_ready:112 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:02:22.094 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:02:22.094 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:03:10.774 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:03:10.774 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:03:21.426 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:03:21.426 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:03:50.405 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:03:50.405 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:07:11.137 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:07:11.137 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:07:18.194 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:07:18.194 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:07:42.029 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:07:42.029 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:07:48.116 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:07:48.116 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:08:31.408 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:08:31.408 | DEBUG    | __main__:on_ready:113 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:08:40.416 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:08:40.416 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:11:57.777 | DEBUG    | __main__:on_ready:116 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:11:57.777 | DEBUG    | __main__:on_ready:116 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:12:05.176 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:12:05.176 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:13:33.876 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:13:33.876 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:13:42.193 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:13:42.193 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:14:17.453 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:14:17.453 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:15:58.956 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:15:58.956 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:16:04.317 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:16:04.317 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:16:59.356 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:16:59.356 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:17:01.947 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:17:01.947 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:17:42.607 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:17:42.607 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-13 20:17:46.838 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:17:46.838 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:17:50.227 | DEBUG    | database:buildChallenge:417 - really building the challenge
+2020-07-13 20:17:50.227 | DEBUG    | database:buildChallenge:417 - really building the challenge
+2020-07-13 20:17:50.228 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:17:50.228 | DEBUG    | database:validateChallenge:328 - validating the challenge from
+2020-07-13 20:17:59.683 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.683 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.684 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.684 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.684 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.684 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.685 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.685 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.685 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.685 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.685 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.685 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.686 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.686 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.686 | DEBUG    | database:challegeUnlocked:194 - parent_flags: [Flag[4]]
+2020-07-13 20:17:59.686 | DEBUG    | database:challegeUnlocked:194 - parent_flags: [Flag[4]]
+2020-07-13 20:17:59.687 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.687 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.687 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.687 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.687 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.687 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.688 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.688 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.688 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.688 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.689 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.689 | DEBUG    | database:challegeUnlocked:194 - parent_flags: []
+2020-07-13 20:17:59.689 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.689 | DEBUG    | database:challegeUnlocked:195 - got_all_flags True
+2020-07-13 20:17:59.689 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.689 | DEBUG    | database:challegeUnlocked:193 - team_solves: [Flag[1], Flag[4], Flag[2], Flag[3], Flag[5]]
+2020-07-13 20:17:59.690 | DEBUG    | database:challegeUnlocked:194 - parent_flags: [Flag[7]]
+2020-07-13 20:17:59.690 | DEBUG    | database:challegeUnlocked:194 - parent_flags: [Flag[7]]
+2020-07-13 20:17:59.690 | DEBUG    | database:challegeUnlocked:195 - got_all_flags False
+2020-07-13 20:17:59.690 | DEBUG    | database:challegeUnlocked:195 - got_all_flags False

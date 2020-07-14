@@ -1,4 +1,5 @@
 from collections import Counter
+from settings import SETTINGS
 
 from loguru import logger
 logger.add('byoctf.log')
@@ -7,6 +8,7 @@ from datetime import datetime
 from pony.orm import *
 
 db = Database()
+
 
 
 class Flag(db.Entity):
@@ -79,6 +81,7 @@ class Transaction(db.Entity):
     message = Optional(str)
     time = Optional(datetime, default=lambda: datetime.now())
     solve = Optional(Solve)
+    hint = Optional('Hint')
 
 
 class Hint(db.Entity):
@@ -86,6 +89,8 @@ class Hint(db.Entity):
     text = Required(str)
     cost = Optional(float)
     challenge = Required(Challenge)
+    transaction = Optional(Transaction)
+
 
 
 db.bind(provider='sqlite', filename='byoctf.db', create_db=True)
@@ -96,34 +101,73 @@ def showTeams():
     pass
 
 @db_session
-def getTeammates(user):
+def getTeammates(user) :
     """this includes the user in the list of teammates... """
-    return list(select(member for member in User if member.team.name == user.team.name))
+    res = list(select(member for member in User if member.team.name == user.team.name))
+    return res
+
+@db_session
+def getScore(user):
+    if type(user) == str: # for use via cmdline in ctrl_ctf.py 
+        # logger.debug(f'looking for user {user}')
+        user = User.get(name=user)
+        if user == None:
+            return "User is None... "
+    # https://docs.ponyorm.org/queries.html#automatic-distinct
+    # hence the without_distint()
+    received = sum(select(t.value for t in Transaction if t.recipient.name == user.name).without_distinct())
+    sent = sum(select(t.value for t in Transaction if t.sender.name == user.name).without_distinct())
+    if SETTINGS['_debug'] == True and SETTINGS['_debug_level'] > 1:
+        logger.debug(f'{user.name} has received {received}, - sent {sent} = {received - sent}')
+    
+    return received - sent
 
 
 @db_session
 def challValue(challenge: Challenge):
     flags = list(select(c.flags for c in Challenge if c.id == challenge.id))
-    # logger.debug(f'flags{flags}')
+    # if SETTINGS['_debug']:
+    if SETTINGS['_debug']:
+        logger.debug(f'flags{flags}')
     val = sum([flag.value for flag in flags]) 
     # logger.debug(f'challenge {challenge.title} is worth {val} points')
     return val
 
 @db_session()
 def topPlayers(num=10):
-    # users =db.select((solve.user, solve.value) for solve in Solve)
-    logger.debug('This score is wrong.... needs to be based on transactions.')
-    solves = select((s.user, sum(s.value)) for s in Solve) # this is an aggregating function; sum() in select
-    #TODO either add solves to s
-    # this needs to account for transactions sent or received
+    all_users = select(u for u in User if u.name != "BYOCTF_Automaton#7840")
 
-    # for solve in solves:
-    #     logger.debug(solve)
-    # points = sum(select(solve.value for solve in Solve if user.name == solve.user.name))
-    if len(solves) > num:
-        return sorted(solves, key=lambda x:x[1],reverse=True)[:num]
+    topN = [(u, getScore(u)) for u in all_users]
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:
+        logger.debug(f'topN: {topN}')
+
+    if len(topN) > num:
+        return sorted(topN, key=lambda x:x[1],reverse=True)[:num]
     else:
-        return sorted(solves, key=lambda x:x[1],reverse=True)
+        return sorted(topN, key=lambda x:x[1],reverse=True)
+
+@db_session()
+def getTopTeams(num=3):
+    all_users = select(u for u in User if u.name != "BYOCTF_Automaton#7840")
+
+    all_scores = [(u, getScore(u)) for u in all_users]
+    # logger.debug(f'all_scores: {all_scores}')
+
+    
+    scores = {}
+    for user, score in all_scores:
+        scores[user.team.name] = scores.get(user.team.name, 0) + score 
+
+    sorted_scores = sorted(scores.items(), key=lambda x:x[1], reverse=True)
+    if num <= len(sorted_scores):
+        res = sorted_scores[:num]
+    else:
+        res = sorted_scores
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:    
+        logger.debug(f'sorted scores: {res}')
+    return res
+
+
 
 @db_session()
 def challegeUnlocked(user, chall):
@@ -145,29 +189,15 @@ def challegeUnlocked(user, chall):
     parent_flags = list(chall.parent.flags)
 
     got_all_flags = all(flag in team_solves for flag in parent_flags)
-    # logger.debug(f'team_solves: {team_solves}')
-    # logger.debug(f'parent_flags: {parent_flags}')
-    # logger.debug(f'got_all_flags { got_all_flags}')
+    if SETTINGS['_debug']:
+        logger.debug(f'team_solves: {team_solves}')
+        logger.debug(f'parent_flags: {parent_flags}')
+        logger.debug(f'got_all_flags { got_all_flags}')
     if got_all_flags == True:
         return True
     return False
 
-    # # if ALL flags from this challenge are in in the solves 
-    # chall_flags = [flag.flag for flag in list(chall.parent.flags)]
-
-    # num_cflags = len(chall_flags)
-    # count = 0
-
-    # # logger.debug(f'chall_flags {chall_flags}')
-    # for cflag in chall_flags:
-    #     # logger.debug(f'cflag {cflag.flag}')
-    #     if cflag in team_solves:
-    #         count += 1 
     
-    # logger.debug(f'enough: captured_flags:{count} required_flags:{num_cflags} chall_id:{chall.id} "{chall.title}"')
-    # if count == num_cflags:
-    #     return True   
-    # return False
 
 @db_session()
 def get_all_challenges(user: User):
@@ -195,11 +225,13 @@ def get_unsolved_challenges(user: User):
 
     ret = []
     for chall in challs:
-        logger.debug('flags', list(chall.flags))
+        if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:
+            logger.debug('flags', list(chall.flags))
         for flag in list(chall.flags):
             # solve = Solve.get(user=user, flag=flag.flag)
-            solves = list(select(s for s in Solve if s.user.id == user.id and s.flag.flag == flag.flag)) 
-            logger.debug(solves)
+            solves = list(select(s for s in Solve if s.user.id == user.id and s.flag.flag == flag.flag))
+            if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1: 
+                logger.debug(solves)
             if len(solves) == 0:
                 ret.append(chall) 
     return ret
@@ -209,11 +241,61 @@ def get_unsolved_challenges(user: User):
 def getMostCommonFlagSolves(num=3):
     solves = Counter(select(solve.flag for solve in Solve))
    
-
-    logger.debug(solves)
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 2:
+        logger.debug(solves)
     
     # for solve
     return solves.most_common(num)
+
+
+@db_session
+def getHintTransactions(user:User):
+    res = select(t for t in Transaction if t.sender.name == user.name and t.type == 'hint buy')[:]
+    return res
+
+
+@db_session
+def buyHint(user:User=None, challenge_id:int=0):
+    # this is to abstract away some of the issues with populating test data
+    # see around line 400 in buy_hint in byoctf_discord.py
+
+    # does challenge have hints
+    # chall = Challenge.get(id=challenge_id)
+    # if chall == None:
+    #     return None
+    chall_hints = list(Challenge.get(id=challenge_id).hints)
+    if SETTINGS['_debug']:
+        logger.debug(f'got challenge_id {challenge_id} and user {user.name}')
+    # has user purchased these hints
+    hint_transactions = []
+    hints_to_buy = []
+    teammates = getTeammates(user)
+    for hint in chall_hints:
+        hint_transaction = select(t for t in Transaction if t.sender in teammates and t.hint == hint).first()
+        # print(hint_transaction)
+
+        if hint_transaction != None: # a purchase exists (not None); no need to buy it again
+            continue # so try the next hint in the list of challenge hints
+        else:
+            hints_to_buy.append(hint)
+
+    if len(hints_to_buy) < 1:
+        return "no hints available"
+
+    print(f'hint transactions: {hint_transactions}')    
+    print(f'hints available to purchase {hints_to_buy}')
+    sorted_hints = sorted(hints_to_buy,key=lambda x:x.cost)
+    print(f'sorted hints {sorted_hints}')
+    # does user have enough funds
+    funds = getScore(user)
+    if funds >= sorted_hints[0].cost:
+        botuser = User.get(name="BYOCTF_Automaton#7840")
+        hint_buy = Transaction(sender=user, recipient=botuser, hint=hints_to_buy[0], value=hints_to_buy[0].cost, type='hint buy', message=f'bought hint for challengeID {challenge_id}')
+
+        # return f'hint purchased for challenge ID {challenge_id}```{sorted_hints[0].text}```'
+        return 'ok', hints_to_buy[0]
+    return 'insufficient funds'
+    
 
 @db_session
 def createSolve(value:float=None, user:User=None, flag:Flag=None, msg:str=''):
@@ -225,24 +307,12 @@ def createSolve(value:float=None, user:User=None, flag:Flag=None, msg:str=''):
         value=value,
         type='solve',
         message=msg,
+        solve=solve
     )
     commit()
     
 
-@db_session
-def getScore(user):
-    # points = sum(select(solve.value for solve in Solve if user.name == solve.user.name))
-    received = sum(select(t.value for t in Transaction if t.recipient.name == user.name))
-    sent = sum(select(t.value for t in Transaction if t.sender.name == user.name))
-    
-    logger.debug(f'received {received}, - sent {sent} = {received - sent}')
-    
-    return received - sent
 
-
-    # ts = sum(select(t.value for t in Transaction if t.sender.name == user.name or t.recipient.name != user.name ))
-
-    # return ts
 
 @db_session
 def getTeammateScores(user):
@@ -252,35 +322,6 @@ def getTeammateScores(user):
     #     logger.debug(tm.name, getScore(tm))
 
     return res
-
-
-
-@db_session()
-def getTopTeams(num=3):
-    #show all teams scores
-    
-    # this needs to collect points from the transaction table rather than solve.
-
-    solves =  select(solve for solve in Solve)
-    
-    scores = {}
-    for solve in solves:
-        # logger.debug(solve, solve.user,solve.user.team,solve.user.name, type(solve.user))
-        scores[solve.user.team.name] = scores.get(solve.user.team.name, 0) + solve.value 
-    
-
-    # from pprint import pprint
-    sorted_scores = sorted(scores.items(), key=lambda x:x[1], reverse=True)
-    if num <= len(sorted_scores):
-        res = sorted_scores[:num]
-    else:
-        res = sorted_scores
-    # plogger.debug(res)
-    return res
-
-
-# db.commit()
-
 
 @db_session()
 def validateChallenge(challenge_object):
@@ -296,8 +337,8 @@ def validateChallenge(challenge_object):
         'value': 0, # sum of flags
         'cost': 0
     }
-
-    logger.debug("Got challenge_object:", challenge_object)
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1:
+        logger.debug("Got challenge_object:", challenge_object)
     # does the challenge_object have all of the fields we need? 
     # title, description, tags, flags with at least one flag, hints 
 
@@ -306,8 +347,9 @@ def validateChallenge(challenge_object):
         return result
     result['challenge_title'] = challenge_object['challenge_title']
 
-    if type(challenge_object.get('challenge_description')) == None or len(challenge_object.get('challenge_description')) < 1:
-        result['fail_reason'] = 'failed description'
+    if type(challenge_object.get('challenge_description')) == None or (len(challenge_object.get('challenge_description')) < 1 or len(challenge_object.get('challenge_description')) > 1500 ):
+
+        result['fail_reason'] = 'failed description; check length '
         return result
     result['challenge_description'] = challenge_object['challenge_description']
     
@@ -346,7 +388,7 @@ def validateChallenge(challenge_object):
     result['cost'] = result['value'] // 2
 
     # check the hints. 
-    for hint in challenge_object['hints']:
+    for hint in challenge_object.get('hints',[]):
         if hint.get('hint_cost') < 0: 
             result['fail_reason'] = 'failed hint cost'
             return result
@@ -354,7 +396,16 @@ def validateChallenge(challenge_object):
             result['fail_reason'] = 'failed hint len'
             return result
     
-    result['hints'] = challenge_object['hints']
+    # result['hints'] = challenge_object['hints']
+    o = []
+    for hint in challenge_object.get('hints',[]):
+        t = {}
+        t['text'] = hint['hint_text']
+        t['cost'] = hint['hint_cost']
+        o.append(t)
+    
+    result['hints'] = o
+
 
     # if you got this far it's a valid challenge. 
     result['valid'] = True
@@ -363,7 +414,7 @@ def validateChallenge(challenge_object):
 
 @db_session()
 def buildChallenge(challenge_object):
-    logger.debug("really  building the challenge")
+    logger.debug("really building the challenge")
     result = validateChallenge(challenge_object)
     if result['valid'] == True:
         #pull out all of the parts. 

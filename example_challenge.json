@@ -1,6 +1,6 @@
 {
     "challenge_title": "challenge asdfasf",
-    "challenge_description": "this is some markdown for the challenge description... \ngo to this ** EXTERANLLY HOSTED ** link to download the files or access resources -> [http://yoursite.com/1337_challenge] WE DON'T / CAN'T HOST FILES.\nThat is up to you to figure out (google drive, mega, torrent, etc.). 100 point minimum cumulative value for the challenge. If you deviate from the `FLAG{xx}` format you have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently, we don't have dynamic or regex flags enabled. just static, case-sensitive flags. First-blood bonus of 10% for first team to solve a challenge. ",
+    "challenge_description": "this is some markdown for the challenge description... 1500 character limit. use a link to a pastebin if you need more space.\ngo to this ** EXTERANLLY HOSTED ** link to download the files or access resources -> [http://yoursite.com/1337_challenge] WE DON'T / CAN'T HOST FILES.\nThat is up to you to figure out (google drive, mega, torrent, etc.). 100 point minimum cumulative value for the challenge. If you deviate from the `FLAG{xxx}` format you have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently, we don't have dynamic or regex flags enabled. just static, case-sensitive flags. First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward; https://github.com/Bios-Marcel/cordless ",
     "tags": ["forensics","osint"], 
     "flags": [
         {
@@ -31,6 +31,9 @@
             "hint_cost": 150,
             "hint_text": "try running `find / -name vulnerable`"
         }
-    ]
+    ],
+    "__external_validation_notes": " If you don't trust us with to no look at the flags you submit you can host a validation server on some public server and the bot can validate against that. it will send a post to your endpoint specified below of {'challenge_id':<some_id>, 'flag':<some_flag>} . It will expect a response of {'flag':'correct'} or {'flag':'incorrect'} a basic implementation of that functionality will be provided. YOU WILL HAVE TO MENTION IN THE CHALLENGE WHETHER OR NOT THIS IS AN EXTERNALLY VALIDATED CHALLENGE. There's a different command to validate those flags. !byoc_ext <chall_id> <flag>  ", 
+    "external_validation": false, 
+    "external_validation_url": "https://site.com/some/endpoint", 
 
 }
