@@ -107,6 +107,10 @@ class Commands:
         ''' remember to use '"user#1234"' as the cmdline parameter for user'''
         print(f'User {user} has {db.getScore(user)} points')
 
+
+    def sub_as(self,user:str, flag:str):
+        pass
+
     def dump_trans(self):
         with db.db_session:
             ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))

@@ -95,14 +95,14 @@ def renderChallenge(result, preview=False):
     msg += f"Value: `{result['value']}` points\n"
     msg += f"Description: {result['challenge_description']}\n"
     msg += '-'*40 + '\n'
-    msg += f"Total Challenge Hints: {len(result.get('hints',[]))}\n"
+    msg += f"Unseen Hints: {len(result.get('hints',[]))}\n"
     for idx, hint in enumerate(result.get('hints_purchased',[]), 1):
         msg += f"Hint {idx}: {hint.text}\n"
     msg += '-'*40 + '\n'
     
     if preview == True:
         msg += "Hints:\n"
-        print(result.get('hints'))
+        # print(result.get('hints'))
         for hint in result.get('hints',[]):
             msg += f"Hint: {hint['text']} cost: {hint['cost']}"
         
@@ -303,7 +303,8 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
 
         # was this a BYOC Challenge? if so create the reward for the author
         if flag.byoc == True:
-            author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=flag.reward * .25, type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
+            botuser = db.User.get(name="BYOCTF_Automaton#7840")
+            author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=flag.value * .25, type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
 
         db.commit()
 
@@ -436,7 +437,7 @@ async def view_challenge(ctx, chall_id:int):
             res['challenge_title'] = chall.title
             res['challenge_description'] = chall.description
             res['value'] = db.challValue(chall)
-            res['hints_available'] = [h for h in chall.hints]
+            res['hints'] = [h for h in chall.hints]
             res['hints_purchased'] = [t.hint for t in db.getHintTransactions(user) if t.hint.challenge == chall]
             msg += renderChallenge(res)
         else:
@@ -494,6 +495,8 @@ async def show_hints(ctx):
 
 @bot.command(name='logs', help='show a list of all transactions you are involved in. (solves, purchases, tips, etc.)', aliases=['log','transactions'])
 async def logs(ctx):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't show your logs in public channels..."):
+        return
     msg  = "Your Transaction Log" 
     with db.db_session:
         ts = list(db.select((t.value,t.type,t.sender.name, t.recipient.name,t.message,t.time) for t in db.Transaction if username(ctx) == t.recipient.name or username(ctx) == t.sender.name))
@@ -628,6 +631,8 @@ async def byoc_commit(ctx):
         return 
     if resp.content == 'confirm':
         db.buildChallenge(result)
+        await ctx.send('Done.')
+        return
     else:
         await ctx.send("Cancelling...")
         return

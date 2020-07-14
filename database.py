@@ -300,6 +300,12 @@ def buyHint(user:User=None, challenge_id:int=0):
 @db_session
 def createSolve(value:float=None, user:User=None, flag:Flag=None, msg:str=''):
     botuser = User.get(name='BYOCTF_Automaton#7840')
+
+    if flag.author in getTeammates(user):
+        if SETTINGS['_debug'] == True:
+            logger.debug(f"{user.name} is trying to submit a flag by a teammate")
+        return
+
     solve = Solve(value=value, user=user, flag=flag)
     solve_credit = db.Transaction(     
         sender=botuser, 
@@ -341,6 +347,7 @@ def validateChallenge(challenge_object):
         logger.debug("Got challenge_object:", challenge_object)
     # does the challenge_object have all of the fields we need? 
     # title, description, tags, flags with at least one flag, hints 
+
 
     if type(challenge_object.get('challenge_title')) == None or len(challenge_object.get('challenge_title')) < 1:
         result['fail_reason'] = 'failed title'
@@ -416,12 +423,33 @@ def validateChallenge(challenge_object):
 def buildChallenge(challenge_object):
     logger.debug("really building the challenge")
     result = validateChallenge(challenge_object)
-    if result['valid'] == True:
-        #pull out all of the parts. 
+    if result['valid'] == False:
+        # something went wrong... 
         logger.debug(result)
-        
+        return
     
-    # it must be valid, so press on.
+    author = User.get(name=challenge_object['author'])
 
+    flags = []
+    for f in challenge_object.get('flags'):
+        fo = Flag(flag=f.get('flag_flag'), value=f.get('flag_value'), author=author)
+        flags.append(fo)
+
+    chall = Challenge(title=challenge_object.get('challenge_title'), flags=flags)
+    
+    #need to do this so I can get an ID from the chall
+    # commit()
+
+    hints = []
+    for h in challenge_object.get('hints'):
+        ho = Hint(text=h.get('text'), cost=h.get('cost'), challenge=chall)
+        hints.append(ho)
+
+    commit()
+
+    bot = User.get(name='BYOCTF_Automaton#7840')
+    fee = Transaction(sender=author, recipient=bot, value=challenge_object['cost'], type='byoc commit', message=f'submitted challenge "{chall.title}"')
+
+    commit()
 
 
