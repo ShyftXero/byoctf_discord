@@ -16,8 +16,13 @@ def init_config():
         "_show_mvp":        True,           # whether or not to show high scoring
         "_mvp_size":        4,              # how many top scoring players to show
         "_debug":           True,           # interactively enable/disable certain debugging messages 
-        '_debug_level':     0,              # allow for some degree of verbosity. 2 is highest so far. 
+        '_debug_level':     1,              # allow for some degree of verbosity. 2 is highest so far. 
         "status":           "Operational",  # a generic message; can be updated during the game with ctrl_ctf.py 
+        "_firstblood_rate": .1,             # the percentage reward for firstblood solves
+        "_decay_solves":     False,          # when decay is invoked. future solves are reduced based on the number of previous solves; best to keep public scoreboard
+        "_decay_minimum":      .10,         # minimum percent award. 
+        "_botusername":     "BYOCTF_Automaton#7840",             # this is the discordbot's username+discriminator
+        '_byoc_reward_rate':    .25         # percentage of a solve that is given back to the author for making the challenge. 
     }
 
     for k,v in config.items():

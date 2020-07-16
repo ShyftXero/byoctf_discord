@@ -1,33 +1,14 @@
-2020-07-13 21:58:50.166 | DEBUG    | database:createSolve:306 - Combaticus#8292 is trying to submit a flag by a teammate
-2020-07-13 21:58:50.167 | DEBUG    | database:createSolve:306 - shyft#0760 is trying to submit a flag by a teammate
-2020-07-13 21:58:50.168 | DEBUG    | database:createSolve:306 - Combaticus#8292 is trying to submit a flag by a teammate
-2020-07-13 21:58:55.560 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-13 21:58:55.560 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-13 21:59:01.253 | DEBUG    | __main__:submit:312 - Correct!
-You submitted a flag for challenge `challenge 6`.
-**First blood!** 
-You are the first to submit `FLAG{jkl}` and have earned a bonus 10% 
-Total reward `220.0` rather than `200.0`
-Your score is now `1320.0`
-2020-07-13 21:59:01.253 | DEBUG    | __main__:submit:312 - Correct!
-You submitted a flag for challenge `challenge 6`.
-**First blood!** 
-You are the first to submit `FLAG{jkl}` and have earned a bonus 10% 
-Total reward `220.0` rather than `200.0`
-Your score is now `1320.0`
-2020-07-13 22:05:49.948 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-13 22:05:49.948 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-13 22:06:55.669 | DEBUG    | __main__:submit:312 - Correct!
-You submitted a flag for challenge `challenge 1`.
-**First blood!** 
-You are the first to submit `FLAG{ASDF}` and have earned a bonus 10% 
-Total reward `220.0` rather than `200.0`
-Your score is now `1540.0`
-2020-07-13 22:06:55.669 | DEBUG    | __main__:submit:312 - Correct!
-You submitted a flag for challenge `challenge 1`.
-**First blood!** 
-You are the first to submit `FLAG{ASDF}` and have earned a bonus 10% 
-Total reward `220.0` rather than `200.0`
-Your score is now `1540.0`
-2020-07-14 06:43:12.821 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-14 06:43:12.821 | DEBUG    | __main__:on_ready:118 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-15 16:28:00.038 | DEBUG    | database:buyHint:266 - got challenge_id 1 and user shyft#0760
+2020-07-15 16:28:00.044 | DEBUG    | database:buyHint:266 - got challenge_id 5 and user notfie#4785
+2020-07-15 16:28:00.046 | DEBUG    | database:buyHint:266 - got challenge_id 2 and user Combaticus#8292
+2020-07-15 16:28:00.054 | DEBUG    | database:createSolve:340 - First blood solve for notfie#4785 FLAG{asdf} base_value=100.0 reward=110.0
+2020-07-15 16:28:00.060 | DEBUG    | database:createSolve:340 - First blood solve for Combaticus#8292 FLAG{ASDF} base_value=200.0 reward=220.0
+2020-07-15 16:28:00.065 | DEBUG    | database:createSolve:317 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (notfie#4785)
+2020-07-15 16:28:00.067 | DEBUG    | database:createSolve:340 - 
+2020-07-15 16:28:00.072 | DEBUG    | database:createSolve:340 - First blood solve for notfie#4785 FLAG{zxcv} base_value=300.0 reward=330.0
+2020-07-15 19:22:32.050 | DEBUG    | __main__:on_ready:116 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-15 19:22:32.050 | DEBUG    | __main__:on_ready:116 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-15 19:22:38.880 | DEBUG    | __main__:tip:337 - my points 990.0 tip amount 100.0
+2020-07-15 19:22:38.880 | DEBUG    | __main__:tip:337 - my points 990.0 tip amount 100.0
+2020-07-15 19:22:39.053 | DEBUG    | __main__:tip:359 - shyft#0760 - <@335137930211360769> is sending a tip of `100.0` points to <@121475940147658754> with message ```Thank you for being a friend.```
+2020-07-15 19:22:39.053 | DEBUG    | __main__:tip:359 - shyft#0760 - <@335137930211360769> is sending a tip of `100.0` points to <@121475940147658754> with message ```Thank you for being a friend.```

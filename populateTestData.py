@@ -20,22 +20,23 @@ with db_session:
     botteam = db.Team(name='botteam') 
     bestteam = db.Team(name="bestteam")
     secondteam = db.Team(name='secondteam')
+    thirdteam = db.Team(name='thirdteam')
 
     #users
     bot = db.User(name='BYOCTF_Automaton#7840', team=botteam)
     shyft = db.User(name='shyft#0760', team=bestteam)
     fie = db.User(name='notfie#4785', team=bestteam)
     r3d = db.User(name='Combaticus#8292', team=secondteam)
-    malloc = db.User(name='0xDrMalloc#4492', team=secondteam)
+    malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
 
     #flags
-    flag_seed = db.Flag(flag="FLAG{seedmoney}", value=100, author=bot)
+    flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=malloc)
     flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200,  author=malloc)
     flag_qwer = db.Flag(flag="FLAG{qwer}", value=200,  author=fie)
     flag_zxcv = db.Flag(flag="FLAG{zxcv}", value=300,  author=r3d)
     flag_nosolve = db.Flag(flag="FLAG{DONT_SOLVE}", value=300,  author=r3d)
-    flag_dosolve = db.Flag(flag="FLAG{DO_SOLVE}", value=600,  author=r3d)
+    flag_dosolve = db.Flag(flag="FLAG{DO_SOLVE}", value=600, byoc=True, author=r3d)
     flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=malloc)
 
 
@@ -43,7 +44,7 @@ with db_session:
     #challenges
     c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft,  )
     c2 = db.Challenge(title="challenge 2", description="challenge 2 description; unlocks c3",flags=[flag_qwer], author=fie, )
-    c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=r3d, parent=[c2] )
+    c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=fie, parent=[c2] )
     
     c4 = db.Challenge(title="challenge 4", description="challenge 4 description;DONT SOLVE",flags=[flag_nosolve], author=r3d )
 
@@ -66,28 +67,23 @@ with db_session:
     fie_seed = db.Transaction(sender=bot, recipient=fie, value=1000, type='seed')
     r3d_seed = db.Transaction(sender=bot, recipient=r3d, value=1000, type='seed')
 
-    # seed funds via solve # can't have team members have same solve... 
-    createSolve(value=flag_seed.value, user=shyft, flag=flag_seed)
-    createSolve(value=flag_seed.value, user=r3d, flag=flag_seed)
-    
-
     commit()
     #hint buys
 
-    # shyft_hb_c1 = buyHint(user=shyft, challenge_id=c1.id)
-    # # shyft_hb_c5 = buyHint(user=shyft, challenge_id=c5.id)
+    shyft_hb_c1 = buyHint(user=shyft, challenge_id=c1.id)
+    # shyft_hb_c5 = buyHint(user=shyft, challenge_id=c5.id)
 
-    # fie_hb_c5 = buyHint(user=fie, challenge_id=c5.id)
+    fie_hb_c5 = buyHint(user=fie, challenge_id=c5.id)
 
-    # r3d_hb_c2 = buyHint(user=r3d, challenge_id=c2.id)
+    r3d_hb_c2 = buyHint(user=r3d, challenge_id=c2.id)
 
 
     #solves
-    createSolve(value=flag_asdf.value, user=fie, flag=flag_asdf)
-    createSolve(value=flag_ASDF.value, user=r3d, flag=flag_ASDF)
-    createSolve(value=flag_qwer.value, user=shyft, flag=flag_qwer)
-    createSolve(value=flag_asdf.value, user=r3d, flag=flag_asdf)
-    createSolve(value=flag_zxcv.value, user=fie, flag=flag_zxcv)
+    createSolve(user=fie, flag=flag_asdf)
+    createSolve(user=r3d, flag=flag_ASDF)
+    createSolve(user=shyft, flag=flag_qwer)
+    createSolve(user=r3d, flag=flag_asdf)
+    createSolve(user=fie, flag=flag_zxcv)
 
     # # show()
     commit()

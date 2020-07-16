@@ -87,7 +87,7 @@ class Commands:
         ''' remember to use '"user#1234"' as the cmdline parameter for user'''
     
         with db.db_session:
-            botuser = db.User.get(name='BYOCTF_Automaton#7840')
+            botuser = db.User.get(name=SETTINGS['_botusername'])
             user = db.User.get(name=user)
             if user:
                 t = db.Transaction(     
@@ -105,19 +105,38 @@ class Commands:
 
     def get_score(self, user:str):
         ''' remember to use '"user#1234"' as the cmdline parameter for user'''
-        print(f'User {user} has {db.getScore(user)} points')
+        # print(f'User {user} has {db.getScore(user)} points')
 
+    @db.db_session
+    def sub_as(self, user:str, flag:str):
+        # print(f'{user}, {flag}')
+        dbuser = db.User.get(name=user)
+        dbflag = db.Flag.get(flag=flag)
 
-    def sub_as(self,user:str, flag:str):
-        pass
+        #prevent double solve is now handled in createSolve()
+        print(f'{dbuser}, {dbflag} <- Neither of these should be None')
+        if dbuser and dbflag:
+            # print(f"submiting {dbflag.flag} as {dbuser.name}")
+            
+            db.createSolve(user=dbuser,flag=dbflag)
+            return
+        
+        print(f"Error submitting {flag} as {user}")
+    
+    @db.db_session
+    def subs(self):
+        solves = list(db.select((s.time, s.flag.flag, s.user.name, s.value) for s in db.Solve))
+        solves.insert(0, ['Time','Flag','User','Value'])
+        table  = mdTable(solves)
+        print(table.table)
 
+    @db.db_session
     def dump_trans(self):
-        with db.db_session:
-            ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))
+        ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))
 
-            ts.insert(0, ["Trans ID", "Value", 'Type','Sender', 'Recipient', 'Message', 'Time'])
-            table = mdTable(ts)
-            print(table.table)
+        ts.insert(0, ["Trans ID", "Value", 'Type','Sender', 'Recipient', 'Message', 'Time'])
+        table = mdTable(ts)
+        print(table.table)
 
     def FULL_RESET(self):
         confirm = input("are you sure? [y/N]")
@@ -138,14 +157,14 @@ class Commands:
         from database import db
         self.reinit_config()
 
-        print('populating test data')
+        print('Populating test data')
         os.system("python populateTestData.py")
 
     def toggle_chall(self, chall_id:int):
         try:
             chall_id = int(chall_id)
         except (ValueError, BaseException) as e:
-            print("challenge id must be an int")
+            print("Challenge id must be an int")
             return 
         with db.db_session:
             chall = db.Challenge.get(id=chall_id)
@@ -155,9 +174,13 @@ class Commands:
 
     def dump_challs(self):
         with db.db_session:
-            challs = list(db.select((chall.id, chall.title, chall.description, chall.flags, f'visible={chall.visible}' ) for chall in db.Challenge))
-            for chall in challs:
-                print(chall)
+            challs = list(db.select((chall.id, chall.title,  chall.description[:20], chall.flags, chall.visible) for chall in db.Challenge))
+            # data = [c for c in challs]
+            challs.insert(0,['ID', 'Title', 'Description', 'Flags', 'Visible'])
+            table = mdTable(challs)
+            print(table.table)
+            # for chall in challs:
+            #     # print(chall)
         
 
     def dump_flags(self):
@@ -166,12 +189,68 @@ class Commands:
             for flag in flags:
                 print(flag)
 
+    def del_trans(self, trans_id):
+        try:
+            trans_id = int(trans_id)
+        except (ValueError, BaseException) as e:
+            print("Transaction id must be an int")
+            return 
+        with db.db_session:
+            trans = db.Transaction.get(id=trans_id)
+
+            if trans != None:
+                print(f"Transaction from {trans.sender.name} -> {trans.recipient.name} for {trans.type} and amount {trans.value}")
+                resp = input(f"Are you sure you want to delete transaction {trans.id}? [y/N]")
+                if resp == 'y':
+                    db.Transaction[trans_id].delete()
+                    print("deleted.") 
+                    return
+                print("cancelled")
+
+
     def add_flag(self):
         print("not implemented")
         pass
 
-    
+    def del_flag(self, flag_id):
+        print("not implemented")
+        pass
 
+    def add_chall(self, json_file):
+        import json
+        try:
+            raw = open(json_file).read()
+            chall_obj = json.loads(raw)
+        except FileNotFoundError:
+            print("Can't find file:", json_file)
+            return
+        except json.JSONDecodeError:
+            print("Check JSON syntax in file:", json_file)
+            return
+        result = db.validateChallenge(chall_obj)
+        if result['valid'] == True:    
+            chall_id = db.buildChallenge(result)
+            print(f"Challenge ID {chall_id} created attributed to {result['author']}")
+        else:
+            print(result['fail_reason'])
+    
+    def del_chall(self, chall_id):
+        try:
+            chall_id = int(chall_id)
+        except (ValueError, BaseException) as e:
+            print("Challenge id must be an int")
+            return 
+        with db.db_session:
+            chall = db.Challenge.get(id=chall_id)
+
+            if chall != None:
+                print(f"{chall.id} - {chall.title}")
+                resp = input(f"are you sure you want to delete challenge {chall.id}? [y/N]")
+                if resp == 'y':
+                    db.Challenge[chall_id].delete()
+                    print("deleted.") 
+                    return
+                print("cancelled")
 
 if __name__ == '__main__':
     ### fix for displaying help -> https://github.com/google/python-fire/issues/188#issuecomment-631419585

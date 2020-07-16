@@ -19,15 +19,12 @@ import asyncio
 from secrets import DISCORD_TOKEN
 import database as db
 
-
 import json
 
 from settings import SETTINGS, init_config, is_initialized
 
 if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset
     init_config()
-
-
 
 bot = commands.Bot(command_prefix='!')
 
@@ -91,24 +88,25 @@ def renderChallenge(result, preview=False):
         msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
     
     msg += '-'*40 + '\n'
-    msg += f"Title: `{result['challenge_title']}`\n"
-    msg += f"Value: `{result['value']}` points\n"
-    msg += f"Description: {result['challenge_description']}\n"
+    msg += f"**Title**: `{result['challenge_title']}`\n"
+    msg += f"**Value**: `{result['value']}` points\n"
+    msg += f"**Description**: {result['challenge_description']}\n"
+    msg += f"**Tags**: {result.get('tags',[])}\n"
     msg += '-'*40 + '\n'
-    msg += f"Unseen Hints: {len(result.get('hints',[]))}\n"
+    msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
     for idx, hint in enumerate(result.get('hints_purchased',[]), 1):
-        msg += f"Hint {idx}: {hint.text}\n"
+        msg += f"**Hint** {idx}: {hint.text}\n"
     msg += '-'*40 + '\n'
     
     if preview == True:
-        msg += "Hints:\n"
+        msg += "**Hints**:\n"
         # print(result.get('hints'))
         for hint in result.get('hints',[]):
-            msg += f"Hint: {hint['text']} cost: {hint['cost']}"
+            msg += f"Hint: {hint['hint_text']} cost: {hint['hint_cost']}\n"
         
         msg += '-'*40 + '\n'
         
-        msg += "Flags:\n"
+        msg += "**Flags**:\n"
         for flag in result['flags']:
             msg += f"Flag: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}`\n" 
     return msg
@@ -138,9 +136,7 @@ async def register(ctx, teamname=None):
             msg = f'already registered as `{username(ctx)}` on team `{user[0].team.name}`'
             await ctx.send(msg)
             return
-        
-        
-        
+         
         if len(team) == 0:
             team = db.Team(name=teamname)
             user = db.User(name=username(ctx), team=team) # team didn't exist
@@ -152,8 +148,6 @@ async def register(ctx, teamname=None):
         logger.debug(msg)
         await ctx.send(msg)
 
-
-
 @bot.command(name='ctfstatus', help="shows status information about the CTF", aliases=['stats'])
 async def ctfstatus(ctx):
 
@@ -161,7 +155,6 @@ async def ctfstatus(ctx):
     data.insert(0, ['Setting','Value'])
     table = GithubFlavoredMarkdownTable(data)
     await ctx.send(f'CTF Status ```{table.table}```')
-
 
 @bot.command(name='scores', help='shows your indivivually earned points, your teams collective points, and the top N teams without their scores.', aliases=['score','points','top'])
 # @commands.dm_only()
@@ -174,7 +167,6 @@ async def scores(ctx):
         return
 
     # individual score
-
     msg = ''
     with db.db_session:
         user = db.User.get(name=username(ctx)) #simpler
@@ -232,7 +224,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     with db.db_session:
         # is this a valid flag
         res = list(db.select(flag for flag in db.Flag if submitted_flag == flag.flag))
-        # logger.debug('res', type(res), len(res), res)
+
 
         if len(res) == 0:
             msg = f'incorrect: we got "{submitted_flag}"'
@@ -259,7 +251,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         for teammate in teammates:
             res = list(db.select(solve for solve in db.Solve if submitted_flag == solve.flag.flag and teammate.name == solve.user.name))
 
-            # logger.debug('res = ', res)
             if len(res) > 0: # already submitted by a teammate 
                 msg = f"{res[0].user.name} already submitted `{submitted_flag}` at {res[0].time} "
                 if SETTINGS['_debug'] == True and SETTINGS['_debug_level'] == 1:
@@ -278,7 +269,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
                 return 
 
 
-         # if I get this far, it has not been solved by any of my team
+         # if I get this far, it has not been solved by any of my teammates
 
         msg = "Correct!\n"
 
@@ -290,21 +281,30 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         
         reward = flag.value 
         if flag.unsolved == True:
+            msg += f'**First blood!** \nYou are the first to submit `{flag.flag}` and have earned a bonus {SETTINGS["_firstblood_rate"] * 100 }% \nTotal reward `{flag.value * (1 + SETTINGS["_firstblood_rate"])}` rather than `{flag.value}`\n'
+        elif SETTINGS['_decay_solves'] == True:
+            solve_count = db.count(db.select(t for t in db.Transaction if t.flag == flag).without_distinct())  
+
+            team_count = db.count(db.select(t for t in db.Team)) - 1 # don't count discordbot's team
+
+            solve_percent = solve_count / team_count
             
-            reward += flag.value * .1
-            flag.unsolved = False
-            msg += f"**First blood!** \nYou are the first to submit `{flag.flag}` and have earned a bonus 10% \nTotal reward `{reward}` rather than `{flag.value}`\n"
-            # logger.debug(msg)
-            # await ctx.send(msg)
-        
-        # the transaction/ points award logic for the solve is in here
-        db.createSolve(user=user, flag=flag, value=reward, msg=flag.description )
+            reward *= max([1 - solve_percent, SETTINGS['_decay_minimum']])  # don't go below the minimum established
+
+            if SETTINGS['_debug'] == True:
+                logger.debug(f'decay solves {solve_count} team count{team_count} ; solve percent {solve_percent} reward is {reward}')
+            
+            msg += f'{solve_count} teams have solved this challenge... Your reward is reduced based on that fact... reward is {reward} rather than {flag.value}\n'
+
+
+        # firstblood and decay points/award/reductions logic is now in create solve. above is for display only
+        db.createSolve(user=user, flag=flag, msg=flag.challenge.title )
         
 
-        # was this a BYOC Challenge? if so create the reward for the author
-        if flag.byoc == True:
-            botuser = db.User.get(name="BYOCTF_Automaton#7840")
-            author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=flag.value * .25, type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
+        # # was this a BYOC Challenge? if so create the reward for the author
+        # if flag.byoc == True:
+        #     botuser = db.User.get(name=SETTINGS['_botusername'])
+        #     author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=flag.value * SETTINGS['_byoc_reward_rate'], type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
 
         db.commit()
 
@@ -457,10 +457,11 @@ async def buy_hint(ctx, challenge_id: int):
 
     with db.db_session:
         user = db.User.get(name=username(ctx)) 
+        chall = db.Challenge.get(id=challenge_id)
         res, hint = db.buyHint(user=user, challenge_id=challenge_id)
         if res == 'ok':
             # await ctx.send('check your hints with `!hints`' )
-            await ctx.send(f"Here's a hint for Challenge ID {challenge_id}\n`{hint.text}`")
+            await ctx.send(f"Here's a hint for Challenge ID {challenge_id} `{chall.title}`\n`{hint.text}`")
             return
         await ctx.send(res)
 
@@ -473,11 +474,13 @@ async def show_hints(ctx):
         await ctx.send("CTF isn't running yet")
         return
 
-    msg = 'here are your teams hints:\n'
+    
     with db.db_session:
         user = db.User.get(name=username(ctx))  
         hint_transactions = db.getHintTransactions(user)
-        
+
+        msg = f"Team {user.team.name}'s hints:\n"
+
         # data = [(ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender) for ht in hint_transactions]
         data = []
         teammates = db.getTeammates(user) # throws an error about db session is over
@@ -608,7 +611,6 @@ async def byoc_commit(ctx):
     challenge_object = await loadBYOCFile(ctx)
     challenge_object['author'] = username(ctx)
     result = db.validateChallenge(challenge_object)
-
     channel = ctx.channel
 
     def check(msg):
@@ -616,25 +618,25 @@ async def byoc_commit(ctx):
         #TODO  https://discordpy.readthedocs.io/en/latest/api.html#discord.Client.wait_for
     
     
-    if result['valid'] != True:
+    if result['valid'] == False:
         await ctx.send(f"challenge invalid. Ensure that all required fields are present. see example_challenge.json\n\nfail_reason:{result['fail_reason']}")
         return
 
     chall_preview = renderChallenge(result, preview=True)
     await ctx.send(chall_preview)
-    await ctx.send("\n\n\nReply with `confirm` in the next 10 seconds to pay for and publish your challenge.")
+    await ctx.send("\n\n\n***Reply with `confirm` in the next 10 seconds to pay for and publish your challenge.***")
     resp = None
     try:
         resp = await ctx.bot.wait_for('message', check=check, timeout=10)
     except asyncio.exceptions.TimeoutError as e:
-        await ctx.send("Cancelling...")
+        await ctx.send("**Cancelling...**")
         return 
     if resp.content == 'confirm':
-        db.buildChallenge(result)
-        await ctx.send('Done.')
+        chall_id = db.buildChallenge(result)
+        await ctx.send(f'Done. use `!view {chall_id}` to see it. and `!byoc_stats` to see who has solved it.')
         return
     else:
-        await ctx.send("Cancelling...")
+        await ctx.send("**Cancelling...**")
         return
 
 
