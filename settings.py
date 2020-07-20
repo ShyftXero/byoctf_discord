@@ -22,7 +22,8 @@ def init_config():
         "_decay_solves":     False,          # when decay is invoked. future solves are reduced based on the number of previous solves; best to keep public scoreboard
         "_decay_minimum":      .10,         # minimum percent award. 
         "_botusername":     "BYOCTF_Automaton#7840",             # this is the discordbot's username+discriminator
-        '_byoc_reward_rate':    .25         # percentage of a solve that is given back to the author for making the challenge. 
+        '_byoc_reward_rate':    .25,         # percentage of a solve that is given back to the author for making the challenge. 
+        '_byoc_commit_fee':     .5          # percentage of challenge value to charge author to post a BYOC challenge 
     }
 
     for k,v in config.items():

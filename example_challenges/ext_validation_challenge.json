@@ -1,0 +1,16 @@
+{
+    "author": "Combaticus#8292",
+    "challenge_title": "r3d's external challenge",
+    "challenge_description": "good luck finding my flag. ",
+    "tags": ["coding"], 
+    "hints": [
+        {
+            "hint_cost": 25,
+            "hint_text": "the flag is also easy"
+        }
+    ],
+    "external_challenge_value": 250, 
+    "external_validation": true, 
+    "external_validation_url": "http://localhost:5000/validate",
+    "__external_validation_notes": "If you don't trust us to not look at the flags you submit, you can host a validation server on some public server and the bot can validate against that. I'd use a domain rather than IP because there's no public mechanism to update challenges... These are limited to one flag per challenge. sorry... It will send a post to your endpoint similar to {'challenge_id':<some_id>, 'flag':<some_flag>} . It will expect a response of {'flag':'correct'} or {'flag':'incorrect'} a basic implementation of that functionality will be provided. YOU WILL HAVE TO MENTION IN THE CHALLENGE WHETHER OR NOT THIS IS AN EXTERNALLY VALIDATED CHALLENGE. There's a different command to validate those flags. !byoc_ext <chall_id> <flag>; we use the validation url (must end in /validate with no trailing slash). feel free to extend the server we provide... You can host all of the flags for all of your challenges in the single flags.json file. you won't know a challenge ID to serve as the key until you commit your challenge. Currently, there is no first blood reward for externally validated challenges. "
+}

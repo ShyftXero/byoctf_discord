@@ -1,4 +1,5 @@
-from database import getTeammates
+from pony.orm.core import commit
+from database import Challenge, getTeammates
 import os
 import random
 import datetime
@@ -97,6 +98,8 @@ def renderChallenge(result, preview=False):
     for idx, hint in enumerate(result.get('hints_purchased',[]), 1):
         msg += f"**Hint** {idx}: {hint.text}\n"
     msg += '-'*40 + '\n'
+    if result.get('byoc_ext_url') != None:
+        msg += f'**This is an external flag:** You must submit it with `!byoc_ext <chall_id> <flag>` '
     
     if preview == True:
         msg += "**Hints**:\n"
@@ -223,22 +226,24 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     
     with db.db_session:
         # is this a valid flag
-        res = list(db.select(flag for flag in db.Flag if submitted_flag == flag.flag))
+        # res = db.select(flag for flag in db.Flag if submitted_flag == flag.flag).first()
+        flag = db.Flag.get(flag=submitted_flag)
 
 
-        if len(res) == 0:
+        if flag == None:
             msg = f'incorrect: we got "{submitted_flag}"'
             logger.debug(msg)
             await ctx.send(msg)
             return
 
         user = db.User.get(name=username(ctx))
-        flag = res[0]
+    
 
         # have I already submitted this flag?
         solves = list(db.select(solve for solve in db.Solve if submitted_flag == solve.flag.flag and username(ctx) == solve.user.name)) # should be an empty list 
+        # prev_solve = db.Solve.get(flag=flag, user=user) # this is the same as above; result or None
 
-        if len(solves) > 0: 
+        if len(solves) > 0: # if prev_solve != None:
             msg = f"You've already submitted `{submitted_flag}` at {solves[0].time} "
             logger.debug(msg)
             await ctx.send(msg)
@@ -249,7 +254,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         teammates = db.getTeammates(user)
         solved = []
         for teammate in teammates:
-            res = list(db.select(solve for solve in db.Solve if submitted_flag == solve.flag.flag and teammate.name == solve.user.name))
+            res = list(db.select(solve for solve in db.Solve if submitted_flag == solve.flag.flag and teammate.name == solve.user.name)) # see above regarding simpler looking query
 
             if len(res) > 0: # already submitted by a teammate 
                 msg = f"{res[0].user.name} already submitted `{submitted_flag}` at {res[0].time} "
@@ -298,16 +303,9 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
 
 
         # firstblood and decay points/award/reductions logic is now in create solve. above is for display only
-        db.createSolve(user=user, flag=flag, msg=flag.challenge.title )
+        # breakpoint()
+        db.createSolve(user=user, flag=flag, challenge=flag.challenges.random(1), msg='\n'.join([c.title for c in flag.challenges]))
         
-
-        # # was this a BYOC Challenge? if so create the reward for the author
-        # if flag.byoc == True:
-        #     botuser = db.User.get(name=SETTINGS['_botusername'])
-        #     author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=flag.value * SETTINGS['_byoc_reward_rate'], type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
-
-        db.commit()
-
         msg += f'Your score is now `{db.getScore(user)}`'
         logger.debug(msg)
         await ctx.send(msg)
@@ -397,11 +395,10 @@ async def list_all(ctx):
         user = db.User.get(name=username(ctx))
         challs = db.get_all_challenges(user)
 
-        res = []
-        for c in challs:
-            res.append([c.id, c.author.name, c.title])
+        res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0]
+       
 
-    res.insert(0, ['ID', "Author", "Title"])
+    res.insert(0, ['ID', "Author", "Title","Value", "BYOC"])
     table = GithubFlavoredMarkdownTable(res)
 
     # logger.debug("discord",challs)
@@ -417,7 +414,7 @@ async def view_challenge(ctx, chall_id:int):
 
     try: 
         chall_id = int(chall_id)
-        if chall_id <= 0: 
+        if chall_id < 0: 
            raise ValueError
     except (ValueError, BaseException) as e:
         msg = f'invalid challenge id: `{chall_id}`'      
@@ -439,6 +436,8 @@ async def view_challenge(ctx, chall_id:int):
             res['value'] = db.challValue(chall)
             res['hints'] = [h for h in chall.hints]
             res['hints_purchased'] = [t.hint for t in db.getHintTransactions(user) if t.hint.challenge == chall]
+            res['byoc_ext_url'] = chall.byoc_ext_url
+            res['tags'] = [tag.name for tag in chall.tags]
             msg += renderChallenge(res)
         else:
             msg = "challenge doesn't exist or isn't unlocked yet"
@@ -529,11 +528,26 @@ async def solves(ctx):
         solved = []
         for teammate in teammates:
             solved += list(db.select(solve for solve in db.Solve if teammate.name == solve.user.name))
-        res = [(solve.flag.flag, ','.join([str(c.id) if type(c.title) != 'str' else "Bonus" for c in list(solve.flag.challenges)]) ,'\n'.join([c.title if type(c.title) != 'str' else "Bonus" for c in list(solve.flag.challenges)]), solve.user.name, solve.time)  for solve in solved]
+        # print('solved', solved)
+    
+        res = []
+        for solve in solved:
+            # print(f'working on solve {solve} {type(solve.challenge)}')
+            # breakpoint()
+            line = (
+                solve.flag_text, 
+                solve.challenge.id,
+                solve.challenge.title, 
+                solve.user.name, 
+                solve.time
+            )  
+            
+            res.append(line)
+
         
         res.insert(0, ["Flag", "Chall ID", "Chall Title", "User", "Solve Time"])
         table = GithubFlavoredMarkdownTable(res)
-        table.inner_row_border = True
+        # table.inner_row_border = True
 
         if len(msg + table.table) >= 2000:
             # logger.debug(f'table > 2000 : {len(table.table)} {table.table}')     
@@ -564,6 +578,39 @@ async def loadBYOCFile(ctx):
         return {}
 
     return challenge_object    
+
+@bot.command(name='byoc_ext', help="this is how you will submit BYOC challenges that are externally validated.", aliases=['bsub'])
+async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_flag: str):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
+        return
+
+    if ctfRunning() == False:
+        await ctx.send("CTF isn't running yet")
+        return
+
+    if SETTINGS['_debug'] == True and SETTINGS['_debug_level'] == 1:
+        logger.debug(f"{username(ctx)} is attempting to submit '{submitted_flag}' to external chall ID {chall_id}")
+    
+    with db.db_session:
+        # is this a valid challenge
+        chall = db.Challenge.get(id=chall_id)
+        user = db.User.get(name=username(ctx))
+        if chall == None or user == None:
+            msg = f'Challenge id {chall_id} not found... you likely forgot to add it.'
+            if SETTINGS['_debug']:
+                logger.debug(msg)
+            await ctx.send(msg)
+            return
+        
+        res = db.createExtSolve(user, chall, submitted_flag)
+        if res == 1337:
+            await ctx.send(f"Correct! Your score is now `{db.getScore(user)}`")
+            return 
+
+        await ctx.send(f"External validation server reported that your was incorrect... talk to <@{(await getDiscordUser(ctx,chall.author.name)).id}>: {res}")
+
+
+
 
 
 
@@ -633,11 +680,14 @@ async def byoc_commit(ctx):
         return 
     if resp.content == 'confirm':
         chall_id = db.buildChallenge(result)
+        if chall_id == -1:
+            await ctx.send("Insufficient funds...")
+            return
         await ctx.send(f'Done. use `!view {chall_id}` to see it. and `!byoc_stats` to see who has solved it.')
         return
-    else:
-        await ctx.send("**Cancelling...**")
-        return
+    
+    await ctx.send("**Cancelling...**")
+    return
 
 
 # @bot.event

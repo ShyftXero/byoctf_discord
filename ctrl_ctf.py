@@ -67,7 +67,8 @@ class Commands:
 
     def shell(self):
         import os
-        os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
+        # os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
+        os.system("ipython -i -c 'import database as db;  user=db.User.get(id=1); user2=db.User.get(id=2); user3=db.User.get(id=3); user4=db.User.get(id=4); use53=db.User.get(id=5)'")
 
     def set_team(self, username, team ):
         """username is the discord name and discriminator "user#1234" 
@@ -174,9 +175,9 @@ class Commands:
 
     def dump_challs(self):
         with db.db_session:
-            challs = list(db.select((chall.id, chall.title,  chall.description[:20], chall.flags, chall.visible) for chall in db.Challenge))
+            challs = list(db.select((chall.id, chall.title,  chall.description[:20], chall.flags, chall.visible, chall.byoc, ) for chall in db.Challenge))
             # data = [c for c in challs]
-            challs.insert(0,['ID', 'Title', 'Description', 'Flags', 'Visible'])
+            challs.insert(0,['ID', 'Title', 'Description', 'Flags', 'Visible', 'BYOC', 'BYOC_External'])
             table = mdTable(challs)
             print(table.table)
             # for chall in challs:
@@ -189,7 +190,7 @@ class Commands:
             for flag in flags:
                 print(flag)
 
-    def del_trans(self, trans_id):
+    def del_trans(self, trans_id:int):
         try:
             trans_id = int(trans_id)
         except (ValueError, BaseException) as e:
@@ -202,7 +203,8 @@ class Commands:
                 print(f"Transaction from {trans.sender.name} -> {trans.recipient.name} for {trans.type} and amount {trans.value}")
                 resp = input(f"Are you sure you want to delete transaction {trans.id}? [y/N]")
                 if resp == 'y':
-                    db.Transaction[trans_id].delete()
+                    t = db.Transaction.get(id=trans_id)
+                    t.delete()
                     print("deleted.") 
                     return
                 print("cancelled")
@@ -216,7 +218,7 @@ class Commands:
         print("not implemented")
         pass
 
-    def add_chall(self, json_file):
+    def add_chall(self, json_file, byoc=False):
         import json
         try:
             raw = open(json_file).read()
@@ -228,13 +230,21 @@ class Commands:
             print("Check JSON syntax in file:", json_file)
             return
         result = db.validateChallenge(chall_obj)
+        
+        # for byoc loading of challenges. avoids them being tagged as BYOC ; ./ctrl_ctf.py add_chall chall.json byoc=True
+        if byoc: 
+            result['byoc'] = True
+        
+        else:
+            result['byoc'] = False
+
         if result['valid'] == True:    
             chall_id = db.buildChallenge(result)
-            print(f"Challenge ID {chall_id} created attributed to {result['author']}")
+            print(f"Challenge ID {chall_id} created attributed to {result['author']} byoc mode was {byoc}.")
         else:
             print(result['fail_reason'])
     
-    def del_chall(self, chall_id):
+    def del_chall(self, chall_id:int):
         try:
             chall_id = int(chall_id)
         except (ValueError, BaseException) as e:
@@ -247,7 +257,9 @@ class Commands:
                 print(f"{chall.id} - {chall.title}")
                 resp = input(f"are you sure you want to delete challenge {chall.id}? [y/N]")
                 if resp == 'y':
-                    db.Challenge[chall_id].delete()
+                    c = db.Challenge.get(id=chall_id)
+                    c.delete()
+                
                     print("deleted.") 
                     return
                 print("cancelled")

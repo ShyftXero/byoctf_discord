@@ -32,9 +32,6 @@
             "hint_cost": 150,
             "hint_text": "try running `find / -name vulnerable`"
         }
-    ],
-    "__external_validation_notes": " If you don't trust us with to no look at the flags you submit you can host a validation server on some public server and the bot can validate against that. it will send a post to your endpoint specified below of {'challenge_id':<some_id>, 'flag':<some_flag>} . It will expect a response of {'flag':'correct'} or {'flag':'incorrect'} a basic implementation of that functionality will be provided. YOU WILL HAVE TO MENTION IN THE CHALLENGE WHETHER OR NOT THIS IS AN EXTERNALLY VALIDATED CHALLENGE. There's a different command to validate those flags. !byoc_ext <chall_id> <flag>  ", 
-    "external_validation": false, 
-    "external_validation_url": "https://site.com/some/endpoint" 
+    ] 
 
 }

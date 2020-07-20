@@ -1,5 +1,11 @@
 from collections import Counter
+from typing import ValuesView
+
+from requests.sessions import session
 from settings import SETTINGS
+import json
+
+import requests
 
 from loguru import logger
 logger.add('byoctf.log')
@@ -8,6 +14,7 @@ from datetime import datetime
 from pony.orm import *
 
 db = Database()
+
 
 class Flag(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -37,6 +44,11 @@ class Challenge(db.Entity):
     visible = Optional(bool, default=True)
     hints = Set('Hint')
     byoc = Optional(bool, default=False)
+    byoc_ext_url = Optional(str, nullable=True, default=None)
+    unsolved = Optional(bool, default=True)
+    byoc_ext_value = Optional(float)
+    solve = Set('Solve')
+    transaction = Optional('Transaction')
 
 
 class User(db.Entity):
@@ -53,10 +65,12 @@ class User(db.Entity):
 class Solve(db.Entity):
     id = PrimaryKey(int, auto=True)
     time = Optional(datetime, default=lambda: datetime.now())
-    flag = Required(Flag)
+    flag = Optional(Flag)
     user = Required(User)
     value = Required(float)
     transaction = Optional('Transaction')
+    challenge = Optional(Challenge)
+    flag_text = Optional(str)
 
 
 class Team(db.Entity):
@@ -83,6 +97,7 @@ class Transaction(db.Entity):
     solve = Optional(Solve)
     hint = Optional('Hint')
     flag = Optional(Flag)
+    challenge = Optional(Challenge)
 
 
 class Hint(db.Entity):
@@ -94,8 +109,11 @@ class Hint(db.Entity):
 
 
 
+
 db.bind(provider='sqlite', filename='byoctf.db', create_db=True)
 db.generate_mapping(create_tables=True)
+
+
 
 @db_session
 def showTeams():
@@ -116,16 +134,27 @@ def getScore(user):
             return "User is None... "
     # https://docs.ponyorm.org/queries.html#automatic-distinct
     # hence the without_distint()
-    received = sum(select(t.value for t in Transaction if t.recipient.name == user.name).without_distinct())
-    sent = sum(select(t.value for t in Transaction if t.sender.name == user.name).without_distinct())
+    received = sum(select(t.value for t in Transaction if t.recipient == user).without_distinct())
+    sent = sum(select(t.value for t in Transaction if t.sender == user).without_distinct())
     if SETTINGS['_debug'] == True and SETTINGS['_debug_level'] > 1:
         logger.debug(f'{user.name} has received {received}, - sent {sent} = {received - sent}')
     
     return received - sent
 
+@db_session
+def getTeammateScores(user):
+    teammates = list(select(member for member in User if member.team.name == user.team.name))
+    res = [(tm.name, getScore(tm)) for tm in teammates]
+    return res
 
 @db_session
 def challValue(challenge: Challenge):
+    if challenge.byoc_ext_value != None:
+        return challenge.byoc_ext_value
+    
+    if challenge.id == 0:
+        return 0
+
     flags = list(select(c.flags for c in Challenge if c.id == challenge.id))
     # if SETTINGS['_debug']:
     if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:
@@ -261,9 +290,13 @@ def buyHint(user:User=None, challenge_id:int=0):
     # see around line 400 in buy_hint in byoctf_discord.py
 
     # does challenge have hints
-    chall_hints = list(Challenge.get(id=challenge_id).hints)
+    chall = Challenge.get(id=challenge_id)
+    if chall.author in getTeammates(user):
+        return "You shouldn't have to buy your own hints...", None
+
+    chall_hints = list(chall.hints)
     if SETTINGS['_debug']:
-        logger.debug(f'got challenge_id {challenge_id} and user {user.name}')
+        logger.debug(f'Trying to buy hint for challenge_id {challenge_id} and user {user.name}')
     # has user purchased these hints
     hint_transactions = []
     hints_to_buy = []
@@ -295,38 +328,133 @@ def buyHint(user:User=None, challenge_id:int=0):
 
         # return f'hint purchased for challenge ID {challenge_id}```{sorted_hints[0].text}```'
         return 'ok', cheapest_hint
-    return 'insufficient funds'
+    return 'insufficient funds', None
     
+@db_session
+def createExtSolve(user:User, chall:Challenge, submitted_flag:str):
+    if chall.byoc_ext_url == None:
+        msg = f'Challenge id {chall_id} is not an externally validated challenge.'
+        if SETTINGS['_debug']:
+            logger.debug(msg)
+        return msg
+        
+    if user in getTeammates(chall.author):
+        msg = f"You can't submit a challenge from a teammate or yourself... "
+        if SETTINGS['_debug']:
+            logger.debug(msg)
+        return msg
+
+    payload = {
+        "challenge_id"  : chall.id, 
+        "flag"      : submitted_flag,
+        "user"      : user.name
+    }
+
+    resp = requests.post(chall.byoc_ext_url, data=payload)
+    # breakpoint()
+
+    if resp.status_code != 200:
+        msg = f"Challenge id {chall.id} external validation server isn't responding correctly. talk to the author..."
+        if SETTINGS['_debug']:
+            logger.debug(msg)
+        return msg
+
+    data = json.loads(resp.text)
+
+    if data.get('msg') == 'correct':
+        botuser = User.get(name=SETTINGS['_botusername'])
+        reward = chall.byoc_ext_value
+        
+        #first blood
+        if chall.unsolved == True:
+            reward += chall.byoc_ext_value * (SETTINGS['_firstblood_rate'])
+            chall.unsolved = False
+
+            if SETTINGS['_debug'] == True:
+                logmsg = f'First blood solve for {user.name} #{chall.id}{chall.title} base_value={chall.byoc_ext_value} reward={reward}'
+
+
+        solve = Solve(value=reward, user=user, challenge=chall, flag_text=submitted_flag)
+
+        solve_credit = Transaction(     
+            sender=botuser, 
+            recipient=user,
+            value=reward,
+            type='ext_solve',
+            message=f'external chall {chall.id} solve',
+            solve=solve,
+            challenge=chall
+        )
+
+        #reward for author
+        reward = chall.byoc_ext_value * SETTINGS['_byoc_reward_rate']
+
+        msg = f'byoc reward: {user.name} of {user.team.name} submitted external flag: {submitted_flag}'
+        if SETTINGS['_debug'] == True:
+            logger.debug(f'{chall.author.name} got {msg}')
+        
+        author_reward = Transaction(recipient=chall.author, sender=botuser, value=reward, type="byoc reward", message=msg)
+        
+        commit()
+        return 1337
+    pass
 
 @db_session
-def createSolve(user:User=None, flag:Flag=None, msg:str=''):
+def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=None):
     botuser = User.get(name=SETTINGS['_botusername'])
+    
+    if challenge == None:
+        challenge = select(c for c in Challenge if flag in c.flags).first()
+        if challenge == None: # it's still not found... 
+            challenge = Challenge.get(title='__bonus__')
+
+    if SETTINGS['_debug']:
+        logger.debug(f'{user.name} is solving for {flag.flag}; part of challenge {challenge.title}.')
 
     if SETTINGS['_debug'] == True:
+        # logger.debug(f'user {user}; flag {flag.flag}; challenge {challenge}')
         logmsg = ''
 
-    previousSolve = select(t for t in db.Transaction if t.recipient in getTeammates(user) and t.flag.flag == flag.flag).first()
 
-    if previousSolve != None:
-        if SETTINGS['_debug'] == True:
-            logger.debug(f'{flag.flag} already submitted by {user.name}')
+    if flag != None:
+        team  = getTeammates(user) 
+        # print('team', [x.name for x in team])    
+        previousSolve = select(s for s in Solve if s.user in team and s.flag_text == flag.flag).first()
+
+        if previousSolve != None:
+            if SETTINGS['_debug'] == True:
+                logger.debug(f'{flag.flag} already submitted by {previousSolve.user.name}')
+            return
+        
+        team = getTeammates(user)
+        if flag.author in team or challenge.author in team:
+            if SETTINGS['_debug'] == True:
+                logger.debug(f"{user.name} is trying to submit their own flag or a flag authored teammate. (flag by {flag.author.name}) OR is a part of a challenge authored by someone on the team. (chall by {challenge.author.name})")
+            return
+
+    value = 0
+    if flag != None:
+        value = flag.value
+    elif challenge != None:
+        value = challenge.byoc_ext_value
+
+    if value == 0:
+        logger.debug("neither challenge or flag have a value other than None... investigate via breakpoint() ")
+        # breakpoint()
         return
 
-    if flag.author in getTeammates(user):
-        if SETTINGS['_debug'] == True:
-            logger.debug(f"{user.name} is trying to submit their own flag or a flag authored teammate. ({flag.author.name})")
-        return
-
-    reward = flag.value
+    reward = value
     if flag.unsolved == True:
-        reward += flag.value * (SETTINGS['_firstblood_rate'])
+        reward += value * (SETTINGS['_firstblood_rate'])
         flag.unsolved = False
 
         if SETTINGS['_debug'] == True:
-            logmsg = f'First blood solve for {user.name} {flag.flag} base_value={flag.value} reward={reward}'
-
-    elif SETTINGS['_decay_solves'] == True:
-        solve_count = count(select(t for t in Transaction if t.flag == flag).without_distinct())  
+            logmsg = f'First blood solve for {user.name} {flag.flag} base_value={value} reward={reward}'
+    
+    
+    # this is hard to think about with the external validation... 
+    if SETTINGS['_decay_solves'] == True:
+        solve_count = count(select(t for t in Transaction if t.solve.flag_text == flag.flag).without_distinct())  
 
         team_count = count(select(t for t in Team)) - 1 # don't count discordbot's team
 
@@ -336,11 +464,12 @@ def createSolve(user:User=None, flag:Flag=None, msg:str=''):
         
         logmsg = f'{solve_count} teams ({solve_percent * 100}%) have solved {flag.flag}; The reward is {reward}'
     
-    if SETTINGS['_debug'] == True:
-        logger.debug(logmsg)
+        if SETTINGS['_debug'] == True:
+            logger.debug(logmsg)
     
+# 
+    solve = Solve(value=reward, user=user, challenge=challenge, flag=flag, flag_text=flag.flag)
     
-    solve = Solve(value=reward, user=user, flag=flag)
     solve_credit = db.Transaction(     
         sender=botuser, 
         recipient=user,
@@ -348,27 +477,38 @@ def createSolve(user:User=None, flag:Flag=None, msg:str=''):
         type='solve',
         message=msg,
         solve=solve,
+        challenge=challenge,
         flag=flag
     )
+    
+    commit()
 
-    if flag.byoc == True:
-        reward = flag.value * SETTINGS['_byoc_reward_rate']
+    if flag and flag.byoc == True:
+        reward = value * SETTINGS['_byoc_reward_rate']
         if SETTINGS['_debug'] == True:
             logger.debug(f'byoc reward of {reward} sent to {flag.author.name}: {user.name} of {user.team.name} submitted {flag.flag}')
         author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=reward, type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
 
+    elif challenge and challenge.byoc == True:
+        reward = value * SETTINGS['_byoc_reward_rate']
+        if SETTINGS['_debug'] == True:
+            logger.debug(f'byoc reward of {reward} sent to {challenge.author.name}: {user.name} of {user.team.name} submitted an external flag.')
+        author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=reward, type="byoc reward", message=f'{user.name} of {user.team.name} submitted an external flag')
+
     commit()
     
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1:
+        logger.debug(f'{solve.user.name} solved {solve.flag_text}')
+    
+
+
 # @db_session
 # def decayCalc(challenge:Challenge):
+#     pass
 
 
 
-@db_session
-def getTeammateScores(user):
-    teammates = list(select(member for member in User if member.team.name == user.team.name))
-    res = [(tm.name, getScore(tm)) for tm in teammates]
-    return res
+
 
 @db_session()
 def validateChallenge(challenge_object):
@@ -387,17 +527,25 @@ def validateChallenge(challenge_object):
         'hints': [],
         'value': 0, # sum of flags
         'cost': 0,
-        'fail_reason': ''
+        'fail_reason': '',
+        'external_validation': False,
+        'byoc':True
     }
 
     
     # does the challenge_object have all of the fields we need? 
     # title, description, tags, flags with at least one flag, hints 
 
-  
+    #title
     if type(challenge_object.get('challenge_title')) == None or len(challenge_object.get('challenge_title')) < 1:
         result['fail_reason'] += '; failed title len'
         return result
+    
+    c = Challenge.get(title=challenge_object.get('challenge_title'))
+    if c:
+        result['fail_reason'] += '; failed title uniqueness'
+        return result
+
     result['challenge_title'] = challenge_object['challenge_title']
 
     if type(challenge_object.get('challenge_description')) == None or (len(challenge_object.get('challenge_description')) < 1 or len(challenge_object.get('challenge_description')) > 1500 ):
@@ -416,32 +564,7 @@ def validateChallenge(challenge_object):
             return result
     result['tags'] = challenge_object['tags']
 
-    # check the flags
-    for flag in challenge_object['flags']:
-        # Are the flags unique? not likely to occur, but needs to be checked. this has the potential to leak info about flags that exist. Just make sure they are decent flags. Might just have to accept this risk
-        try:
-            res = Flag.get(flag=flag.get('flag_flag'))
-        except BaseException as e:
-            return result
-        if res:
-            result['fail_reason'] += '; failed flag uniqueness'
-            return result
-        
-        # collect all of the flags from the obj and sum the value then display the cost to post challenge to the user.     
-        if flag.get('flag_value') < 0:
-            result['fail_reason'] += '; failed flag individual value '
-            return result
-        result['value'] += flag.get('flag_value')
-
-    # flags aren't worth enough... 100 point minimum
-    if result['value'] <= 100 :
-        result['fail_reason'] += '; failed flag cumulative value'
-        return result
-
-    result['flags'] = challenge_object['flags']
-    result['cost'] = result['value'] // 2
-
-    # check the hints. 
+     # check the hints. 
     for hint in challenge_object.get('hints',[]):
         if hint.get('hint_cost') < 0: 
             result['fail_reason'] += '; failed hint cost'
@@ -452,6 +575,55 @@ def validateChallenge(challenge_object):
 
     result['hints'] = challenge_object['hints']
 
+    # is it externally validated?
+    if challenge_object.get('external_validation') == True:
+        # can we reach the endpoint via requests? 
+        try:
+            resp = requests.get(challenge_object.get('external_validation_url'))
+            data = json.loads(resp.text)
+
+        except BaseException as e:
+            result['fail_reason'] += f'; failed validate http request to ext url ({e})'
+            return result
+        
+        result['external_validation_url'] = challenge_object['external_validation_url']
+        
+        if challenge_object.get('external_challenge_value',0) < 100:
+            result['fail_reason'] += "; failed external challenge value"
+            return result
+
+    
+        result['value'] = challenge_object.get('external_challenge_value') 
+        
+        
+    else: # it's not externally validated so...
+        # check the flags
+        for flag in challenge_object['flags']:
+            # Are the flags unique? not likely to occur, but needs to be checked. this has the potential to leak info about flags that exist. Just make sure they are decent flags. Might just have to accept this risk
+            try:
+                res = Flag.get(flag=flag.get('flag_flag'))
+            except BaseException as e:
+                return result
+            if res:
+                result['fail_reason'] += '; failed flag uniqueness'
+                return result
+            
+            # collect all of the flags from the obj and sum the value then display the cost to post challenge to the user.     
+            if flag.get('flag_value') < 0:
+                result['fail_reason'] += '; failed flag individual value '
+                return result
+            result['value'] += flag.get('flag_value')
+
+        # flags aren't worth enough... 100 point minimum
+        if result['value'] < 100 :
+            result['fail_reason'] += '; failed flag cumulative value'
+            return result
+
+        result['flags'] = challenge_object['flags']
+
+
+    result['cost'] = result['value'] * SETTINGS['_byoc_commit_fee']
+
     # if you got this far it's a valid challenge. 
     result['valid'] = True
 
@@ -461,11 +633,16 @@ def validateChallenge(challenge_object):
 def buildChallenge(challenge_object, byoc=False):
     if SETTINGS['_debug']:
         logger.debug(f"building the challenge from {challenge_object['author']}")
-
-    result = validateChallenge(challenge_object)
+    result = challenge_object
+    if challenge_object.get('valid') != True:
+        result = validateChallenge(challenge_object)
 
     author = User.get(name=result['author'])
-    
+
+    # if some one is short points to submit a challenge, GMs can grant points via ctrl_ctf.
+    if result['cost'] > getScore(author):
+        logger.debug("insufficient funds")
+        return -1
     
     if result['valid'] == False:
         # something went wrong... 
@@ -483,14 +660,54 @@ def buildChallenge(challenge_object, byoc=False):
         else:
             tags.append(t)
     
-    tags = set(tags) # no duplicates like ['forensics', 'forensics']
+    # tags = set(tags) # no duplicates like ['forensics', 'forensics']
 
+    # if challenge_object.get('bulk'): # this should be the bulk creation method / not BYOC; a way for us to load challenges described in json files. it will populate ALL fields.
     flags = []
-    for f in challenge_object.get('flags'):
-        fo = Flag(flag=f.get('flag_flag'), value=f.get('flag_value'), author=author, tags=tags, byoc=True)
+    for f in challenge_object.get('flags',[]):
+        fo = Flag(flag=f.get('flag_flag'), value=f.get('flag_value'), author=author, tags=tags)
         flags.append(fo)
 
-    chall = Challenge(title=challenge_object.get('challenge_title'), description=result['challenge_description'], author=author, flags=flags, tags=tags)
+    chall = Challenge(
+        title=challenge_object.get('challenge_title'),
+        description=result['challenge_description'],
+        author=author, 
+        flags=flags, 
+        tags=tags,
+        byoc=challenge_object.get('byoc', result.get('byoc', False)),  
+        byoc_ext_url=result.get('external_validation_url'),
+        byoc_ext_value=result.get('value',0)
+    )
+
+    # elif challenge_object.get('external_validation') == True:
+    #     print('in external_validation')
+
+    #     # no flags but everything else is the same. 
+    #     chall = Challenge(
+    #         title=challenge_object.get('challenge_title'), 
+    #         description=result['challenge_description'],
+    #         author=author, 
+    #         tags=tags, 
+    #         byoc=True, 
+    #         byoc_ext_url=result['external_validation_url'],
+    #         byoc_ext_value=result['value']
+    #     )
+    # else:
+    #     flags = []
+    #     for f in challenge_object.get('flags',[]):
+    #         fo = Flag(flag=f.get('flag_flag'), value=f.get('flag_value'), author=author, tags=tags, byoc=True)
+    #         flags.append(fo)
+
+    #     chall = Challenge(
+    #         title=challenge_object.get('challenge_title'), 
+    #         description=result['challenge_description'], 
+    #         author=author, 
+    #         flags=flags, 
+    #         tags=tags, 
+    #         byoc=True
+    #     )
+    
+
     
     #need to do this so I can get an ID from the chall
     # commit()
