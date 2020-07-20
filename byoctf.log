@@ -1,26 +1,28 @@
-2020-07-20 14:15:05.358 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 1 and user shyft#0760
-2020-07-20 14:15:05.363 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 5 and user notfie#4785
-2020-07-20 14:15:05.365 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 2 and user Combaticus#8292
-2020-07-20 14:15:05.371 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 14:15:05.376 | DEBUG    | database:createSolve:501 - Combaticus#8292 solved FLAG{asdf}
-2020-07-20 14:15:05.377 | DEBUG    | database:createSolve:412 - 0xDrMalloc#4492 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 14:15:05.378 | DEBUG    | database:createSolve:432 - 0xDrMalloc#4492 is trying to submit their own flag or a flag authored teammate. (flag by 0xDrMalloc#4492) OR is a part of a challenge authored by someone on the team. (chall by 0xDrMalloc#4492)
-2020-07-20 14:15:05.378 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 14:15:05.383 | DEBUG    | database:createSolve:501 - notfie#4785 solved FLAG{asdf}
-2020-07-20 14:15:05.384 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 14:15:05.384 | DEBUG    | database:createSolve:426 - FLAG{asdf} already submitted by notfie#4785
-2020-07-20 14:15:05.385 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 14:15:05.385 | DEBUG    | database:createSolve:426 - FLAG{asdf} already submitted by Combaticus#8292
-2020-07-20 14:15:05.386 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{ASDF}; part of challenge challenge 1.
-2020-07-20 14:15:05.389 | DEBUG    | database:createSolve:501 - Combaticus#8292 solved FLAG{ASDF}
-2020-07-20 14:15:05.390 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{qwer}; part of challenge challenge 2.
-2020-07-20 14:15:05.391 | DEBUG    | database:createSolve:432 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by notfie#4785) OR is a part of a challenge authored by someone on the team. (chall by notfie#4785)
-2020-07-20 14:15:05.392 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{zxcv}; part of challenge __bonus__.
-2020-07-20 14:15:05.395 | DEBUG    | database:createSolve:501 - notfie#4785 solved FLAG{zxcv}
-2020-07-20 14:15:05.396 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-20 14:15:05.400 | DEBUG    | database:createSolve:489 - byoc reward of 50.0 sent to 0xDrMalloc#4492: shyft#0760 of bestteam submitted FLAG{jkl}
-2020-07-20 14:15:05.403 | DEBUG    | database:createSolve:501 - shyft#0760 solved FLAG{jkl}
-2020-07-20 14:15:05.404 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-20 14:15:05.405 | DEBUG    | database:createSolve:426 - FLAG{jkl} already submitted by shyft#0760
-2020-07-20 14:15:09.278 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-20 14:15:09.278 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-20 15:16:42.626 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 1 and user shyft#0760
+2020-07-20 15:16:42.632 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 5 and user notfie#4785
+2020-07-20 15:16:42.633 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 2 and user Combaticus#8292
+2020-07-20 15:16:42.640 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-20 15:16:42.647 | DEBUG    | database:createSolve:501 - Combaticus#8292 solved FLAG{asdf}
+2020-07-20 15:16:42.648 | DEBUG    | database:createSolve:412 - 0xDrMalloc#4492 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-20 15:16:42.649 | DEBUG    | database:createSolve:432 - 0xDrMalloc#4492 is trying to submit their own flag or a flag authored teammate. (flag by 0xDrMalloc#4492) OR is a part of a challenge authored by someone on the team. (chall by 0xDrMalloc#4492)
+2020-07-20 15:16:42.649 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-20 15:16:42.656 | DEBUG    | database:createSolve:501 - notfie#4785 solved FLAG{asdf}
+2020-07-20 15:16:42.657 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-20 15:16:42.658 | DEBUG    | database:createSolve:426 - FLAG{asdf} already submitted by notfie#4785
+2020-07-20 15:16:42.659 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-20 15:16:42.660 | DEBUG    | database:createSolve:426 - FLAG{asdf} already submitted by Combaticus#8292
+2020-07-20 15:16:42.660 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{ASDF}; part of challenge challenge 1.
+2020-07-20 15:16:42.665 | DEBUG    | database:createSolve:501 - Combaticus#8292 solved FLAG{ASDF}
+2020-07-20 15:16:42.666 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{qwer}; part of challenge challenge 2.
+2020-07-20 15:16:42.668 | DEBUG    | database:createSolve:432 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by notfie#4785) OR is a part of a challenge authored by someone on the team. (chall by notfie#4785)
+2020-07-20 15:16:42.669 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{zxcv}; part of challenge __bonus__.
+2020-07-20 15:16:42.675 | DEBUG    | database:createSolve:501 - notfie#4785 solved FLAG{zxcv}
+2020-07-20 15:16:42.676 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-20 15:16:42.682 | DEBUG    | database:createSolve:489 - byoc reward of 50.0 sent to 0xDrMalloc#4492: shyft#0760 of bestteam submitted FLAG{jkl}
+2020-07-20 15:16:42.687 | DEBUG    | database:createSolve:501 - shyft#0760 solved FLAG{jkl}
+2020-07-20 15:16:42.689 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-20 15:16:42.690 | DEBUG    | database:createSolve:426 - FLAG{jkl} already submitted by shyft#0760
+2020-07-20 15:16:51.189 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-20 15:16:51.189 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-20 15:16:54.658 | DEBUG    | database:createSolve:412 - 0xDrMalloc#4492 is solving for FLAG{bonus2}; part of challenge __bonus__.
+2020-07-20 15:16:54.665 | DEBUG    | database:createSolve:501 - 0xDrMalloc#4492 solved FLAG{bonus2}

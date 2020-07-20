@@ -13,6 +13,8 @@ logger.add('byoctf.log')
 from datetime import datetime
 from pony.orm import *
 
+# https://editor.ponyorm.com/user/shyft/byoctf/designer
+
 db = Database()
 
 
@@ -409,6 +411,7 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
             challenge = Challenge.get(title='__bonus__')
 
     if SETTINGS['_debug']:
+        print(type)
         logger.debug(f'{user.name} is solving for {flag.flag}; part of challenge {challenge.title}.')
 
     if SETTINGS['_debug'] == True:
