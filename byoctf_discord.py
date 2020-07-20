@@ -359,6 +359,8 @@ async def tip(ctx, target_user: Union[discord.User,str] , tip_amount: float, msg
 
 @bot.command(name='unsolved', help="list only the challenges that your team HASN'T solved", aliases=['usol', 'un', 'unsol'])
 async def list_unsolved(ctx):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
+        return
 
     if ctfRunning() == False:
         await ctx.send("CTF isn't running yet")
@@ -373,7 +375,8 @@ async def list_unsolved(ctx):
 
         res = []
         for c in challs:
-            res.append([c.id, c.author.name, c.title])
+            if c.author not in db.getTeammates(user): # you can't solve your teammates challenges, so don't show them.
+                res.append([c.id, c.author.name, c.title])
 
     res.insert(0, ['ID', "Author", "Title"])
     table = GithubFlavoredMarkdownTable(res)
@@ -385,7 +388,8 @@ async def list_unsolved(ctx):
 
 @bot.command(name="all_challenges", help="list all visible challenges. solved or not. ", aliases=['all', 'allc','ac'])
 async def list_all(ctx):
-
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
+        return
 
     if ctfRunning() == False:
         await ctx.send("CTF isn't running yet")
@@ -407,7 +411,8 @@ async def list_all(ctx):
 
 @bot.command(name='view', help='view a challenge by id e.g. !view <chall_id>', aliases=['vc','v'])
 async def view_challenge(ctx, chall_id:int):
-
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
+        return
     if ctfRunning() == False:
         await ctx.send("CTF isn't running yet")
         return
