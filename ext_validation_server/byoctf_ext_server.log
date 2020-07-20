@@ -65,3 +65,6 @@
 2020-07-20 10:30:11.463 | DEBUG    | __main__:validate:12 - get request
 2020-07-20 10:31:28.828 | DEBUG    | __main__:validate:12 - get request
 2020-07-20 10:31:47.302 | DEBUG    | __main__:validate:12 - get request
+2020-07-20 15:23:29.848 | DEBUG    | __main__:validate:12 - get request
+2020-07-20 15:23:46.141 | DEBUG    | __main__:validate:35 - Attempt from shyft#0760 for chall 7 with FLAG{ieie}
+2020-07-20 15:23:46.141 | DEBUG    | __main__:validate:38 - correct
