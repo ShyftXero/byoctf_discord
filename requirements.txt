@@ -1,3 +1,7 @@
 requests
-terminaltables
 discordpy
+flask
+requests
+loguru
+ponyorm
+terminaltables
