@@ -21,6 +21,7 @@ with db_session:
     bestteam = db.Team(name="bestteam")
     secondteam = db.Team(name='secondteam')
     thirdteam = db.Team(name='thirdteam')
+    fourthteam = db.Team(name='fourthteam')
 
 
     #users
@@ -29,23 +30,23 @@ with db_session:
     fie = db.User(name='notfie#4785', team=bestteam)
     r3d = db.User(name='Combaticus#8292', team=secondteam)
     malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
-
+    aykay = db.User(name='AyKay#3420', team=fourthteam)
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
-    flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=malloc)
-    flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200,  author=malloc)
-    flag_qwer = db.Flag(flag="FLAG{qwer}", value=200,  author=fie)
-    flag_zxcv = db.Flag(flag="FLAG{zxcv}", value=300,  author=r3d)
+    flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=shyft, byoc=True)
+    flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200,  author=shyft, byoc=True)
+    flag_qwer = db.Flag(flag="FLAG{qwer}", value=200,  author=fie, byoc=True)
+    flag_zxcv = db.Flag(flag="FLAG{zxcv}", value=300,  author=r3d, byoc=True)
     flag_nosolve = db.Flag(flag="FLAG{DONT_SOLVE}", value=300,  author=r3d)
     flag_dosolve = db.Flag(flag="FLAG{DO_SOLVE}", value=600, byoc=True, author=r3d)
-    flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=malloc)
+    flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=shyft)
     flag_bonus2 = db.Flag(flag='FLAG{bonus2}', value=250, author=bot)
 
     
     #challenges
     bonus_challenge = db.Challenge(id=0, title="__bonus__", description='this is the description for all bonus challenges...', author=bot)
 
-    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=malloc,  )
+    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft, byoc=True )
     c2 = db.Challenge(title="challenge 2", description="challenge 2 description; unlocks c3",flags=[flag_qwer], author=fie, )
     c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=fie, parent=[c2] )
     
@@ -53,7 +54,7 @@ with db_session:
 
     c5 = db.Challenge(title="challenge 5", description="challenge 5 description;DO SOLVE",flags=[flag_dosolve], author=r3d )
     
-    c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=malloc, parent=[c5])
+    c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=shyft, parent=[c5])
     
 
     #hints
@@ -89,65 +90,25 @@ with db_session:
     createSolve(user=r3d, flag=flag_asdf) # valid solve
 
 
-    createSolve(user=malloc, flag=flag_asdf)  # invalid; author can't solve 
-    
+    createSolve(user=malloc, flag=flag_asdf)  # valid
 
-    s1 = Solve[1]
-    print(s1.user, s1.challenge, s1.flag_text)
+    createSolve(user=fie, flag=flag_asdf) # invalid; teammate can't solve. 
     
-    createSolve(user=fie, flag=flag_asdf) # this one is breaking... not discovering the challenge or assigning the bonus default challenge... 
-    
-    
-
-    createSolve(user=shyft, flag=flag_asdf) #test rejection of same team solves
+    createSolve(user=shyft, flag=flag_asdf) #test rejection of author solves
 
     createSolve(user=r3d, flag=flag_asdf) # test rejection of duplicate solves
    
     createSolve(user=r3d, flag=flag_ASDF)
     createSolve(user=shyft, flag=flag_qwer)
     createSolve(user=fie, flag=flag_zxcv) 
-    createSolve(user=shyft, flag=flag_jkl) # test byoc 
-    createSolve(user=fie, flag=flag_jkl) # test byoc duplicate
+    createSolve(user=shyft, flag=flag_jkl) # test byoc self solve 
+    createSolve(user=fie, flag=flag_jkl) # test byoc duplicate\
+
+    createSolve(user=aykay, flag=flag_asdf)
+    createSolve(user=aykay, flag=flag_ASDF)
+    createSolve(user=aykay, flag=flag_qwer)
+    createSolve(user=aykay, flag=flag_zxcv)
+    createSolve(user=aykay, flag=flag_jkl)
+    
     # # show()
     commit()
-
-#     for i in range(AMOUNT_OF_DATA):
-#         try:
-            
-#             t1 = db.Team(name=fake.company())
-#             u1 = db.User(name=fake.name(), team=t1)
-#             f1 = db.Flag(flag=f"FLAG{{{fake.word()}}}", value=random.randint(50,500), author=u1) # double curly to escape curly braces
-#             c1 = Challenge(title=fake.catch_phrase(), description=fake.text(), flags = [f1], author=u1 )
-#             print(u1.name, t1.name, f1.flag)
-            
-#             commit()
-#         except BaseException as e:
-#             print(e)
-            
-    
-#     for i in range(5):
-#         flags = select(f for f in Flag).random(2)
-#         children = select(f for f in Challenge).random(2)
-#         author = select(u for u in User if u.name == 'shyft#0760').first()
-#         print(author)
-#         c = Challenge(title=fake.catch_phrase(), flags=flags, children=children, author=author)
-#         print(f"Challenge {c.id} title {c.title} value = {sum(select(f.value for f in c.flags))} unlocks children {[c.title for c in c.children]}")
-#         commit()
-    
-#     users = select(u for u in User).random(AMOUNT_OF_DATA//5)
-#     flags = select(f for f in Flag).random(AMOUNT_OF_DATA//5)
-#     for user, flag in zip(users,flags):
-#         flag.unsolved = False
-#         s = Solve(value=flag.value, user=user, flag=flag)
-#         print('solve: ', s.user.name, s.flag.flag, s.value, s.time)
-        
-#         commit()
-    
-
-# # show all solves
-# with db_session:
-#     solves = select(solve for solve in Solve)
-
-#     for solve in solves:
-#         print(f"{solve.user.name} submitted '{solve.flag.flag}' for {solve.value} points")
-

@@ -304,7 +304,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
 
         # firstblood and decay points/award/reductions logic is now in create solve. above is for display only
         # breakpoint()
-        db.createSolve(user=user, flag=flag, challenge=challenge, msg='\n'.join([c.title for c in flag.challenges]))
+        db.createSolve(user=user, flag=flag, challenge=challenge, msg=f"{flag.flag}: " + '\n'.join([c.title for c in flag.challenges]))
         
         msg += f'Your score is now `{db.getScore(user)}`'
         logger.debug(msg)
@@ -561,12 +561,37 @@ async def solves(ctx):
             msg += f"```{table.table}```"
             await ctx.send(msg)
 
-@bot.command(name='byoc_stats', help="this will show you stats about the BYOC challenges you've created. total profit from solves, etc.", )
+@bot.command(name='byoc_stats', help="this will show you stats about the BYOC challenges you've created. total profit from solves, etc.", aliases=['bstats','bstat'])
 async def byoc_stats(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
         return
 
-    await ctx.send("your stats")
+    msg = ''
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+        team_challs = list(db.select(c for c in db.Challenge if c.author in db.getTeammates(user)))
+
+        # num solves per challenge
+        stats = []
+        for chall in team_challs:
+            num_solves = list(db.select(s for s in db.Solve if s.challenge == chall))
+
+            chall_rewards = sum(db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward" and t.recipient in db.getTeammates(user) and t.challenge == chall).without_distinct())
+
+            line = [chall.id, chall.title, len(num_solves),chall.author.name, chall_rewards]
+            
+            stats.append(line)
+        stats.insert(0, ['Chall ID', 'Title', '# Solves', 'Author', 'Payout'])
+
+        table = GithubFlavoredMarkdownTable(stats)
+
+        # team total byoc rewards sum
+        total_byoc_rewards = sum(db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward" and t.recipient in db.getTeammates(user)))
+
+        
+
+
+    await ctx.send(f"Your stats ```{table.table}```\n**Team Total BYOC Rewards:** `{total_byoc_rewards}` points")
 
 async def loadBYOCFile(ctx):
     if len(ctx.message.attachments) != 1:

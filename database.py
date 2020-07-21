@@ -50,7 +50,7 @@ class Challenge(db.Entity):
     unsolved = Optional(bool, default=True)
     byoc_ext_value = Optional(float)
     solve = Set('Solve')
-    transaction = Optional('Transaction')
+    transaction = Set('Transaction')
 
 
 class User(db.Entity):
@@ -108,7 +108,6 @@ class Hint(db.Entity):
     cost = Optional(float)
     challenge = Required(Challenge)
     transaction = Optional(Transaction)
-
 
 
 
@@ -375,7 +374,6 @@ def createExtSolve(user:User, chall:Challenge, submitted_flag:str):
             if SETTINGS['_debug'] == True:
                 logmsg = f'First blood solve for {user.name} #{chall.id}{chall.title} base_value={chall.byoc_ext_value} reward={reward}'
 
-
         solve = Solve(value=reward, user=user, challenge=chall, flag_text=submitted_flag)
 
         solve_credit = Transaction(     
@@ -411,7 +409,7 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
             challenge = Challenge.get(title='__bonus__')
 
     if SETTINGS['_debug']:
-        print(type)
+        # print(type)
         logger.debug(f'{user.name} is solving for {flag.flag}; part of challenge {challenge.title}.')
 
     if SETTINGS['_debug'] == True:
@@ -471,8 +469,11 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
             logger.debug(logmsg)
     
 # 
+    if msg == '' and flag != None:
+        msg = f"{flag.flag} is part of: " + '\n'.join([c.title for c in flag.challenges])
+
     solve = Solve(value=reward, user=user, challenge=challenge, flag=flag, flag_text=flag.flag)
-    
+    # breakpoint()
     solve_credit = db.Transaction(     
         sender=botuser, 
         recipient=user,
@@ -486,17 +487,19 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
     
     commit()
 
-    if flag and flag.byoc == True:
+    if flag.byoc == True:
         reward = value * SETTINGS['_byoc_reward_rate']
         if SETTINGS['_debug'] == True:
             logger.debug(f'byoc reward of {reward} sent to {flag.author.name}: {user.name} of {user.team.name} submitted {flag.flag}')
-        author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=reward, type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag}')
+        author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=reward, type="byoc reward", message=f'{user.name} of {user.team.name} submitted {flag.flag} for challenge {challenge.title}', challenge=challenge)
+        # print(f'{challenge}')
 
-    elif challenge and challenge.byoc == True:
+    elif challenge.byoc == True:
         reward = value * SETTINGS['_byoc_reward_rate']
+        author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=reward, type="byoc reward", message=f'{user.name} of {user.team.name} submitted an external flag', challenge=challenge)
+        
         if SETTINGS['_debug'] == True:
             logger.debug(f'byoc reward of {reward} sent to {challenge.author.name}: {user.name} of {user.team.name} submitted an external flag.')
-        author_reward = db.Transaction(recipient=flag.author, sender=botuser, value=reward, type="byoc reward", message=f'{user.name} of {user.team.name} submitted an external flag')
 
     commit()
     

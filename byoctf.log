@@ -1,43 +1,41 @@
-2020-07-20 15:16:42.626 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 1 and user shyft#0760
-2020-07-20 15:16:42.632 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 5 and user notfie#4785
-2020-07-20 15:16:42.633 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 2 and user Combaticus#8292
-2020-07-20 15:16:42.640 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 15:16:42.647 | DEBUG    | database:createSolve:501 - Combaticus#8292 solved FLAG{asdf}
-2020-07-20 15:16:42.648 | DEBUG    | database:createSolve:412 - 0xDrMalloc#4492 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 15:16:42.649 | DEBUG    | database:createSolve:432 - 0xDrMalloc#4492 is trying to submit their own flag or a flag authored teammate. (flag by 0xDrMalloc#4492) OR is a part of a challenge authored by someone on the team. (chall by 0xDrMalloc#4492)
-2020-07-20 15:16:42.649 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 15:16:42.656 | DEBUG    | database:createSolve:501 - notfie#4785 solved FLAG{asdf}
-2020-07-20 15:16:42.657 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 15:16:42.658 | DEBUG    | database:createSolve:426 - FLAG{asdf} already submitted by notfie#4785
-2020-07-20 15:16:42.659 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-20 15:16:42.660 | DEBUG    | database:createSolve:426 - FLAG{asdf} already submitted by Combaticus#8292
-2020-07-20 15:16:42.660 | DEBUG    | database:createSolve:412 - Combaticus#8292 is solving for FLAG{ASDF}; part of challenge challenge 1.
-2020-07-20 15:16:42.665 | DEBUG    | database:createSolve:501 - Combaticus#8292 solved FLAG{ASDF}
-2020-07-20 15:16:42.666 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{qwer}; part of challenge challenge 2.
-2020-07-20 15:16:42.668 | DEBUG    | database:createSolve:432 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by notfie#4785) OR is a part of a challenge authored by someone on the team. (chall by notfie#4785)
-2020-07-20 15:16:42.669 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{zxcv}; part of challenge __bonus__.
-2020-07-20 15:16:42.675 | DEBUG    | database:createSolve:501 - notfie#4785 solved FLAG{zxcv}
-2020-07-20 15:16:42.676 | DEBUG    | database:createSolve:412 - shyft#0760 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-20 15:16:42.682 | DEBUG    | database:createSolve:489 - byoc reward of 50.0 sent to 0xDrMalloc#4492: shyft#0760 of bestteam submitted FLAG{jkl}
-2020-07-20 15:16:42.687 | DEBUG    | database:createSolve:501 - shyft#0760 solved FLAG{jkl}
-2020-07-20 15:16:42.689 | DEBUG    | database:createSolve:412 - notfie#4785 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-20 15:16:42.690 | DEBUG    | database:createSolve:426 - FLAG{jkl} already submitted by shyft#0760
-2020-07-20 15:16:51.189 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-20 15:16:51.189 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-20 15:16:54.658 | DEBUG    | database:createSolve:412 - 0xDrMalloc#4492 is solving for FLAG{bonus2}; part of challenge __bonus__.
-2020-07-20 15:16:54.665 | DEBUG    | database:createSolve:501 - 0xDrMalloc#4492 solved FLAG{bonus2}
-2020-07-20 15:23:14.979 | DEBUG    | database:validateChallenge:519 - validating the challenge from Combaticus#8292
-2020-07-20 15:23:14.979 | DEBUG    | database:validateChallenge:521 - Got challenge object: {'author': 'Combaticus#8292', 'challenge_title': "r3d's external challenge", 'challenge_description': 'good luck finding my flag. ', 'tags': ['coding'], 'hints': [{'hint_cost': 25, 'hint_text': 'the flag is also easy'}], 'external_challenge_value': 250, 'external_validation': True, 'external_validation_url': 'http://localhost:5000/validate', '__external_validation_notes': "If you don't trust us to not look at the flags you submit, you can host a validation server on some public server and the bot can validate against that. I'd use a domain rather than IP because there's no public mechanism to update challenges... These are limited to one flag per challenge. sorry... It will send a post to your endpoint similar to {'challenge_id':<some_id>, 'flag':<some_flag>} . It will expect a response of {'flag':'correct'} or {'flag':'incorrect'} a basic implementation of that functionality will be provided. YOU WILL HAVE TO MENTION IN THE CHALLENGE WHETHER OR NOT THIS IS AN EXTERNALLY VALIDATED CHALLENGE. There's a different command to validate those flags. !byoc_ext <chall_id> <flag>; we use the validation url (must end in /validate with no trailing slash). feel free to extend the server we provide... You can host all of the flags for all of your challenges in the single flags.json file. you won't know a challenge ID to serve as the key until you commit your challenge. Currently, there is no first blood reward for externally validated challenges. "}
-2020-07-20 15:23:29.844 | DEBUG    | database:validateChallenge:519 - validating the challenge from Combaticus#8292
-2020-07-20 15:23:29.845 | DEBUG    | database:validateChallenge:521 - Got challenge object: {'author': 'Combaticus#8292', 'challenge_title': "r3d's external challenge", 'challenge_description': 'good luck finding my flag. ', 'tags': ['coding'], 'hints': [{'hint_cost': 25, 'hint_text': 'the flag is also easy'}], 'external_challenge_value': 250, 'external_validation': True, 'external_validation_url': 'http://localhost:5000/validate', '__external_validation_notes': "If you don't trust us to not look at the flags you submit, you can host a validation server on some public server and the bot can validate against that. I'd use a domain rather than IP because there's no public mechanism to update challenges... These are limited to one flag per challenge. sorry... It will send a post to your endpoint similar to {'challenge_id':<some_id>, 'flag':<some_flag>} . It will expect a response of {'flag':'correct'} or {'flag':'incorrect'} a basic implementation of that functionality will be provided. YOU WILL HAVE TO MENTION IN THE CHALLENGE WHETHER OR NOT THIS IS AN EXTERNALLY VALIDATED CHALLENGE. There's a different command to validate those flags. !byoc_ext <chall_id> <flag>; we use the validation url (must end in /validate with no trailing slash). feel free to extend the server we provide... You can host all of the flags for all of your challenges in the single flags.json file. you won't know a challenge ID to serve as the key until you commit your challenge. Currently, there is no first blood reward for externally validated challenges. "}
-2020-07-20 15:23:29.849 | DEBUG    | database:buildChallenge:638 - building the challenge from Combaticus#8292
-2020-07-20 15:23:46.137 | DEBUG    | __main__:byoc_ext:592 - shyft#0760 is attempting to submit 'FLAG{ieie}' to external chall ID 7
-2020-07-20 15:23:46.137 | DEBUG    | __main__:byoc_ext:592 - shyft#0760 is attempting to submit 'FLAG{ieie}' to external chall ID 7
-2020-07-20 15:23:46.143 | DEBUG    | database:createExtSolve:394 - Combaticus#8292 got byoc reward: shyft#0760 of bestteam submitted external flag: FLAG{ieie}
-2020-07-20 15:23:46.143 | DEBUG    | database:createExtSolve:394 - Combaticus#8292 got byoc reward: shyft#0760 of bestteam submitted external flag: FLAG{ieie}
-2020-07-20 15:24:08.801 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 7 and user shyft#0760
-2020-07-20 15:24:08.801 | DEBUG    | database:buyHint:299 - Trying to buy hint for challenge_id 7 and user shyft#0760
-2020-07-20 15:27:09.013 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-20 15:27:09.013 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-20 15:29:07.399 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-20 15:29:07.399 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-21 08:59:03.704 | DEBUG    | database:buyHint:300 - Trying to buy hint for challenge_id 5 and user notfie#4785
+2020-07-21 08:59:03.711 | DEBUG    | database:buyHint:300 - Trying to buy hint for challenge_id 2 and user Combaticus#8292
+2020-07-21 08:59:03.717 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-21 08:59:03.726 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760: Combaticus#8292 of secondteam submitted FLAG{asdf}
+2020-07-21 08:59:03.730 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{asdf}
+2020-07-21 08:59:03.731 | DEBUG    | database:createSolve:413 - 0xDrMalloc#4492 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-21 08:59:03.737 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760: 0xDrMalloc#4492 of thirdteam submitted FLAG{asdf}
+2020-07-21 08:59:03.742 | DEBUG    | database:createSolve:507 - 0xDrMalloc#4492 solved FLAG{asdf}
+2020-07-21 08:59:03.743 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-21 08:59:03.745 | DEBUG    | database:createSolve:433 - notfie#4785 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
+2020-07-21 08:59:03.746 | DEBUG    | database:createSolve:413 - shyft#0760 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-21 08:59:03.747 | DEBUG    | database:createSolve:433 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
+2020-07-21 08:59:03.747 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-21 08:59:03.748 | DEBUG    | database:createSolve:427 - FLAG{asdf} already submitted by Combaticus#8292
+2020-07-21 08:59:03.749 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{ASDF}; part of challenge challenge 1.
+2020-07-21 08:59:03.753 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: Combaticus#8292 of secondteam submitted FLAG{ASDF}
+2020-07-21 08:59:03.757 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{ASDF}
+2020-07-21 08:59:03.759 | DEBUG    | database:createSolve:413 - shyft#0760 is solving for FLAG{qwer}; part of challenge challenge 2.
+2020-07-21 08:59:03.760 | DEBUG    | database:createSolve:433 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by notfie#4785) OR is a part of a challenge authored by someone on the team. (chall by notfie#4785)
+2020-07-21 08:59:03.761 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{zxcv}; part of challenge __bonus__.
+2020-07-21 08:59:03.765 | DEBUG    | database:createSolve:493 - byoc reward of 75.0 sent to Combaticus#8292: notfie#4785 of bestteam submitted FLAG{zxcv}
+2020-07-21 08:59:03.767 | DEBUG    | database:createSolve:507 - notfie#4785 solved FLAG{zxcv}
+2020-07-21 08:59:03.768 | DEBUG    | database:createSolve:413 - shyft#0760 is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-21 08:59:03.770 | DEBUG    | database:createSolve:433 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
+2020-07-21 08:59:03.771 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-21 08:59:03.773 | DEBUG    | database:createSolve:433 - notfie#4785 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
+2020-07-21 08:59:03.774 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-21 08:59:03.780 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{asdf}
+2020-07-21 08:59:03.783 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{asdf}
+2020-07-21 08:59:03.784 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{ASDF}; part of challenge challenge 1.
+2020-07-21 08:59:03.795 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{ASDF}
+2020-07-21 08:59:03.798 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{ASDF}
+2020-07-21 08:59:03.799 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{qwer}; part of challenge challenge 2.
+2020-07-21 08:59:03.803 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to notfie#4785: AyKay#3420 of fourthteam submitted FLAG{qwer}
+2020-07-21 08:59:03.811 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{qwer}
+2020-07-21 08:59:03.813 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{zxcv}; part of challenge __bonus__.
+2020-07-21 08:59:03.818 | DEBUG    | database:createSolve:493 - byoc reward of 75.0 sent to Combaticus#8292: AyKay#3420 of fourthteam submitted FLAG{zxcv}
+2020-07-21 08:59:03.822 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{zxcv}
+2020-07-21 08:59:03.824 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-21 08:59:03.829 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{jkl}
+2020-07-21 08:59:03.832 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{jkl}
