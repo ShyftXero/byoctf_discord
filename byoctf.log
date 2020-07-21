@@ -39,3 +39,5 @@
 2020-07-21 08:59:03.824 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{jkl}; part of challenge challenge 6.
 2020-07-21 08:59:03.829 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{jkl}
 2020-07-21 08:59:03.832 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{jkl}
+2020-07-21 09:05:24.515 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-21 09:05:24.515 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
