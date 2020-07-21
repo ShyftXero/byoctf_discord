@@ -304,7 +304,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
 
         # firstblood and decay points/award/reductions logic is now in create solve. above is for display only
         # breakpoint()
-        db.createSolve(user=user, flag=flag, challenge=challenge, msg=f"{flag.flag}: " + '\n'.join([c.title for c in flag.challenges]))
+        db.createSolve(user=user, flag=flag, challenge=challenge, msg='\n'.join([c.title for c in flag.challenges]))
         
         msg += f'Your score is now `{db.getScore(user)}`'
         logger.debug(msg)
