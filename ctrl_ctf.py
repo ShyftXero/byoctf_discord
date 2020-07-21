@@ -132,6 +132,17 @@ class Commands:
         print(table.table)
 
     @db.db_session
+    def users(self):
+        data = db.select(u for u in db.User)[:]
+        
+        data = [(u.id, u.name,u.team.name, db.getScore(u)) for u in data]
+
+        data.insert(0, ['ID', 'Name','Team', 'Score'])
+        table = mdTable(data)
+        print(table.table)
+
+
+    @db.db_session
     def dump_trans(self):
         ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))
 
