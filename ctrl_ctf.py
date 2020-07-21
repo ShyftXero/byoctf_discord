@@ -184,7 +184,7 @@ class Commands:
             db.commit()
             print(f'Challenge id {chall.id} "{chall.title}" visible set to {chall.visible}')
 
-    def dump_challs(self):
+    def challs(self):
         with db.db_session:
             challs = list(db.select((chall.id, chall.title,  chall.description[:20], chall.flags, chall.visible, chall.byoc, ) for chall in db.Challenge))
             # data = [c for c in challs]
@@ -193,9 +193,33 @@ class Commands:
             print(table.table)
             # for chall in challs:
             #     # print(chall)
-        
+    
+    @db.db_session
+    def bstat(self):
 
-    def dump_flags(self):
+        challs = list(db.select(c for c in db.Challenge))
+
+        # num solves per challenge
+        stats = []
+        for chall in challs:
+            num_solves = list(db.select(s for s in db.Solve if s.challenge == chall))
+
+            chall_rewards = sum(db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward" and t.challenge == chall).without_distinct())
+
+            line = [chall.id, chall.title, len(num_solves),chall.author.name, chall_rewards]
+            
+            stats.append(line)
+        stats.insert(0, ['Chall ID', 'Title', '# Solves', 'Author', 'Payout'])
+
+        table = mdTable(stats)
+
+        # team total byoc rewards sum
+        total_byoc_rewards = sum(db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward" ))
+
+        print(table.table)
+        print(f'\nTotal BYOC rewards granted: {total_byoc_rewards}')
+
+    def flags(self):
         with db.db_session:
             flags = list(db.select((flag.id, flag.flag, flag.value, flag.challenges) for flag in db.Flag))
             for flag in flags:
