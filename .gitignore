@@ -1,1 +1,4 @@
-tokens.py
+secrets.py
+byoctf.db
+byoctf_diskcache/
+__pycache__/*

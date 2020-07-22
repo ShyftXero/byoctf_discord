@@ -7,6 +7,8 @@ import time
 import json
 from typing import Union
 
+from textwrap import fill
+
 from loguru import logger
 logger.add('byoctf.log')
 
@@ -94,6 +96,7 @@ def renderChallenge(result, preview=False):
     msg += f"**Description**: {result['challenge_description']}\n"
     msg += f"**Tags**: {result.get('tags',[])}\n"
     msg += '-'*40 + '\n'
+    msg += f'**Number of Flags**: {result.get("num_flags",0)}\n'
     msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
     for idx, hint in enumerate(result.get('hints_purchased',[]), 1):
         msg += f"**Hint** {idx}: {hint.text}\n"
@@ -443,6 +446,7 @@ async def view_challenge(ctx, chall_id:int):
             res['hints_purchased'] = [t.hint for t in db.getHintTransactions(user) if t.hint.challenge == chall]
             res['byoc_ext_url'] = chall.byoc_ext_url
             res['tags'] = [tag.name for tag in chall.tags]
+            res['num_flags'] = len([f for f in chall.flags])
             msg += renderChallenge(res)
         else:
             msg = "challenge doesn't exist or isn't unlocked yet"
@@ -506,7 +510,7 @@ async def logs(ctx):
         return
     msg  = "Your Transaction Log" 
     with db.db_session:
-        ts = list(db.select((t.value,t.type,t.sender.name, t.recipient.name,t.message,t.time) for t in db.Transaction if username(ctx) == t.recipient.name or username(ctx) == t.sender.name))
+        ts = list(db.select((t.value,t.type,t.sender.name, t.recipient.name, t.message, t.time) for t in db.Transaction if username(ctx) == t.recipient.name or username(ctx) == t.sender.name))
 
     ts.insert(0, ["Value", 'Type','Sender', 'Recipient', 'Message', 'Time'])
     table = GithubFlavoredMarkdownTable(ts)
@@ -644,7 +648,7 @@ async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_fla
 
 
 
-@bot.command(name="byoc_check", help="this will check your BYOC challenge is valid. It will show you how much it will cost to post")
+@bot.command(name="byoc_check", help="this will check your BYOC challenge is valid. It will show you how much it will cost to post", aliases=['bcheck'])
 async def byoc_check(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't check a challenge in public channels..."):
         return
@@ -673,7 +677,7 @@ async def byoc_check(ctx):
     else:
         await ctx.send(f"challenge invalid. Ensure that all required fields are present. see example_challenge.json\n\nfail_reason:{result['fail_reason']}")
 
-@bot.command(name="byoc_commit", help="this will commit your BYOC challege. You will be charged a fee and will have to confirm the submission")
+@bot.command(name="byoc_commit", help="this will commit your BYOC challege. You will be charged a fee and will have to confirm the submission", aliases=['bcommit'])
 async def byoc_commit(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
         return

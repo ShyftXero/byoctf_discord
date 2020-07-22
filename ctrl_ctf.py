@@ -195,6 +195,14 @@ class Commands:
             #     # print(chall)
     
     @db.db_session
+    def teams(self):
+        teams = db.Teams.select()[:]
+        data = []
+        for t in teams:
+            line = [t.name, for tm in t.members]
+
+
+    @db.db_session
     def bstat(self):
 
         challs = list(db.select(c for c in db.Challenge))
