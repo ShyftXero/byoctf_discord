@@ -156,6 +156,7 @@ class Commands:
     def drop(self, table:str):
         msg = """this will drop all users or challenges(flags and hints)"""
         print(msg)
+        print(f'target {table}')
         confirm = input("are you sure? [y/N]")
         if confirm.lower() != 'y':
             print('aborting... ')
