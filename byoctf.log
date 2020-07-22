@@ -1,60 +1,44 @@
-2020-07-21 08:59:03.704 | DEBUG    | database:buyHint:300 - Trying to buy hint for challenge_id 5 and user notfie#4785
-2020-07-21 08:59:03.711 | DEBUG    | database:buyHint:300 - Trying to buy hint for challenge_id 2 and user Combaticus#8292
-2020-07-21 08:59:03.717 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-21 08:59:03.726 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760: Combaticus#8292 of secondteam submitted FLAG{asdf}
-2020-07-21 08:59:03.730 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{asdf}
-2020-07-21 08:59:03.731 | DEBUG    | database:createSolve:413 - 0xDrMalloc#4492 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-21 08:59:03.737 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760: 0xDrMalloc#4492 of thirdteam submitted FLAG{asdf}
-2020-07-21 08:59:03.742 | DEBUG    | database:createSolve:507 - 0xDrMalloc#4492 solved FLAG{asdf}
-2020-07-21 08:59:03.743 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-21 08:59:03.745 | DEBUG    | database:createSolve:433 - notfie#4785 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
-2020-07-21 08:59:03.746 | DEBUG    | database:createSolve:413 - shyft#0760 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-21 08:59:03.747 | DEBUG    | database:createSolve:433 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
-2020-07-21 08:59:03.747 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-21 08:59:03.748 | DEBUG    | database:createSolve:427 - FLAG{asdf} already submitted by Combaticus#8292
-2020-07-21 08:59:03.749 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{ASDF}; part of challenge challenge 1.
-2020-07-21 08:59:03.753 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: Combaticus#8292 of secondteam submitted FLAG{ASDF}
-2020-07-21 08:59:03.757 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{ASDF}
-2020-07-21 08:59:03.759 | DEBUG    | database:createSolve:413 - shyft#0760 is solving for FLAG{qwer}; part of challenge challenge 2.
-2020-07-21 08:59:03.760 | DEBUG    | database:createSolve:433 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by notfie#4785) OR is a part of a challenge authored by someone on the team. (chall by notfie#4785)
-2020-07-21 08:59:03.761 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{zxcv}; part of challenge __bonus__.
-2020-07-21 08:59:03.765 | DEBUG    | database:createSolve:493 - byoc reward of 75.0 sent to Combaticus#8292: notfie#4785 of bestteam submitted FLAG{zxcv}
-2020-07-21 08:59:03.767 | DEBUG    | database:createSolve:507 - notfie#4785 solved FLAG{zxcv}
-2020-07-21 08:59:03.768 | DEBUG    | database:createSolve:413 - shyft#0760 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-21 08:59:03.770 | DEBUG    | database:createSolve:433 - shyft#0760 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
-2020-07-21 08:59:03.771 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-21 08:59:03.773 | DEBUG    | database:createSolve:433 - notfie#4785 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760)
-2020-07-21 08:59:03.774 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{asdf}; part of challenge challenge 1.
-2020-07-21 08:59:03.780 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{asdf}
-2020-07-21 08:59:03.783 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{asdf}
-2020-07-21 08:59:03.784 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{ASDF}; part of challenge challenge 1.
-2020-07-21 08:59:03.795 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{ASDF}
-2020-07-21 08:59:03.798 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{ASDF}
-2020-07-21 08:59:03.799 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{qwer}; part of challenge challenge 2.
-2020-07-21 08:59:03.803 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to notfie#4785: AyKay#3420 of fourthteam submitted FLAG{qwer}
-2020-07-21 08:59:03.811 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{qwer}
-2020-07-21 08:59:03.813 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{zxcv}; part of challenge __bonus__.
-2020-07-21 08:59:03.818 | DEBUG    | database:createSolve:493 - byoc reward of 75.0 sent to Combaticus#8292: AyKay#3420 of fourthteam submitted FLAG{zxcv}
-2020-07-21 08:59:03.822 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{zxcv}
-2020-07-21 08:59:03.824 | DEBUG    | database:createSolve:413 - AyKay#3420 is solving for FLAG{jkl}; part of challenge challenge 6.
-2020-07-21 08:59:03.829 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760: AyKay#3420 of fourthteam submitted FLAG{jkl}
-2020-07-21 08:59:03.832 | DEBUG    | database:createSolve:507 - AyKay#3420 solved FLAG{jkl}
-2020-07-21 09:05:24.515 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 09:05:24.515 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 10:29:38.062 | DEBUG    | database:validateChallenge:522 - validating the challenge from shyft#0760
-2020-07-21 10:29:38.062 | DEBUG    | database:validateChallenge:522 - validating the challenge from shyft#0760
-2020-07-21 10:29:38.063 | DEBUG    | database:validateChallenge:524 - Got challenge object: {'author': 'shyft#0760', 'challenge_title': 'byoc challenge asdfasf', 'challenge_description': "this is some markdown for the challenge description... 1500 character limit. use a link to a pastebin if you need more space.\ngo to this ** EXTERANLLY HOSTED ** link to download the files or access resources -> [http://yoursite.com/1337_challenge] WE DON'T / CAN'T HOST FILES.\nThat is up to you to figure out (google drive, mega, torrent, etc.). 100 point minimum cumulative value for the challenge. If you deviate from the `FLAG{xxx}` format you have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently, we don't have dynamic or regex flags enabled. just static, case-sensitive flags. First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward; [https://github.com/Bios-Marcel/cordless]", 'tags': ['forensics', 'osint'], 'flags': [{'flag_title': 'flag 1 title for challenge 1', 'flag_value': 200, 'flag_flag': 'FLAG{THIS_IS_THE_FLAG}'}, {'flag_title': 'flag 2 title for challenge 1', 'flag_value': 200, 'flag_flag': 'FLAG{THIS_IS_another_FLAG}'}, {'flag_title': 'flag 3 title for challenge 1', 'flag_value': 100, 'flag_flag': 'FLAG{THIS_IS_THE_3rd_FLAG}'}], 'hints': [{'hint_cost': 50, 'hint_text': 'look in `/etc/shadow`'}, {'hint_cost': 150, 'hint_text': 'try running `find / -name vulnerable`'}]}
-2020-07-21 10:29:38.063 | DEBUG    | database:validateChallenge:524 - Got challenge object: {'author': 'shyft#0760', 'challenge_title': 'byoc challenge asdfasf', 'challenge_description': "this is some markdown for the challenge description... 1500 character limit. use a link to a pastebin if you need more space.\ngo to this ** EXTERANLLY HOSTED ** link to download the files or access resources -> [http://yoursite.com/1337_challenge] WE DON'T / CAN'T HOST FILES.\nThat is up to you to figure out (google drive, mega, torrent, etc.). 100 point minimum cumulative value for the challenge. If you deviate from the `FLAG{xxx}` format you have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently, we don't have dynamic or regex flags enabled. just static, case-sensitive flags. First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward; [https://github.com/Bios-Marcel/cordless]", 'tags': ['forensics', 'osint'], 'flags': [{'flag_title': 'flag 1 title for challenge 1', 'flag_value': 200, 'flag_flag': 'FLAG{THIS_IS_THE_FLAG}'}, {'flag_title': 'flag 2 title for challenge 1', 'flag_value': 200, 'flag_flag': 'FLAG{THIS_IS_another_FLAG}'}, {'flag_title': 'flag 3 title for challenge 1', 'flag_value': 100, 'flag_flag': 'FLAG{THIS_IS_THE_3rd_FLAG}'}], 'hints': [{'hint_cost': 50, 'hint_text': 'look in `/etc/shadow`'}, {'hint_cost': 150, 'hint_text': 'try running `find / -name vulnerable`'}]}
-2020-07-21 10:29:41.014 | DEBUG    | database:buildChallenge:641 - building the challenge from shyft#0760
-2020-07-21 10:29:41.014 | DEBUG    | database:buildChallenge:641 - building the challenge from shyft#0760
-2020-07-21 10:31:04.268 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{THIS_IS_another_FLAG}; part of challenge byoc challenge asdfasf.
-2020-07-21 10:31:04.282 | DEBUG    | database:createSolve:502 - byoc reward of 50.0 sent to shyft#0760: Combaticus#8292 of secondteam submitted an external flag.
-2020-07-21 10:31:04.285 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{THIS_IS_another_FLAG}
-2020-07-21 12:15:25.638 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 12:15:25.638 | DEBUG    | __main__:on_ready:119 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 13:10:00.575 | DEBUG    | __main__:on_ready:121 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 13:10:00.575 | DEBUG    | __main__:on_ready:121 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 15:00:24.652 | DEBUG    | __main__:on_ready:122 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 15:00:24.652 | DEBUG    | __main__:on_ready:122 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 15:01:08.765 | DEBUG    | __main__:on_ready:122 - BYOCTF_Automaton is online and awaiting your command!
-2020-07-21 15:01:08.765 | DEBUG    | __main__:on_ready:122 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-22 16:52:11.670 | DEBUG    | database:buyHint:300 - Trying to buy hint for challenge_id 5 and user notfie#4785
+2020-07-22 16:52:11.677 | DEBUG    | database:buyHint:300 - Trying to buy hint for challenge_id 2 and user Combaticus#8292
+2020-07-22 16:52:11.683 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-22 16:52:11.690 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760___________: Combaticus#8292 of secondteam submitted FLAG{asdf}
+2020-07-22 16:52:11.692 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{asdf}
+2020-07-22 16:52:11.693 | DEBUG    | database:createSolve:413 - 0xDrMalloc#4492 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-22 16:52:11.697 | DEBUG    | database:createSolve:493 - byoc reward of 25.0 sent to shyft#0760___________: 0xDrMalloc#4492 of thirdteam submitted FLAG{asdf}
+2020-07-22 16:52:11.701 | DEBUG    | database:createSolve:507 - 0xDrMalloc#4492 solved FLAG{asdf}
+2020-07-22 16:52:11.702 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-22 16:52:11.704 | DEBUG    | database:createSolve:433 - notfie#4785 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760___________) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760___________)
+2020-07-22 16:52:11.704 | DEBUG    | database:createSolve:413 - shyft#0760___________ is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-22 16:52:11.705 | DEBUG    | database:createSolve:433 - shyft#0760___________ is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760___________) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760___________)
+2020-07-22 16:52:11.705 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{asdf}; part of challenge challenge 1.
+2020-07-22 16:52:11.706 | DEBUG    | database:createSolve:427 - FLAG{asdf} already submitted by Combaticus#8292
+2020-07-22 16:52:11.707 | DEBUG    | database:createSolve:413 - Combaticus#8292 is solving for FLAG{ASDF}; part of challenge challenge 1.
+2020-07-22 16:52:11.711 | DEBUG    | database:createSolve:493 - byoc reward of 50.0 sent to shyft#0760___________: Combaticus#8292 of secondteam submitted FLAG{ASDF}
+2020-07-22 16:52:11.714 | DEBUG    | database:createSolve:507 - Combaticus#8292 solved FLAG{ASDF}
+2020-07-22 16:52:11.716 | DEBUG    | database:createSolve:413 - shyft#0760___________ is solving for FLAG{qwer}; part of challenge challenge 2.
+2020-07-22 16:52:11.717 | DEBUG    | database:createSolve:433 - shyft#0760___________ is trying to submit their own flag or a flag authored teammate. (flag by notfie#4785) OR is a part of a challenge authored by someone on the team. (chall by notfie#4785)
+2020-07-22 16:52:11.719 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{zxcv}; part of challenge __bonus__.
+2020-07-22 16:52:11.725 | DEBUG    | database:createSolve:493 - byoc reward of 75.0 sent to Combaticus#8292: notfie#4785 of bestteam submitted FLAG{zxcv}
+2020-07-22 16:52:11.728 | DEBUG    | database:createSolve:507 - notfie#4785 solved FLAG{zxcv}
+2020-07-22 16:52:11.730 | DEBUG    | database:createSolve:413 - shyft#0760___________ is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-22 16:52:11.731 | DEBUG    | database:createSolve:433 - shyft#0760___________ is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760___________) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760___________)
+2020-07-22 16:52:11.733 | DEBUG    | database:createSolve:413 - notfie#4785 is solving for FLAG{jkl}; part of challenge challenge 6.
+2020-07-22 16:52:11.734 | DEBUG    | database:createSolve:433 - notfie#4785 is trying to submit their own flag or a flag authored teammate. (flag by shyft#0760___________) OR is a part of a challenge authored by someone on the team. (chall by shyft#0760___________)
+2020-07-22 16:52:16.504 | DEBUG    | __main__:on_ready:130 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-22 16:52:16.504 | DEBUG    | __main__:on_ready:130 - BYOCTF_Automaton is online and awaiting your command!
+2020-07-22 16:52:21.455 | DEBUG    | __main__:register:162 - Registered as `shyft#0760` on team `asdfk`
+ You should see a new channel for the CTF. 
+2020-07-22 16:52:21.455 | DEBUG    | __main__:register:162 - Registered as `shyft#0760` on team `asdfk`
+ You should see a new channel for the CTF. 
+2020-07-22 16:52:21.544 | DEBUG    | __main__:register:167 - shyft#0760 registered.
+2020-07-22 16:52:21.544 | DEBUG    | __main__:register:167 - shyft#0760 registered.
+2020-07-22 16:52:21.639 | DEBUG    | __main__:register:179 - shyft#0760 on Arkansas Hackers got role byoctf_player
+2020-07-22 16:52:21.639 | DEBUG    | __main__:register:179 - shyft#0760 on Arkansas Hackers got role byoctf_player
+2020-07-22 16:53:52.789 | DEBUG    | __main__:register:162 - Registered as `AyKay#3420` on team `asdf`
+ You should see a new channel for the CTF. 
+2020-07-22 16:53:52.789 | DEBUG    | __main__:register:162 - Registered as `AyKay#3420` on team `asdf`
+ You should see a new channel for the CTF. 
+2020-07-22 16:53:53.074 | DEBUG    | __main__:register:167 - AyKay#3420 registered.
+2020-07-22 16:53:53.074 | DEBUG    | __main__:register:167 - AyKay#3420 registered.
+2020-07-22 16:53:53.171 | DEBUG    | __main__:register:179 - AyKay#3420 on Arkansas Hackers got role byoctf_player
+2020-07-22 16:53:53.171 | DEBUG    | __main__:register:179 - AyKay#3420 on Arkansas Hackers got role byoctf_player

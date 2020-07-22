@@ -3,9 +3,9 @@ import random
 from database import *
 
 
-import faker
+# import faker
 
-fake = faker.Faker()
+# fake = faker.Faker()
 
 db.drop_all_tables(with_all_data=True)
 
@@ -26,11 +26,11 @@ with db_session:
 
     #users
     bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
-    shyft = db.User(name='shyft#0760', team=bestteam)
+    shyft = db.User(name='shyft#0760___________', team=bestteam)
     fie = db.User(name='notfie#4785', team=bestteam)
-    r3d = db.User(name='Combaticus#8292', team=secondteam)
+    r3d = db.User(name='Combaticus#8292____', team=secondteam)
     malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
-    aykay = db.User(name='AyKay#3420', team=fourthteam)
+    # aykay = db.User(name='AyKay#3420', team=fourthteam)
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=shyft, byoc=True)
@@ -104,11 +104,11 @@ with db_session:
     createSolve(user=shyft, flag=flag_jkl) # test byoc self solve 
     createSolve(user=fie, flag=flag_jkl) # test byoc duplicate\
 
-    createSolve(user=aykay, flag=flag_asdf)
-    createSolve(user=aykay, flag=flag_ASDF)
-    createSolve(user=aykay, flag=flag_qwer)
-    createSolve(user=aykay, flag=flag_zxcv)
-    createSolve(user=aykay, flag=flag_jkl)
+    # createSolve(user=aykay, flag=flag_asdf)
+    # createSolve(user=aykay, flag=flag_ASDF)
+    # createSolve(user=aykay, flag=flag_qwer)
+    # createSolve(user=aykay, flag=flag_zxcv)
+    # createSolve(user=aykay, flag=flag_jkl)
     
     # # show()
     commit()

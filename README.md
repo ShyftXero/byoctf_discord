@@ -1,6 +1,194 @@
-# byoctf_discord
-## Bring Your Own [Challenge || Capture] The Flag
-Whoa... this is harder to do that I thought it would be... but CTFs are fun and so is running them.
+# byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
+
+## TL;DR
+A CTF framework that allows players to submit and complete challenges from other players. They are rewarded when players solve their challenges. 
+
+People always want to help, but they can't play if they create challenges for us. this addresses that.
+
+Discord provides the UI/UX 
+
+Users can trade points amongst themselves for favors, info, etc.
+
+I'm not a great dev so code is a hodge-podge, but it *mostly* works.
+
+People kept asking if fs2600 was going to host Shell On The Border again. My answer internally was 'not until the byoc framework is done.' Here we are... 
+
+---
+
+## Features
+This implements several features that are unique to SOTB or match our event's aesthetique
+
+- User contributed challenges meaning GMs/hosts can play too. 
+  - Internally validated flags (if you trust us to not look at flags)
+  - Externally validated flags (if you don't trust us to not look at flags)
+    - We provide a demo server for you to host on your own infrastructure. 
+  - Purchasable hints
+  - Reward system for user contributed challenges.
+    - Some percentage of flag value
+  - JSON based challenge definition.
+- Flag oriented
+  - Points are bound to flags (except for externally validated challenges)
+- Bonus flags 
+  - flags not bound to a specific challenge
+  - useful for flags "found" in the environment or created in an impromptu fashion
+- Inter-player transactions via the "tip" system.
+  - informal hint purchases? 
+  - drug transactions?
+  - provides a mechanism for players to try and social engineer points off eachother.
+  - rewards for kindness?
+- Team oriented
+  - scores are often displayed in the context of your team.
+  - hints purchased by a teammate are viewable by all teammates
+  - submissions and unlocked challenges are viewable by all teammates. 
+  - if you buy it, your team gets access to it.
+  - You can't submit flags authored by your team, of course. 
+- Public/Private mode for the scoreboard. 
+  - you can see your team scores but not other teams. 
+  - helps motivate teams who would give up if they felt they didn't stand a chance.
+  - Can show MVPs for individual score. 
+- FirstBlood
+  - Bonus for first solve of a flag
+- Flag Decay
+  - Flags become less valuable as they are solved by other teams.
+- Configurable via text editor or CLI
+  - decay rate
+  - BYOC fees and reward 
+  - firstblood rewards
+  - see `settings.py` and `ctrl_ctf.py`
+- User management and registration handled via discord...
+  - uses account name and its descriminator e.g. `shyft#0760`
+- Flag submission is ratelimited
+  - tunable via settings. 
+- Most commands are restricted to DM with the bot
+  - prevents flag and score info leak in public channels. 
+  - `!tip` is allowed in public channels to inform others that you offered up a tip. This allows you to use `@<discord_name>` if they are in the same channel. (`statewide hackery` or a dedicated CTF channel is a good place for that)
+  - It can be done in the DM as well but you need the username of the recipient (like `shyft#0760`; click on their name in Discord to view that.)
+---
+## How to play
+
+Key commands 
+- `!reg <teamname>` - register and join *teamname*; wrap in quotes if you have spaces in the teamname
+- `!top` - shows your score 
+- `!all` - list all challenges
+- `!v <challenge_id>` - detail view of a specific challenge
+- `!sub <flag>` - submit a flag you find while working on a challenge
+- `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
+- `!solves` - show all the flags your team has submitted. 
+- `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
+---
+
+## BYOC Challenges
+
+Notes about BYOC challenges
+- ### ***There is no way to edit your challenge once you commit it***
+  - Make sure you don't have typos 
+  - use DNS names rather than hardcoded IPs for links
+  - use non-dynamic links for sharing files (google drive may yield a different link even you create a new version of the "same" file )
+  - ***Make sure it's solvable*** 
+    - The bot can't prove or know that it is or isn't
+- Cumulative challenge value is the sum of flag values
+  - Must exceed 100 points
+- Flags must be globally unique.   
+  - potential info leak about a flag that exists, but we just have to accept that... 
+- Description is limited to 1500 chars. 
+- The framework doesn't (can't) host files. 
+  - Link to a pastebin, google drive, mega, torrent, etc. if you need storage or more space for words... 
+- By default, it costs 50% of the total challenge value to post a challenge. 
+- By default, your reward for the solve of a flag which is part of your challenge is 25% of that flags value. 
+  - if the challenge is externally validated, it's based on the challenge value. 
+- This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)
+
+Submitting a challenge
+- Validate your challenge by attaching the json file in a DM to the bot with the command `!byoc_check`
+  - If it's valid, an extended preview will show up showing the cost. 
+- Commit your challenge (actually post it) by attaching the json file in a DM to the bot with the command `!byoc_commit`
+  - If the challenge is valid, the preview will show up and you will be prompted to type `confirm` within 10 seconds.
+    - If you do, you are charged the fee (again, by default 50% of the cumulative value) and the challenge is made available to others.
+- Others can use `!v <chall_id>` to see it. 
+  
+---
+A basic single flag challenge.
+```json
+{
+    "author": "Combaticus#8292",
+    "challenge_title": "r3d's challenge",
+    "challenge_description": "good luck finding my flag",
+    "tags": ["pentest"], 
+    "flags": [
+        {
+            "flag_title": "r3d flag", 
+            "flag_value": 200,
+            "flag_flag": "FLAG{this_is_a_flag_from_r3d}"
+
+        }
+    ], 
+    "hints": [
+        {
+            "hint_cost": 10,
+            "hint_text": "the flag is easy"
+        }
+    ]
+}
+```
+A challenge with multiple flags.
+```json
+{
+    "author": "Combaticus#8292",
+    "challenge_title": "r3d's multi-flag challenge",
+    "challenge_description": "good luck finding my flags",
+    "tags": ["pentest", "forensics"], 
+    "flags": [
+        {
+            "flag_title": "flag 1 ", 
+            "flag_value": 100,
+            "flag_flag": "FLAG{this_is_flag_1_for_multiflag}"
+
+        },
+        {
+            "flag_title": "flag 2", 
+            "flag_value": 300,
+            "flag_flag": "FLAG{this_is_flag_2_for_multiflag}"
+
+        }
+    ], 
+    "hints": [
+        {
+            "hint_cost": 25,
+            "hint_text": "Both of the the flags are easy"
+        }
+    ]
+}
+```
+An externally validated challenge.
+```json
+{
+    "author": "Combaticus#8292",
+    "challenge_title": "r3d's external challenge",
+    "challenge_description": "good luck finding my flag. ",
+    "tags": ["coding"], 
+    "hints": [
+        {
+            "hint_cost": 25,
+            "hint_text": "the flag is also easy"
+        }
+    ],
+    "external_challenge_value": 250, 
+    "external_validation": true, 
+    "external_validation_url": "http://mydomain.com:5000/validate"
+}
+```
+- You won't know your challenge ID to update the `flags.json` on your validation server until you actually commit your challenge and pay the fee. 
+
+There are a couple of other examples in the `example_challenges` folder... 
+
+
+---
+
+## Info that may be redundant... 
+Whoa... this was harder to do that I thought it would be... but CTFs are fun and so is running them.
+
+lot's of edge cases to consider for you pesky hackers...
+
 
 I wanted to build this for the next iteration of SOTB or any CTF that fs2600 crew participates in running. 
 
@@ -57,5 +245,6 @@ You're limited on what you can do in this mode. One flag per challenge.
 This is nice because it allows the GMs to be able to compete as well. 
 
 You just have to trust that we aren't capturing all of the requests that we forward to you for validation... we aren't... 
+
 
 that's all the documentation for now... 
