@@ -194,12 +194,12 @@ class Commands:
             # for chall in challs:
             #     # print(chall)
     
-    @db.db_session
-    def teams(self):
-        teams = db.Teams.select()[:]
-        data = []
-        for t in teams:
-            line = [t.name, for tm in t.members]
+    # @db.db_session
+    # def teams(self):
+    #     teams = db.Teams.select()[:]
+    #     data = []
+    #     for t in teams:
+    #         line = [t.name, for tm in t.members]
 
 
     @db.db_session
