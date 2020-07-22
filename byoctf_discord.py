@@ -216,6 +216,7 @@ async def scores(ctx):
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{TESTFLAG}', aliases=['sub'])
 # @bot.command()
 # @commands.has_role("CTF_player")
+@discord.ext.commands.cooldown(1,1,type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
         return
@@ -564,6 +565,7 @@ async def solves(ctx):
         else:
             msg += f"```{table.table}```"
             await ctx.send(msg)
+
 
 @bot.command(name='byoc_stats', help="this will show you stats about the BYOC challenges you've created. total profit from solves, etc.", aliases=['bstats','bstat'])
 async def byoc_stats(ctx):
