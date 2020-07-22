@@ -1,5 +1,5 @@
 requests
-discordpy
+discord.py
 flask
 requests
 loguru
