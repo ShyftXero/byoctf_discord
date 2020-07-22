@@ -131,6 +131,8 @@ class Commands:
         table  = mdTable(solves)
         print(table.table)
 
+
+
     @db.db_session
     def users(self):
         data = db.select(u for u in db.User)[:]
@@ -150,6 +152,33 @@ class Commands:
         table = mdTable(ts)
         print(table.table)
 
+    @db.db_session
+    def drop(self, table:str):
+        msg = """this will drop all users or challenges(flags and hints)"""
+        print(msg)
+        confirm = input("are you sure? [y/N]")
+        if confirm.lower() != 'y':
+            print('aborting... ')
+            return
+        
+        if table == 'user':
+            db.User.select().delete(bulk=True)
+            print("Deleted Users")
+            return
+        if table == 'challenges':
+            challs = db.Challenge.select()[:]
+            for c in challs:
+                for t in c.transaction:
+                    t.delete()
+                for s in c.solve:
+                    s.delete()
+                for f in c.flags:
+                    f.delete()
+                for h in c.hints:
+                    h.delete()
+                c.delete()
+
+        # db.db.generate_mapping()
     @db.db_session
     def SOFT_RESET(self):
         msg = """this will drop all transactions and solves but leave flags, hints, challenges, and users in place """
