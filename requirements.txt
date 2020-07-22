@@ -6,3 +6,4 @@ loguru
 pony
 terminaltables
 diskcache
+fire
