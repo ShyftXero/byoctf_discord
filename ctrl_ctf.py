@@ -143,12 +143,29 @@ class Commands:
 
 
     @db.db_session
-    def dump_trans(self):
+    def trans(self):
         ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))
 
         ts.insert(0, ["Trans ID", "Value", 'Type','Sender', 'Recipient', 'Message', 'Time'])
         table = mdTable(ts)
         print(table.table)
+
+    @db.db_session
+    def SOFT_RESET(self):
+        msg = """this will drop all transactions and solves but leave flags, hints, challenges, and users in place """
+        print(msg)
+        confirm = input("are you sure? [y/N]")
+        if confirm.lower() != 'y':
+            print('aborting... ')
+            return
+        db.Transaction.select().delete(bulk=True)
+        db.Solve.select().delete(bulk=True)
+        print("Done.")
+        self.trans()
+        self.subs()
+        self.users()
+
+        
 
     def FULL_RESET(self):
         confirm = input("are you sure? [y/N]")

@@ -7,3 +7,4 @@ pony
 terminaltables
 diskcache
 fire
+faker
