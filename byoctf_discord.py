@@ -7,8 +7,6 @@ import time
 import json
 from typing import Union
 
-from textwrap import fill
-
 from loguru import logger
 logger.add('byoctf.log')
 
@@ -18,8 +16,6 @@ import discord
 from discord.ext import commands
 
 import asyncio
-
-from secrets import DISCORD_TOKEN
 import database as db
 
 import json
@@ -30,6 +26,7 @@ if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has da
     init_config()
 
 bot = commands.Bot(command_prefix='!')
+
 
 def username(obj):
     if hasattr(obj, "author"): 
@@ -71,6 +68,17 @@ async def sendBigMessage(ctx, content):
 
     # send final chunk
     await ctx.send(f'```{chunk}```')
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.CommandNotFound):  
+        await ctx.send(f"Command `{ctx.message.content}` not found... \n\nTry `!help` or `!help <command>`")
+    elif isinstance(error, commands.errors.CommandOnCooldown):
+        msg = f'***Whoa... Slow down... Please try again in {error.retry_after:.2f}s***'
+        await ctx.send(msg)
+        logger.debug(f'Brute-forcing for flags? - {username(ctx)}: {msg}')
+    else:
+        raise error
 
 async def inPublicChannel(ctx, msg='this command should only be done in a private message (DM) to the bot'):
     # logger.debug(f'{ctx.channel.type.name} {type(ctx.channel.type.name)}, {dir(ctx.channel.type)}')
@@ -122,9 +130,9 @@ async def on_ready():
     logger.debug(f'{bot.user.name} is online and awaiting your command!')
 
 @db.db_session()
-@bot.command(name='register', help='register on the scoreboard. !register <teamname>; wrap team name in quotes if you need a space')
+@bot.command(name='register', help='register on the scoreboard. !register <teamname>; wrap team name in quotes if you need a space', aliases=['reg'])
 @commands.dm_only()
-async def register(ctx, teamname=None):
+async def register(ctx: discord.ext.commands.Context, teamname=None):
     if SETTINGS['registration'] == 'disabled':
         await ctx.send("registration is disabled")
         return
@@ -132,7 +140,7 @@ async def register(ctx, teamname=None):
     if teamname == None:
         await ctx.send("I know it looks like teamname is an optional parameter, but it's not... sorry. ")
         return
-   
+
 
     with db.db_session:
         team = list(db.select(t for t in db.Team if t.name == teamname))
@@ -150,9 +158,26 @@ async def register(ctx, teamname=None):
             user = db.User(name=username(ctx), team=team[0]) # team already existed
         
         db.commit()
-        msg = f'Registered as `{username(ctx)}` on team `{teamname}`'
+        msg = f'Registered as `{username(ctx)}` on team `{teamname}`\n You should see a new channel for the CTF. '
         logger.debug(msg)
         await ctx.send(msg)
+
+        #give them the 'byoctf' channel on Arkansas hackers
+        if SETTINGS['_debug']:
+            logger.debug(f"{username(ctx)} registered.")
+        # role = discord.utils.find(lambda r: r.id == SETTINGS['_ctf_channel_role_id'], discord.abc.Snowflake)
+
+        # add them to the appropriate channels on your server. 
+        guild:discord.Guild = bot.get_guild(SETTINGS['_ctf_guild_id'])
+        
+        role = guild.get_role(SETTINGS['_ctf_channel_role_id'])
+        
+        member = guild.get_member(ctx.author.id)
+        await member.add_roles(role)
+
+        if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1: 
+            logger.debug(f'{member} on {guild} got role {role}')
+        
 
 @bot.command(name='ctfstatus', help="shows status information about the CTF", aliases=['stats'])
 async def ctfstatus(ctx):
@@ -213,10 +238,10 @@ async def scores(ctx):
 
 
 
-@bot.command(name='submit', help='submit a flag e.g. !submit FLAG{TESTFLAG}', aliases=['sub'])
+@bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
 # @bot.command()
 # @commands.has_role("CTF_player")
-@discord.ext.commands.cooldown(1,1,type=discord.ext.commands.BucketType.user) # one submission per second per user
+@commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
         return
@@ -314,7 +339,9 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         logger.debug(msg)
         await ctx.send(msg)
 
+
 @bot.command(name='tip', help="send a tip (points) to another player; msg has 100 char limit e.g. !tip @user <some_points> ['some message here']")
+@commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def tip(ctx, target_user: Union[discord.User,str] , tip_amount: float, msg=None):
     # logger.debug(username(target_user))
 
@@ -391,7 +418,7 @@ async def list_unsolved(ctx):
     await ctx.send(msg)
 
 @bot.command(name="all_challenges", help="list all visible challenges. solved or not. ", aliases=['all', 'allc','ac'])
-async def list_all(ctx):
+async def list_all(ctx, tag:str=None):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
         return
 
@@ -403,8 +430,10 @@ async def list_all(ctx):
         user = db.User.get(name=username(ctx))
         challs = db.get_all_challenges(user)
 
-        res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0]
-       
+        if tag == None:
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, c.tags) for c in challs if c.id > 0]
+        else:
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0 and tag in c.tags]
 
     res.insert(0, ['ID', "Author", "Title","Value", "BYOC"])
     table = GithubFlavoredMarkdownTable(res)
@@ -615,7 +644,8 @@ async def loadBYOCFile(ctx):
 
     return challenge_object    
 
-@bot.command(name='byoc_ext', help="this is how you will submit BYOC challenges that are externally validated.", aliases=['bsub'])
+@bot.command(name='byoc_ext', help="this is how you will submit BYOC challenges that are externally validated.", aliases=['esub'])
+@commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_flag: str):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
         return
@@ -644,10 +674,6 @@ async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_fla
             return 
 
         await ctx.send(f"External validation server reported that your was incorrect... talk to <@{(await getDiscordUser(ctx,chall.author.name)).id}>: {res}")
-
-
-
-
 
 
 @bot.command(name="byoc_check", help="this will check your BYOC challenge is valid. It will show you how much it will cost to post", aliases=['bcheck'])
@@ -726,20 +752,6 @@ async def byoc_commit(ctx):
     return
 
 
-# @bot.event
-# async def on_message(message):
-#     if message.author == bot.user:
-#         return # prevent self-spamming
-
-#     keywords = ['test', 'help' ]
-
-#     for keyword in keywords:
-#         if keyword in message.content.lower():
-#             logger.debug(f'responding to {message.author.display_name} about {keyword}')
-#             response = "right or wrong"
-#             # await message.author.send('adsf') # send a direct message to the user
-#             await message.channel.send(response)
-#             break
-
-
-bot.run(DISCORD_TOKEN)
+if __name__ == '__main__':
+    from secrets import DISCORD_TOKEN
+    bot.run(DISCORD_TOKEN)
