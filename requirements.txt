@@ -5,3 +5,4 @@ requests
 loguru
 pony
 terminaltables
+diskcache
