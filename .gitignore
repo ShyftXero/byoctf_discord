@@ -1,4 +1,5 @@
 secrets.py
 byoctf.db
+byoctf.log
 byoctf_diskcache/
 __pycache__/*
