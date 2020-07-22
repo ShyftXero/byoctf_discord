@@ -3,5 +3,5 @@ discordpy
 flask
 requests
 loguru
-ponyorm
+pony
 terminaltables
