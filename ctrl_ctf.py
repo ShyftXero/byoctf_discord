@@ -241,12 +241,20 @@ class Commands:
             # for chall in challs:
             #     # print(chall)
     
-    # @db.db_session
-    # def teams(self):
-    #     teams = db.Teams.select()[:]
-    #     data = []
-    #     for t in teams:
-    #         line = [t.name, for tm in t.members]
+    @db.db_session
+    def teams(self):
+        teams = db.Team.select()[:]
+        data = []
+        for t in teams:
+            line = [t.name, ', '.join([tm.name for tm in t.members]), t.password]
+            # print(line)
+            data.append(line)
+        data.insert(0,['Team', 'Members', 'Team Password Hash'])
+        table = mdTable(data)
+        table.inner_row_border = True
+        print(table.table)
+
+
 
 
     @db.db_session

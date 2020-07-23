@@ -16,21 +16,21 @@ AMOUNT_OF_DATA = 10
 
 with db_session:
     
-    #teams
-    botteam = db.Team(name='botteam') 
-    bestteam = db.Team(name="bestteam")
-    secondteam = db.Team(name='secondteam')
-    thirdteam = db.Team(name='thirdteam')
-    fourthteam = db.Team(name='fourthteam')
+    #teams; These passwords are sha256 of teamname.
+    botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f') 
+    bestteam = db.Team(name="bestteam", password='af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785')
+    secondteam = db.Team(name='secondteam', password='4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f')
+    thirdteam = db.Team(name='thirdteam', password='7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b')
+    fourthteam = db.Team(name='fourthteam', password='f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c')
 
 
     #users
     bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
-    shyft = db.User(name='shyft#0760___________', team=bestteam)
-    fie = db.User(name='notfie#4785', team=bestteam)
-    r3d = db.User(name='Combaticus#8292____', team=secondteam)
-    malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
-    # aykay = db.User(name='AyKay#3420', team=fourthteam)
+    shyft = db.User(name='shyft#0760___', team=bestteam)
+    fie = db.User(name='notfie#4785___', team=bestteam)
+    r3d = db.User(name='Combaticus#8292___', team=secondteam)
+    malloc = db.User(name='0xDrMalloc#4492___', team=thirdteam)
+    aykay = db.User(name='AyKay#3420___', team=fourthteam)
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=shyft, byoc=True)
@@ -104,11 +104,11 @@ with db_session:
     createSolve(user=shyft, flag=flag_jkl) # test byoc self solve 
     createSolve(user=fie, flag=flag_jkl) # test byoc duplicate\
 
-    # createSolve(user=aykay, flag=flag_asdf)
-    # createSolve(user=aykay, flag=flag_ASDF)
-    # createSolve(user=aykay, flag=flag_qwer)
-    # createSolve(user=aykay, flag=flag_zxcv)
-    # createSolve(user=aykay, flag=flag_jkl)
+    createSolve(user=aykay, flag=flag_asdf)
+    createSolve(user=aykay, flag=flag_ASDF)
+    createSolve(user=aykay, flag=flag_qwer)
+    createSolve(user=aykay, flag=flag_zxcv)
+    createSolve(user=aykay, flag=flag_jkl)
     
     # # show()
     commit()
