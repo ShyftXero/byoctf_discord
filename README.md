@@ -91,8 +91,10 @@ Notes about BYOC challenges
   - use non-dynamic links for sharing files (google drive may yield a different link even you create a new version of the "same" file )
   - ***Make sure it's solvable*** 
     - The bot can't prove or know that it is or isn't
+  - ***ALL SALES ARE FINAL!***
 - Cumulative challenge value is the sum of flag values
   - Must exceed 100 points
+- Challenge titles must be unique. 
 - Flags must be globally unique.   
   - potential info leak about a flag that exists, but we just have to accept that... 
 - Description is limited to 1500 chars. 
@@ -101,9 +103,11 @@ Notes about BYOC challenges
 - By default, it costs 50% of the total challenge value to post a challenge. 
 - By default, your reward for the solve of a flag which is part of your challenge is 25% of that flags value. 
   - if the challenge is externally validated, it's based on the challenge value. 
-- This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)
+- *This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)*
+  - we need to store it the flag so the `!solves` command can show you which flags you've already submitted. 
+  - open to arguments against this. 
 
-Submitting a challenge
+## Submitting a challenge
 - Validate your challenge by attaching the json file in a DM to the bot with the command `!byoc_check`
   - If it's valid, an extended preview will show up showing the cost. 
 - Commit your challenge (actually post it) by attaching the json file in a DM to the bot with the command `!byoc_commit`
@@ -182,12 +186,28 @@ An externally validated challenge.
     "external_validation_url": "http://mydomain.com:5000/validate"
 }
 ```
+- Start the external validation server prior to checking your challenge. part of the check is to see if it's able to validate. 
 - You won't know your challenge ID to update the `flags.json` on your validation server until you actually commit your challenge and pay the fee. 
+  - just use a text editor. and up date the key that corresponds to the flag. 
+  - you only need one server to validate multiple challenges. 
+
 
 There are a couple of other examples in the `example_challenges` folder... 
 
 
 ---
+
+# Setup
+
+add your own token to `secrets.py`
+
+```bash
+git clone https://github.com/ShyftXero/byoctf_discord
+cd byoctf_discord
+echo "DISCORD_TOKEN='asdfasdfasdf'" > secrets.py # https://discord.com/developers/applications; setup a bot  
+./ctrl_ctf.py FULL_RESET # creates the db and fills with test data by calling populateTestData.py
+python byoctf_discord.py
+```
 
 ## Info that may be redundant... 
 Whoa... this was harder to do that I thought it would be... but CTFs are fun and so is running them.
