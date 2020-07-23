@@ -8,3 +8,4 @@ terminaltables
 diskcache
 fire
 faker
+ipython
