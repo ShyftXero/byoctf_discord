@@ -255,7 +255,18 @@ class Commands:
         print(table.table)
 
 
+    @db.db_session
+    def change_teamname(self, oldname:str, newname:str):
+        team = db.Team.get(name=oldname)
 
+        resp = input(f"Are you sure you want to change team '{oldname}' to '{newname}'? [y/N]")
+        if resp == 'y':
+            team.name = newname
+            db.commit()
+            print("Done.")
+            return
+        print('Cancelling... ')
+        
 
     @db.db_session
     def bstat(self):
