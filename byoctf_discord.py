@@ -769,6 +769,29 @@ async def byoc_commit(ctx):
     return
 
 
+@bot.command("!tutorial", help='a tldr', aliases=['tut'])
+async def tutorial(ctx):
+    msg = f"""
+## How to play
+
+Key commands 
+- `!reg <team_name> <team_password>` - register and join *teamname*; super case-sensitive.  
+  - wrap in quotes if you have spaces in the teamname; 
+  - if the team exists and your password is correct, you're in. 
+  - if no team exists with the name specified, the team will be created with password specified. 
+  - leading and trailing spaces are stripped from team name and password.
+- `!top` - shows your score 
+- `!all` - list all challenges
+- `!v <challenge_id>` - detail view of a specific challenge
+- `!sub <flag>` - submit a flag you find while working on a challenge
+- `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
+- `!solves` - show all the flags your team has submitted. 
+- `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
+- `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
+"""
+    await ctx.send(msg)
+
+
 if __name__ == '__main__':
     from secrets import DISCORD_TOKEN
     bot.run(DISCORD_TOKEN)
