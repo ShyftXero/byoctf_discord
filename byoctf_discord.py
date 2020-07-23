@@ -7,6 +7,8 @@ import time
 import json
 from typing import Union
 
+import hashlib
+
 from loguru import logger
 logger.add('byoctf.log')
 
@@ -130,42 +132,57 @@ async def on_ready():
     logger.debug(f'{bot.user.name} is online and awaiting your command!')
 
 @db.db_session()
-@bot.command(name='register', help='register on the scoreboard. !register <teamname>; wrap team name in quotes if you need a space', aliases=['reg'])
+@bot.command(name='register', help='register on the scoreboard. !register <teamname> <password>; wrap team name in quotes if you need a space', aliases=['reg'])
 @commands.dm_only()
-async def register(ctx: discord.ext.commands.Context, teamname=None):
+async def register(ctx: discord.ext.commands.Context, teamname:str=None, password:str=None):
     if SETTINGS['registration'] == 'disabled':
         await ctx.send("registration is disabled")
         return
 
-    if teamname == None:
-        await ctx.send("I know it looks like teamname is an optional parameter, but it's not... sorry. ")
+    if teamname == None or password == None:
+        await ctx.send("I know it looks like the teamname and password are optional parameters, but they aren't... sorry. ")
         return
 
 
     with db.db_session:
-        team = list(db.select(t for t in db.Team if t.name == teamname))
+        teamname = teamname.strip()
+        password = password.strip()
 
-        user = list(db.select(u for u in db.User if username(ctx) == u.name)) #returns True or False if 
-        if len(user) > 0:
-            msg = f'already registered as `{username(ctx)}` on team `{user[0].team.name}`'
+        team = db.Team.get(name=teamname)
+        user = db.User.get(name=username(ctx))
+
+        if user:
+            msg = f'already registered as `{username(ctx)}` on team `{user.team.name}`'
             await ctx.send(msg)
             return
-         
-        if len(team) == 0:
-            team = db.Team(name=teamname)
-            user = db.User(name=username(ctx), team=team) # team didn't exist
-        else:
-            user = db.User(name=username(ctx), team=team[0]) # team already existed
+
+        hashed_pass = hashlib.sha256(password.encode()).hexdigest()
+
         
+
+        if team == None: # This team doesn't exist    
+            team = db.Team(name=teamname, password=hashed_pass)
+            user = db.User(name=username(ctx), team=team)
+            msg = f'Registered as `{user.name}` on a new team `{team.name}`\n'
+            logger.debug(msg)
+            await ctx.send(msg)
+        elif hashed_pass == team.password:
+            user = db.User(name=username(ctx), team=team) # team already existed
+            msg = f'Joined team `{team.name}` as `{user.name}`'
+            logger.debug(msg)
+            await ctx.send(msg)
+        else:
+            msg = f'Password incorrect for team {team.name}'
+            logger.debug(msg)
+            await ctx.send(msg)
+            if SETTINGS['_debug']:
+                logger.debug(f'{username(ctx)} failed registration; Team {teamname} pass {password} hashed {hashed_pass}')
         db.commit()
-        msg = f'Registered as `{username(ctx)}` on team `{teamname}`\n You should see a new channel for the CTF. '
-        logger.debug(msg)
-        await ctx.send(msg)
+        
+        
+        
 
         #give them the 'byoctf' channel on Arkansas hackers
-        if SETTINGS['_debug']:
-            logger.debug(f"{username(ctx)} registered.")
-        # role = discord.utils.find(lambda r: r.id == SETTINGS['_ctf_channel_role_id'], discord.abc.Snowflake)
 
         # add them to the appropriate channels on your server. 
         guild:discord.Guild = bot.get_guild(SETTINGS['_ctf_guild_id'])

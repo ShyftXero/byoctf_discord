@@ -79,6 +79,7 @@ class Team(db.Entity):
     id = PrimaryKey(int, auto=True)
     members = Set(User)
     name = Required(str)
+    password = Required(str)
 
 
 class Tag(db.Entity):
