@@ -769,7 +769,7 @@ async def byoc_commit(ctx):
     return
 
 
-@bot.command("!tutorial", help='a tldr', aliases=['tut'])
+@bot.command("!tutorial", help='a tldr for essential commands', aliases=['tut'])
 async def tutorial(ctx):
     msg = f"""
 ## How to play
