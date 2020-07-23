@@ -20,7 +20,7 @@ def init_config():
         "status":           "Operational",  # a generic message; can be updated during the game with ctrl_ctf.py, 
         "_ctf_guild_id": 618912342385885198, # your discord server. user right-click copy ID to get these
         "_ctf_channel_id": 735581872259727435, # channel ID to give to users once they register.
-        "_ctf_channel_id": 735582054485328004, # the ID of the role which will be given to players as they register; makes the channel visible to them. 
+        "_ctf_channel_role_id": 735582054485328004, # the ID of the role which will be given to players as they register; makes the channel visible to them. 
         "_firstblood_rate": .1,             # the percentage reward for firstblood solves
         "_decay_solves":     False,          # when decay is invoked. future solves are reduced based on the number of previous solves; best to keep public scoreboard
         "_decay_minimum":      .10,         # minimum percent award. 
