@@ -74,7 +74,10 @@ This implements several features that are unique to SOTB or match our event's ae
   - It can be done in the DM as well but you need the username of the recipient (like `shyft#0760`; click on their name in Discord to view that.)
 
 ## Expected Features
-- BYOC challenges being dependent on 
+- BYOC challenges being dependent on other BYOC challenges or Non BYOC challenges. 
+- public http scoreboard for live events. 
+- API access to challenges and solves. (removing dependecy on discord although it is integral right now; not any time soon)
+- maybe an admin web gui? idk... 
 
 ---
 ## How to play
