@@ -28,9 +28,12 @@ This implements several features that are unique to SOTB or match our event's ae
   - JSON based challenge definition.
 - Flag oriented
   - Points are bound to flags (except for externally validated challenges)
+  - One flag can belong to several challenges. 
+    - Challenges can be composed by binding specific aspects(flags) of other challenges. 
+    - Think of xbox achievements or goals; "Forensicator: solve 3 forensics flags." 
 - Bonus flags 
-  - flags not bound to a specific challenge
-  - useful for flags "found" in the environment or created in an impromptu fashion
+  - flags not bound to a specific challenge. (internally they are)
+  - useful for flags "found" in the environment or created in an impromptu fashion. Throw-away flags 
 - Inter-player transactions via the "tip" system.
   - informal hint purchases? 
   - drug transactions?
@@ -46,15 +49,21 @@ This implements several features that are unique to SOTB or match our event's ae
   - you can see your team scores but not other teams. 
   - helps motivate teams who would give up if they felt they didn't stand a chance.
   - Can show MVPs for individual score. 
-- FirstBlood
-  - Bonus for first solve of a flag
-- Flag Decay
-  - Flags become less valuable as they are solved by other teams.
-- Configurable via text editor or CLI
-  - decay rate
-  - BYOC fees and reward 
-  - firstblood rewards
-  - see `settings.py` and `ctrl_ctf.py`
+- Challenge dependencies
+  - Challenges are hidden until at least one flag from each "parent" challenge is solved. 
+  - _pretty sure this is working._ 
+- Reactive points for solves
+  - FirstBlood
+    - Bonus for first team to solve a flag
+    - default
+  - Flag Decay
+    - Flags become less valuable as they are solved by other teams.
+    - not default, fully implemented or tested.
+  - Configurable via text editor or CLI
+    - decay rate
+    - BYOC fees and reward 
+    - firstblood rewards
+    - see `settings.py` and `ctrl_ctf.py`
 - User management and registration handled via discord...
   - uses account name and its descriminator e.g. `shyft#0760`
 - Flag submission is ratelimited
@@ -63,6 +72,10 @@ This implements several features that are unique to SOTB or match our event's ae
   - prevents flag and score info leak in public channels. 
   - `!tip` is allowed in public channels to inform others that you offered up a tip. This allows you to use `@<discord_name>` if they are in the same channel. (`statewide hackery` or a dedicated CTF channel is a good place for that)
   - It can be done in the DM as well but you need the username of the recipient (like `shyft#0760`; click on their name in Discord to view that.)
+
+## Expected Features
+- BYOC challenges being dependent on 
+
 ---
 ## How to play
 
@@ -209,7 +222,8 @@ echo "DISCORD_TOKEN='asdfasdfasdf'" > secrets.py # https://discord.com/developer
 python byoctf_discord.py
 ```
 
-## Info that may be redundant... 
+---
+# Info that may be redundant... 
 This was built with Shell On The Border in mind so it may not be suitable for any other events. 
 
 Whoa... this was harder to do that I thought it would be... but CTFs are fun and so is running them.
