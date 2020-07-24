@@ -210,6 +210,8 @@ python byoctf_discord.py
 ```
 
 ## Info that may be redundant... 
+This was built with Shell On The Border in mind so it may not be suitable for any other events. 
+
 Whoa... this was harder to do that I thought it would be... but CTFs are fun and so is running them.
 
 lot's of edge cases to consider for you pesky hackers...
