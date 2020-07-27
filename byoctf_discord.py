@@ -461,7 +461,7 @@ async def list_all(ctx, tag:str=None):
         challs = db.get_all_challenges(user)
 
         if tag == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, ', '.join([t.name for t in c.tags]) for c in challs if c.id > 0]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
         else:
             res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
 
