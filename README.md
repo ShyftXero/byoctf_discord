@@ -79,6 +79,13 @@ This implements several features that are unique to SOTB or match our event's ae
 - API access to challenges and solves. (removing dependecy on discord although it is integral right now; not any time soon)
 - maybe an admin web gui? idk... 
 
+## TODO / bugs
+- Flag solves only report 1 challenge that it is a part of during the "congrats" message. 
+- You can submit a flag for a challenge that isn't unlocked yet. 
+  - may not be a huge issue. How would you know to find it if you hadn't been prompted to search for it some how?
+  - this is more likely to occur for challenges with a lot of narrative and that build on each other. 
+    - things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. 
+
 ---
 ## How to play
 

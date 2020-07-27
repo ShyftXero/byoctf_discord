@@ -433,7 +433,8 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
             if SETTINGS['_debug'] == True:
                 logger.debug(f"{user.name} is trying to submit their own flag or a flag authored teammate. (flag by {flag.author.name}) OR is a part of a challenge authored by someone on the team. (chall by {challenge.author.name})")
             return
-
+        
+        
     value = 0
     if flag != None:
         value = flag.value
