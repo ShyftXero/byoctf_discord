@@ -1,3 +1,4 @@
+from logging import log
 from pony.orm.core import commit
 from database import Challenge, getTeammates
 import os
@@ -323,14 +324,26 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
          # if I get this far, it has not been solved by any of my teammates
 
         msg = "Correct!\n"
+        reward = flag.value 
 
         challenge = db.select(c for c in db.Challenge if flag in c.flags).first()
         
         if challenge:     # was this flag part of a challenge? 
             msg += f'You submitted a flag for challenge `{challenge.title}`.\n'
         
+
+        # is the challenge unlocked? 
+        if challenge not in db.get_all_challenges(user):
+            if SETTINGS['_debug']:
+                logmsg = f'{user.name} submitted a flag to a challenge that is not unlocked yet. "{challenge.title}": flag:{flag.flag}'
+                logger.debug(logmsg)
+                await ctx.send(logmsg)
+            return
+
+        # are ALL of the flags for this challenge complete? 
+
+        # if so award xx points. 
         
-        reward = flag.value 
         if flag.unsolved == True:
             msg += f'**First blood!** \nYou are the first to submit `{flag.flag}` and have earned a bonus {SETTINGS["_firstblood_rate"] * 100 }% \nTotal reward `{flag.value * (1 + SETTINGS["_firstblood_rate"])}` rather than `{flag.value}`\n'
         elif SETTINGS['_decay_solves'] == True:
@@ -448,11 +461,11 @@ async def list_all(ctx, tag:str=None):
         challs = db.get_all_challenges(user)
 
         if tag == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, c.tags) for c in challs if c.id > 0]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, ', '.join([t.name for t in c.tags]) for c in challs if c.id > 0]
         else:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0 and tag in c.tags]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
 
-    res.insert(0, ['ID', "Author", "Title","Value", "BYOC"])
+    res.insert(0, ['ID', "Author", "Title","Value", "BYOC", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
 
     # logger.debug("discord",challs)
