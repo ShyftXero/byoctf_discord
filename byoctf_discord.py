@@ -784,7 +784,7 @@ async def byoc_commit(ctx):
     return
 
 
-@bot.command("!tut", help='a tldr for essential commands')
+@bot.command("!tut", help='a tldr for essential commands', aliases['tut'])
 async def tutorial(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
         return
