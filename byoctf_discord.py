@@ -461,12 +461,14 @@ async def list_all(ctx, tag:str=None):
         challs = db.get_all_challenges(user)
 
         if tag == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc,  ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
+        
         else:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc) for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
+            res = [[c.id, c.author.name, c.title, db.challValue(c), c.byoc,  ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
 
     res.insert(0, ['ID', "Author", "Title","Value", "BYOC", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
+    # print(res)
 
     # logger.debug("discord",challs)
     msg = f'Showing all unlocked challenges```{table.table}```'
@@ -782,17 +784,17 @@ async def byoc_commit(ctx):
     return
 
 
-@bot.command("!tutorial", help='a tldr for essential commands', aliases=['tut'])
+@bot.command("!tut", help='a tldr for essential commands')
 async def tutorial(ctx):
     msg = f"""
-## How to play
+**How to play**
 
 Key commands 
 - `!reg <team_name> <team_password>` - register and join *teamname*; super case-sensitive.  
-  - wrap in quotes if you have spaces in the teamname; 
-  - if the team exists and your password is correct, you're in. 
-  - if no team exists with the name specified, the team will be created with password specified. 
-  - leading and trailing spaces are stripped from team name and password.
+  -- wrap in quotes if you have spaces in the teamname; 
+  -- if the team exists and your password is correct, you're in. 
+  -- if no team exists with the name specified, the team will be created with password specified. 
+  -- leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
 - `!all` - list all challenges
 - `!v <challenge_id>` - detail view of a specific challenge
