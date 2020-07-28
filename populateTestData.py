@@ -26,11 +26,11 @@ with db_session:
 
     #users
     bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
-    shyft = db.User(name='shyft#0760___', team=bestteam)
-    fie = db.User(name='notfie#4785___', team=bestteam)
-    r3d = db.User(name='Combaticus#8292___', team=secondteam)
-    malloc = db.User(name='0xDrMalloc#4492___', team=thirdteam)
-    aykay = db.User(name='AyKay#3420___', team=fourthteam)
+    shyft = db.User(name='shyft#0760', team=bestteam)
+    fie = db.User(name='notfie#4785', team=bestteam)
+    r3d = db.User(name='Combaticus#8292', team=secondteam)
+    malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
+    aykay = db.User(name='AyKay#3420', team=fourthteam)
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=shyft, byoc=True)
@@ -42,19 +42,25 @@ with db_session:
     flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=shyft)
     flag_bonus2 = db.Flag(flag='FLAG{bonus2}', value=250, author=bot)
 
+    #tags 
+    pentest_tag = Tag(name='pentest')
+    forensics_tag = Tag(name='forensics')
+    reversing_tag = Tag(name='reversing')
+    puzzle_tag = Tag(name='puzzle')
+    crypto_tag = Tag(name='crypto')
     
     #challenges
     bonus_challenge = db.Challenge(id=0, title="__bonus__", description='this is the description for all bonus challenges...', author=bot)
 
-    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft, byoc=True )
-    c2 = db.Challenge(title="challenge 2", description="challenge 2 description; unlocks c3",flags=[flag_qwer], author=fie, )
-    c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=fie, parent=[c2] )
+    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft, byoc=True, tags=[puzzle_tag, forensics_tag] )
+    c2 = db.Challenge(title="challenge 2", description="challenge 2 description; unlocks c3",flags=[flag_qwer], author=fie, tags=[pentest_tag, forensics_tag, crypto_tag] )
+    c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=fie, parent=[c2], tags=[crypto_tag] )
     
     c4 = db.Challenge(title="challenge 4", description="challenge 4 description;DONT SOLVE",flags=[flag_nosolve], author=r3d )
 
-    c5 = db.Challenge(title="challenge 5", description="challenge 5 description;DO SOLVE",flags=[flag_dosolve], author=r3d )
+    c5 = db.Challenge(title="challenge 5", description="challenge 5 description;DO SOLVE",flags=[flag_dosolve], author=r3d, tags=[pentest_tag, reversing_tag] )
     
-    c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=shyft, parent=[c5])
+    c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=shyft, parent=[c5], tags=[pentest_tag, forensics_tag])
     
 
     #hints
