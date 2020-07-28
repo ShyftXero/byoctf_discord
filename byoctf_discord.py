@@ -786,6 +786,8 @@ async def byoc_commit(ctx):
 
 @bot.command("!tut", help='a tldr for essential commands')
 async def tutorial(ctx):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
+        return
     msg = f"""
 **How to play**
 
@@ -796,11 +798,12 @@ Key commands
   -- if no team exists with the name specified, the team will be created with password specified. 
   -- leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
-- `!all` - list all challenges
+- `!all [tag]` - list all challenges or all challenges with the tag [tag]
 - `!v <challenge_id>` - detail view of a specific challenge
 - `!sub <flag>` - submit a flag you find while working on a challenge
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
 - `!solves` - show all the flags your team has submitted. 
+- `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 """
