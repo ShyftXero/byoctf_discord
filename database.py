@@ -687,33 +687,7 @@ def buildChallenge(challenge_object, byoc=False):
         byoc_ext_value=result.get('value',0)
     )
 
-    # elif challenge_object.get('external_validation') == True:
-    #     print('in external_validation')
 
-    #     # no flags but everything else is the same. 
-    #     chall = Challenge(
-    #         title=challenge_object.get('challenge_title'), 
-    #         description=result['challenge_description'],
-    #         author=author, 
-    #         tags=tags, 
-    #         byoc=True, 
-    #         byoc_ext_url=result['external_validation_url'],
-    #         byoc_ext_value=result['value']
-    #     )
-    # else:
-    #     flags = []
-    #     for f in challenge_object.get('flags',[]):
-    #         fo = Flag(flag=f.get('flag_flag'), value=f.get('flag_value'), author=author, tags=tags, byoc=True)
-    #         flags.append(fo)
-
-    #     chall = Challenge(
-    #         title=challenge_object.get('challenge_title'), 
-    #         description=result['challenge_description'], 
-    #         author=author, 
-    #         flags=flags, 
-    #         tags=tags, 
-    #         byoc=True
-    #     )
     
 
     

@@ -27,7 +27,7 @@ def init_config():
         "_botusername":     "BYOCTF_Automaton#7840",             # this is the discordbot's username+discriminator
         '_byoc_reward_rate':    .25,         # percentage of a solve that is given back to the author for making the challenge. 
         '_byoc_commit_fee':     .5,          # percentage of challenge value to charge author to post a BYOC challenge 
-        '_rate_limit_window':     2            # 2 second cooldown time; 1 submission every 2 seconds per player.   
+        '_rate_limit_window':     2            # 2 second cooldown time; 1 submission every 2 seconds per player.  requires restart 
     }
 
     for k,v in config.items():

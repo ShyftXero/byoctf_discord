@@ -30,6 +30,9 @@ if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has da
 
 bot = commands.Bot(command_prefix='!')
 
+@bot.event
+async def on_ready():
+    logger.debug(f'{bot.user.name} is online and awaiting your command!')
 
 def username(obj):
     if hasattr(obj, "author"): 
@@ -84,8 +87,6 @@ async def on_command_error(ctx, error):
         raise error
 
 async def inPublicChannel(ctx, msg='this command should only be done in a private message (DM) to the bot'):
-    # logger.debug(f'{ctx.channel.type.name} {type(ctx.channel.type.name)}, {dir(ctx.channel.type)}')
-    # logger.debug(f" ctx.channel.type.name == 'text' is {ctx.channel.type.name == 'text'}") # 0 = public/text channel ; 1 = Private channel 
     if ctx.channel.type.name == 'text':
         #we're in public
         await ctx.message.delete()
@@ -128,14 +129,13 @@ def renderChallenge(result, preview=False):
             msg += f"Flag: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}`\n" 
     return msg
 
-@bot.event
-async def on_ready():
-    logger.debug(f'{bot.user.name} is online and awaiting your command!')
-
 @db.db_session()
 @bot.command(name='register', help='register on the scoreboard. !register <teamname> <password>; wrap team name in quotes if you need a space', aliases=['reg'])
 @commands.dm_only()
 async def register(ctx: discord.ext.commands.Context, teamname:str=None, password:str=None):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't register or join a team in public channels..."):
+        return
+
     if SETTINGS['registration'] == 'disabled':
         await ctx.send("registration is disabled")
         return
@@ -199,6 +199,8 @@ async def register(ctx: discord.ext.commands.Context, teamname:str=None, passwor
 
 @bot.command(name='ctfstatus', help="shows status information about the CTF", aliases=['stats'])
 async def ctfstatus(ctx):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view ctf status info in public channels..."):
+        return
 
     data = [(k,SETTINGS[k]) for k in SETTINGS.iterkeys() if k[0] != '_'] # filter out the private settings; see settings.py config object
     data.insert(0, ['Setting','Value'])
@@ -257,8 +259,6 @@ async def scores(ctx):
 
 
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
-# @bot.command()
-# @commands.has_role("CTF_player")
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
@@ -273,7 +273,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     
     with db.db_session:
         # is this a valid flag
-        # res = db.select(flag for flag in db.Flag if submitted_flag == flag.flag).first()
         flag = db.Flag.get(flag=submitted_flag)
 
 
@@ -284,12 +283,10 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
             return
 
         user = db.User.get(name=username(ctx))
-    
 
         # have I already submitted this flag?
         solves = list(db.select(solve for solve in db.Solve if submitted_flag == solve.flag.flag and username(ctx) == solve.user.name)) # should be an empty list 
-        # prev_solve = db.Solve.get(flag=flag, user=user) # this is the same as above; result or None
-
+       
         if len(solves) > 0: # if prev_solve != None:
             msg = f"You've already submitted `{submitted_flag}` at {solves[0].time} "
             logger.debug(msg)
@@ -297,7 +294,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
             return
 
         # has a teammate submitted this flag? 
-
         teammates = db.getTeammates(user)
         solved = []
         for teammate in teammates:
@@ -322,7 +318,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
 
 
          # if I get this far, it has not been solved by any of my teammates
-
         msg = "Correct!\n"
         reward = flag.value 
 
@@ -362,7 +357,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
 
 
         # firstblood and decay points/award/reductions logic is now in create solve. above is for display only
-        # breakpoint()
         db.createSolve(user=user, flag=flag, challenge=challenge, msg='\n'.join([c.title for c in flag.challenges]))
         
         msg += f'Your score is now `{db.getScore(user)}`'
@@ -398,7 +392,6 @@ async def tip(ctx, target_user: Union[discord.User,str] , tip_amount: float, msg
             await ctx.send(f"You only have {points} points and can't send {tip_amount}...")
             return
 
-        # msg
         msg = msg[:100]
 
         tip = db.Transaction(     
@@ -468,8 +461,6 @@ async def list_all(ctx, tag:str=None):
 
     res.insert(0, ['ID', "Author", "Title","Value", "BYOC", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
-    # print(res)
-
     # logger.debug("discord",challs)
     msg = f'Showing all unlocked challenges```{table.table}```'
     await ctx.send(msg)
@@ -551,11 +542,9 @@ async def show_hints(ctx):
 
         msg = f"Team {user.team.name}'s hints:\n"
 
-        # data = [(ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender) for ht in hint_transactions]
         data = []
         teammates = db.getTeammates(user) # throws an error about db session is over
-        # teammates = list(db.select(member for member in db.User if member.team.name == user.team.name))
-        # print([t.name for t in teammates])
+       
         for tm in teammates:
             tm_hints = db.getHintTransactions(tm)
             data += [(ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name) for ht in tm_hints]
@@ -570,6 +559,7 @@ async def show_hints(ctx):
 async def logs(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't show your logs in public channels..."):
         return
+    
     msg  = "Your Transaction Log" 
     with db.db_session:
         ts = list(db.select((t.value,t.type,t.sender.name, t.recipient.name, t.message, t.time) for t in db.Transaction if username(ctx) == t.recipient.name or username(ctx) == t.sender.name))
@@ -599,12 +589,9 @@ async def solves(ctx):
         solved = []
         for teammate in teammates:
             solved += list(db.select(solve for solve in db.Solve if teammate.name == solve.user.name))
-        # print('solved', solved)
     
         res = []
         for solve in solved:
-            # print(f'working on solve {solve} {type(solve.challenge)}')
-            # breakpoint()
             line = (
                 solve.flag_text, 
                 solve.challenge.id,
@@ -612,16 +599,12 @@ async def solves(ctx):
                 solve.user.name, 
                 solve.time
             )  
-            
             res.append(line)
 
-        
         res.insert(0, ["Flag", "Chall ID", "Chall Title", "User", "Solve Time"])
         table = GithubFlavoredMarkdownTable(res)
-        # table.inner_row_border = True
 
         if len(msg + table.table) >= 2000:
-            # logger.debug(f'table > 2000 : {len(table.table)} {table.table}')     
             await sendBigMessage(ctx, f'{msg}\n{table.table}')
         else:
             msg += f"```{table.table}```"
@@ -784,7 +767,7 @@ async def byoc_commit(ctx):
     return
 
 
-@bot.command("!tut", help='a tldr for essential commands', aliases=['tut'])
+@bot.command("!tutorial", help='a tldr for essential commands', aliases=['tut'])
 async def tutorial(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
         return
