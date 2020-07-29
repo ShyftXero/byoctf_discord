@@ -59,8 +59,8 @@ async def getDiscordUser(ctx, target_user):
     res =  await uc.convert(ctx, target_user)
     return res
 
-async def sendBigMessage(ctx, content):
-    """this should split a long message across multiple sends if it exceeds the 2000 char limit of discord. requires newlines in the message."""
+async def sendBigMessage(ctx, content, wrap=True):
+    """this should split a long message across multiple sends if it exceeds the 2000 char limit of discord. requires newlines in the message. Set wrap=False to omit the code blocks for your message"""
     lines = content.splitlines(keepends=True)
     if SETTINGS['_debug'] == True and SETTINGS['_debug_level'] > 1:
         logger.debug(content)
@@ -69,11 +69,17 @@ async def sendBigMessage(ctx, content):
         if len(chunk) + len(line) < 1600:
             chunk = chunk + line
         else:
-            await ctx.send(f'```{chunk}```')
+            if wrap:
+                await ctx.send(f'```{chunk}```')
+            else:
+                await ctx.send(f'{chunk}')
             chunk = line
 
     # send final chunk
-    await ctx.send(f'```{chunk}```')
+    if wrap:
+        await ctx.send(f'```{chunk}```')
+    else:
+        await ctx.send(f'{chunk}')
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -197,7 +203,7 @@ async def register(ctx: discord.ext.commands.Context, teamname:str=None, passwor
             logger.debug(f'{member} on {guild} got role {role}')
         
 
-@bot.command(name='ctfstatus', help="shows status information about the CTF", aliases=['stats'])
+@bot.command(name='ctfstatus', help="shows status information about the CTF", aliases=['ctfstat','ctfstats'])
 async def ctfstatus(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view ctf status info in public channels..."):
         return
@@ -769,10 +775,14 @@ async def byoc_commit(ctx):
 
 @bot.command("!tutorial", help='a tldr for essential commands', aliases=['tut'])
 async def tutorial(ctx):
-    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
-        return
+    # if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
+    #     return
+
+    byoctf_chan = bot.get_channel(SETTINGS['_ctf_channel_id'])
     msg = f"""
 **How to play**
+
+Try to keep your "public" interactions (tips mainly) in the {byoctf_chan.mention} channel
 
 Key commands 
 - `!reg <team_name> <team_password>` - register and join *teamname*; super case-sensitive.  
@@ -790,7 +800,10 @@ Key commands
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 """
-    await ctx.send(msg)
+
+    await sendBigMessage(ctx, msg, wrap=False)
+    
+
 
 
 if __name__ == '__main__':

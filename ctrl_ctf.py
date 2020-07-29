@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 import fire
-from settings import SETTINGS
+from settings import *
+
+if is_initialized() == False:
+    init_config()
+
 
 from terminaltables import GithubFlavoredMarkdownTable as mdTable
 
@@ -10,12 +14,14 @@ import database as db
 class Commands:
 
     def showall(self):
+        """Show all of the current settings for byoctf"""
         data = [(k,SETTINGS[k]) for k in SETTINGS.iterkeys()]
         data.insert(0, ['Setting', 'Value'])
         table = mdTable(data)
         print(table.table)
 
     def setkey(self, key=None, val=None):
+        """set a key in the diskcache/settings"""
         if key != None and val != None:
             print(f'setting {key} to "{val}"') 
             SETTINGS[key] = val
@@ -23,52 +29,66 @@ class Commands:
             print("Need both a KEY and a VAL")
 
     def getkey(self, key=None):
+        """get a key from the diskcache/settings"""
         print(SETTINGS.get(key, default="Key not found"))
         # print(type(SETTINGS.get(key))) # fire is pretty smart and assigns an appropriate data type
 
     def dashboard(self):
+        """not implemented. supposed to be a realtime monitoring interface
+        """
         pass
 
 
     def pause_ctf(self):
+        """disable most of the ctf. tips still work I think  
+        """
         print("pausing CTF")
         SETTINGS['ctf_paused'] = True
 
     def unpause_ctf(self):
+        """Make the ctf work again
+        """
         print("unpausing CTF")
         SETTINGS['ctf_paused'] = False
 
     def hidescores(self):
+        """Make scores on scoreboard private 
+        """
         print("hiding scores")
         SETTINGS['scoreboard'] = 'private'
 
     def showscores(self):
+        """Make scores on scoreboard public 
+        """
         print("showing scores")
         SETTINGS['scoreboard'] = 'public'
 
     def togglemvp(self):
+        """Shows the top N players by score regardless of team"""
         SETTINGS['_show_mvp'] = not SETTINGS['_show_mvp']
 
     def statusmsg(self, msg=None):
+        """update the status message that shows up in !ctfstat
+        """
         if msg:
             print(f'updating status to "{msg}"')
             SETTINGS['status'] = msg
         print(SETTINGS.get('status', default="Key error; msg not set"))
 
     def reinit_config(self):
-        # import os
-        # from settings import CACHE_PATH
-        # os.remove(CACHE_PATH+'/cache.*')
-        # os.rmdir(CACHE_PATH)
+        """This will repopulate the diskcache with the default config provided in settings.py
+        """
         import settings # force a recreation fo the settings obj and feed it a default config
         settings.init_config() 
         # print("Re initialized diskcache in ", CACHE_PATH)
         print("re-initialized diskcache.")
 
     def shell(self):
+        """drop into an ipython shell with five users loaded (user1-5); mainly for development or answering questions by interrogating the db. You should be able to prototype your db code here. 
+        """
         import os
         # os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
-        os.system("ipython -i -c 'import database as db;  user=db.User.get(id=1); user2=db.User.get(id=2); user3=db.User.get(id=3); user4=db.User.get(id=4); use53=db.User.get(id=5)'")
+        os.system("ipython -i -c 'import database as db;  user=db.User.get(id=1); user2=db.User.get(id=2); user3=db.User.get(id=3); user4=db.User.get(id=4); user5=db.User.get(id=5)'")
 
     def set_team(self, username, team ):
         """username is the discord name and discriminator "user#1234" 
@@ -85,7 +105,7 @@ class Commands:
                     db.commit()
 
     def grant_points(self, user:str, amount:int):
-        ''' remember to use '"user#1234"' as the cmdline parameter for user'''
+        '''give points to a user from the byoctf_automaton. remember to use '"user#1234"' as the cmdline parameter for user'''
     
         with db.db_session:
             botuser = db.User.get(name=SETTINGS['_botusername'])
@@ -105,11 +125,13 @@ class Commands:
 
 
     def get_score(self, user:str):
-        ''' remember to use '"user#1234"' as the cmdline parameter for user'''
+        '''dumps score for a user by name. remember to use '"user#1234"' as the cmdline parameter for user'''
         # print(f'User {user} has {db.getScore(user)} points')
 
     @db.db_session
     def sub_as(self, user:str, flag:str):
+        """submit a flag on behalf of a user. useful in case a user can't submit (but you know they should be able to) or for testing and development. 
+        """
         # print(f'{user}, {flag}')
         dbuser = db.User.get(name=user)
         dbflag = db.Flag.get(flag=flag)
@@ -126,6 +148,8 @@ class Commands:
     
     @db.db_session
     def subs(self):
+        """dumps time that a flag was submitted. useful to prove who submitted fastest? 
+        """
         solves = list(db.select((s.time, s.flag.flag, s.user.name, s.value) for s in db.Solve))
         solves.insert(0, ['Time','Flag','User','Value'])
         table  = mdTable(solves)
@@ -135,6 +159,8 @@ class Commands:
 
     @db.db_session
     def users(self):
+        """Dump all users, which team they're on and their individual score. 
+        """
         data = db.select(u for u in db.User)[:]
         
         data = [(u.id, u.name,u.team.name, db.getScore(u)) for u in data]
@@ -146,6 +172,8 @@ class Commands:
 
     @db.db_session
     def trans(self):
+        """Dumps a list of all transactions from all users. This will allow you to reconstitute a score if needed or analyze if something doesn't work as expected.
+        """
         ts = list(db.select( (t.id, t.value, t.type, t.sender.name, t.recipient.name,t.message,t.time)for t in db.Transaction))
 
         ts.insert(0, ["Trans ID", "Value", 'Type','Sender', 'Recipient', 'Message', 'Time'])
@@ -154,6 +182,8 @@ class Commands:
 
     @db.db_session
     def drop(self, table:str):
+        """this will drop all users or challenges(flags and hints)
+        """
         msg = """this will drop all users or challenges(flags and hints)"""
         print(msg)
         print(f'target {table}')
@@ -198,6 +228,9 @@ class Commands:
         
 
     def FULL_RESET(self):
+        """This is mainly for development. deletes logs and database and populates some test data. 
+
+        """
         confirm = input("are you sure? [y/N]")
         if confirm.lower() != 'y':
             print('aborting... ')
@@ -209,10 +242,10 @@ class Commands:
         os.system(cmd)
     
         print('Deleting logs')
-        os.remove('byoctf.log')
+        os.remove(SETTINGS['_logfile'])
 
         print("Deleting and recreating database")
-        os.remove('byoctf.db')
+        os.remove(SETTINGS['_db_database'])
         from database import db
         self.reinit_config()
 
@@ -220,6 +253,7 @@ class Commands:
         os.system("python populateTestData.py")
 
     def toggle_chall(self, chall_id:int):
+        """Makes a challenge visible or invisible by the !all command"""
         try:
             chall_id = int(chall_id)
         except (ValueError, BaseException) as e:
@@ -232,6 +266,7 @@ class Commands:
             print(f'Challenge id {chall.id} "{chall.title}" visible set to {chall.visible}')
 
     def challs(self):
+        """This dumps the all the challenges """
         with db.db_session:
             challs = list(db.select((chall.id, chall.title,  chall.description[:20], chall.flags, chall.visible, chall.byoc, ) for chall in db.Challenge))
             # data = [c for c in challs]
@@ -243,6 +278,7 @@ class Commands:
     
     @db.db_session
     def teams(self):
+        """This dumps the all the teams """
         teams = db.Team.select()[:]
         data = []
         for t in teams:
@@ -257,6 +293,7 @@ class Commands:
 
     @db.db_session
     def change_teamname(self, oldname:str, newname:str):
+        """Allows you to update a team if a user made a mistake or is undesirable..."""
         team = db.Team.get(name=oldname)
 
         resp = input(f"Are you sure you want to change team '{oldname}' to '{newname}'? [y/N]")
@@ -270,7 +307,7 @@ class Commands:
 
     @db.db_session
     def bstat(self):
-
+        """BYOC stats for all players. useful for the awards ceremony"""
         challs = list(db.select(c for c in db.Challenge))
 
         # num solves per challenge
@@ -294,12 +331,14 @@ class Commands:
         print(f'\nTotal BYOC rewards granted: {total_byoc_rewards}')
 
     def flags(self):
+        """dump all flags... useful for debugging"""
         with db.db_session:
             flags = list(db.select((flag.id, flag.flag, flag.value, flag.challenges) for flag in db.Flag))
             for flag in flags:
                 print(flag)
 
     def del_trans(self, trans_id:int):
+        """delete a transaction by ID. has the effect of undoing something. points stolen, etc. """
         try:
             trans_id = int(trans_id)
         except (ValueError, BaseException) as e:
@@ -320,14 +359,22 @@ class Commands:
 
 
     def add_flag(self):
+        """NOT IMPLEMENTED
+        Useful for adhoc or bonus flag creation.
+        """
         print("not implemented")
         pass
 
     def del_flag(self, flag_id):
+        """NOT IMPLEMENTED
+        useful for deleting a flag. 
+        """
         print("not implemented")
         pass
 
     def add_chall(self, json_file, byoc=False):
+        """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user. """
+
         import json
         try:
             raw = open(json_file).read()
@@ -354,6 +401,7 @@ class Commands:
             print(result['fail_reason'])
     
     def del_chall(self, chall_id:int):
+        """delete a challenge by ID. deletes all flags associated. """
         try:
             chall_id = int(chall_id)
         except (ValueError, BaseException) as e:
