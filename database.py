@@ -1,4 +1,5 @@
 from collections import Counter
+import hashlib
 
 from requests.sessions import session
 from settings import SETTINGS
@@ -383,14 +384,15 @@ def createExtSolve(user:User, chall:Challenge, submitted_flag:str):
             if SETTINGS['_debug'] == True:
                 logmsg = f'First blood solve for {user.name} #{chall.id}{chall.title} base_value={chall.byoc_ext_value} reward={reward}'
 
-        solve = Solve(value=reward, user=user, challenge=chall, flag_text=submitted_flag)
+        hashed_flag = hashlib.sha256(submitted_flag.encode()).hexdigest() # fixes us being able to see flags for ext solves. 
+        solve = Solve(value=reward, user=user, challenge=chall, flag_text=hashed_flag)
 
         solve_credit = Transaction(     
             sender=botuser, 
             recipient=user,
             value=reward,
             type='ext_solve',
-            message=f'external chall {chall.id} solve',
+            message=f'esub {chall.id}; sha256-{hashed_flag}',
             solve=solve,
             challenge=chall
         )
@@ -398,7 +400,7 @@ def createExtSolve(user:User, chall:Challenge, submitted_flag:str):
         #reward for author
         reward = chall.byoc_ext_value * SETTINGS['_byoc_reward_rate']
 
-        msg = f'byoc reward: {user.name} of {user.team.name} submitted external flag: {submitted_flag}'
+        msg = f'byoc reward: {user.name} of {user.team.name} submitted external flag for {chall.title}: sha256 {hashed_flag}'
         if SETTINGS['_debug'] == True:
             logger.debug(f'{chall.author.name} got {msg}')
         
@@ -406,7 +408,7 @@ def createExtSolve(user:User, chall:Challenge, submitted_flag:str):
         
         commit()
         return 1337
-    pass
+    return 'not 1337'
 
 @db_session
 def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=None):
@@ -522,8 +524,14 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
 # def decayCalc(challenge:Challenge):
 #     pass
 
-
-
+@db_session
+def percentComplete(chall:Challenge, user:User):
+    flags = list(chall.flags)
+    num_solves_for_chall = 0
+    for flag in flags:
+        if Solve.get(user=user, flag_text=flag.flag):
+            num_solves_for_chall += 1
+    return (num_solves_for_chall / len(flags)) * 100
 
 
 @db_session()

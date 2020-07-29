@@ -141,9 +141,11 @@ Notes about BYOC challenges
 - By default, it costs 50% of the total challenge value (sum of flags) to post a challenge. 
 - By default, your reward for the solve of a flag which is part of your challenge is 25% of that flags value. 
   - if the challenge is externally validated, it's based on the challenge value. 
-- *This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)*
-  - we need to store it the flag so the `!solves` command can show you which flags you've already submitted. 
-  - open to arguments against this or a PR to avoid it.  
+- ~~This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)~~
+  - ~~we need to store it the flag so the `!solves` command can show you which flags you've already submitted.~~ 
+  - ~~open to arguments against this or a PR to avoid it.~~ 
+  - We kind of worked around this by storing a hash of the flag in the solve text rather than the flag itself. As the author you will see the hash in the solve and can hash your own flags to see which one matches. 
+  - Keep in mind that we still touch the unhashed flag so you have to trust that we're not logging... 😉 good luck... 
 
 ## Submitting a challenge
 - Validate your challenge by attaching the json file in a DM to the bot with the command `!byoc_check`
