@@ -1,5 +1,4 @@
 from collections import Counter
-from typing import ValuesView
 
 from requests.sessions import session
 from settings import SETTINGS
@@ -8,12 +7,15 @@ import json
 import requests
 
 from loguru import logger
-logger.add(SETTINGS.get('_logfile','_loguru_DELETE_ME_byoctf.log'))
+logger.add(SETTINGS.get('_logfile'))
 
 from datetime import datetime
 from pony.orm import *
 
 # https://editor.ponyorm.com/user/shyft/byoctf/designer
+# this is probably a bit of an overcomplicated db architecture. 
+# this is because I was learning the relationships and how they worked in pony.
+# things also changed in the project and I left some things in order to not break stuff.  
 
 db = Database()
 
