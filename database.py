@@ -8,7 +8,7 @@ import json
 import requests
 
 from loguru import logger
-logger.add('byoctf.log')
+logger.add(SETTINGS.get('_logfile','_loguru_DELETE_ME_byoctf.log'))
 
 from datetime import datetime
 from pony.orm import *
@@ -110,9 +110,15 @@ class Hint(db.Entity):
     challenge = Required(Challenge)
     transaction = Optional(Transaction)
 
-
-
-db.bind(provider='sqlite', filename='byoctf.db', create_db=True)
+# https://docs.ponyorm.org/database.html
+if SETTINGS['_db_type'] == 'sqlite':
+    db.bind(provider='sqlite', filename=SETTINGS['_db_database'], create_db=True)
+elif SETTINGS['_db_type'] == 'postgres':
+    print("postgres is untested... good luck...")
+    db.bind(provider='postgres', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
+elif SETTINGS['_db_type'] == 'mysql':
+    print("mysql is untested... good luck...")
+    db.bind(provider='mysql', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
 db.generate_mapping(create_tables=True)
 
 
@@ -623,7 +629,7 @@ def validateChallenge(challenge_object):
             result['value'] += flag.get('flag_value')
 
         # flags aren't worth enough... 100 point minimum
-        if result['value'] < 100 :
+        if result['value'] < SETTINGS['_byoc_chall_min_val'] :
             result['fail_reason'] += '; failed flag cumulative value'
             return result
 
@@ -659,17 +665,15 @@ def buildChallenge(challenge_object, byoc=False):
         return
     
     
-    all_tags = select(t for t in Tag)[:]
+    chall_obj_tags = set([t.lower().strip() for t in challenge_object['tags']]) # remove duplicates like ['forensics', 'Forensics', 'FoReNsIcS']
     tags = []
-    for tag in challenge_object['tags']:
-        t = Tag.get(name=tag.lower().strip())
+    for tag in chall_obj_tags: 
+        t = Tag.get(name=tag)
         if t == None: #meaning a tag like this does not exists
-            tags.append(Tag(name=tag.lower().strip()))
+            tags.append(Tag(name=tag))
         else:
             tags.append(t)
     
-    # tags = set(tags) # no duplicates like ['forensics', 'forensics']
-
     # if challenge_object.get('bulk'): # this should be the bulk creation method / not BYOC; a way for us to load challenges described in json files. it will populate ALL fields.
     flags = []
     for f in challenge_object.get('flags',[]):
@@ -688,9 +692,6 @@ def buildChallenge(challenge_object, byoc=False):
     )
 
 
-    
-
-    
     #need to do this so I can get an ID from the chall
     # commit()
 

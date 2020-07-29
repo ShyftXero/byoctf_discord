@@ -124,13 +124,26 @@ Notes about BYOC challenges
   - potential info leak about a flag that exists, but we just have to accept that... 
 - Description is limited to 1500 chars. 
 - The framework doesn't (can't) host files. 
-  - Link to a pastebin, google drive, mega, torrent, etc. if you need storage or more space for words... 
-- By default, it costs 50% of the total challenge value to post a challenge. 
+  - Link to a pastebin, google drive, github, torrent, etc. if you need storage or more space for words... 
+  - Files - most are ephimeral and are deleted after 1-2 weeks
+    - https://transfer.sh/ or http://jxm5d6emw5rknovg.onion/
+      - 10gb files; no account; wget-able; tor service for your protection or whatever.
+    - https://bashupload.com/
+    - https://www.file.io/
+    - https://github.com - not ephimeral
+      - least sketch and editable by you if you make a mistake. 
+      - 100mb file limit
+      - maybe serve large file via transfer.sh and update the link every couple of weeks(if the event runs that long)?
+  - Words
+    - https://gist.github.com/
+    - https://pastebin.com/
+    
+- By default, it costs 50% of the total challenge value (sum of flags) to post a challenge. 
 - By default, your reward for the solve of a flag which is part of your challenge is 25% of that flags value. 
   - if the challenge is externally validated, it's based on the challenge value. 
 - *This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)*
   - we need to store it the flag so the `!solves` command can show you which flags you've already submitted. 
-  - open to arguments against this. 
+  - open to arguments against this or a PR to avoid it.  
 
 ## Submitting a challenge
 - Validate your challenge by attaching the json file in a DM to the bot with the command `!byoc_check`
