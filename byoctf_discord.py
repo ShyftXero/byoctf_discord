@@ -25,8 +25,9 @@ import json
 
 from settings import SETTINGS, init_config, is_initialized
 
-if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset
-    init_config()
+# should be handled in settings now. 
+# if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset 
+#     init_config()
 
 bot = commands.Bot(command_prefix='!')
 
@@ -698,6 +699,7 @@ async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_fla
 
 
 @bot.command(name="byoc_check", help="this will check your BYOC challenge is valid. It will show you how much it will cost to post", aliases=['bcheck'])
+@commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def byoc_check(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't check a challenge in public channels..."):
         return
@@ -705,21 +707,12 @@ async def byoc_check(ctx):
     challenge_object = await loadBYOCFile(ctx)
 
     challenge_object['author'] = username(ctx)
+    
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] == 2:
+        logger.debug(f"checking challenge:  {challenge_object}")
 
-    # logger.debug(f"challenge:  {challenge_object}")
+    result = db.validateChallenge(challenge_object) 
 
-    result = db.validateChallenge(challenge_object) # if valid
-    # result = {
-        # 'valid': False,
-        # 'author': None,
-        # 'tags': [],
-        # 'challenge_title': "",
-        # 'challenge_description': "",
-        # 'flags': [],
-        # 'hints': [],
-        # 'value': 0, # sum of flags
-        # 'cost': 0
-    # }
     if result['valid'] == True:
         msg = renderChallenge(result, preview=True)
         await ctx.send(msg)
@@ -727,6 +720,7 @@ async def byoc_check(ctx):
         await ctx.send(f"challenge invalid. Ensure that all required fields are present. see example_challenge.json\n\nfail_reason:{result['fail_reason']}")
 
 @bot.command(name="byoc_commit", help="this will commit your BYOC challege. You will be charged a fee and will have to confirm the submission", aliases=['bcommit'])
+@commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def byoc_commit(ctx):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
         return
