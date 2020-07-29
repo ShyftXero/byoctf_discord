@@ -224,6 +224,7 @@ An externally validated challenge.
     "external_validation_url": "http://mydomain.com:5000/validate"
 }
 ```
+- Clone the server code -> https://github.com/ShyftXero/byoctf_ext_validation
 - Start the external validation server prior to checking your challenge. part of the check is to see if it's able to validate. 
 - You won't know your challenge ID to update the `flags.json` on your validation server until you actually commit your challenge and pay the fee. 
   - just use a text editor. and up date the key that corresponds to the flag. 
