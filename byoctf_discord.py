@@ -1,8 +1,6 @@
-from logging import log
-from pony.orm.core import commit
-from database import Challenge, getTeammates
-import os
-import random
+# from logging import log
+# from pony.orm.core import commit
+# from database import Challenge, getTeammates
 import datetime
 import time
 import json
@@ -324,7 +322,15 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
                 return 
 
 
-         # if I get this far, it has not been solved by any of my teammates
+        # if I get this far, it has not been solved by any of my teammates
+
+        # is this challenge unlocked? 
+        chall = db.select((c) for c in db.Challenge if flag.challenges in db.get_all_challenges(user))
+
+
+        if db.challegeUnlocked(user, chall) == False:
+            pass
+
         msg = "Correct!\n"
         reward = flag.value 
 
@@ -459,14 +465,16 @@ async def list_all(ctx, tag:str=None):
     with db.db_session:
         user = db.User.get(name=username(ctx))
         challs = db.get_all_challenges(user)
-
+        # It'd be nice to show a percentage complete as well...
+        # 
+        # db.percentComplete(c, user)  
         if tag == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc,  ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
         
         else:
-            res = [[c.id, c.author.name, c.title, db.challValue(c), c.byoc,  ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
+            res = [[c.id, c.author.name, c.title, db.challValue(c), c.byoc, f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
 
-    res.insert(0, ['ID', "Author", "Title","Value", "BYOC", "Tags"])
+    res.insert(0, ['ID', "Author", "Title", "Value", "BYOC", "Done", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
     # logger.debug("discord",challs)
     msg = f'Showing all unlocked challenges```{table.table}```'
