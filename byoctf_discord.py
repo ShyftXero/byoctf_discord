@@ -755,7 +755,8 @@ async def byoc_commit(ctx):
         return
 
     chall_preview = renderChallenge(result, preview=True)
-    await ctx.send(chall_preview)
+    # await ctx.send(chall_preview)
+    await sendBigMessage(chall_preview)
     await ctx.send("\n\n\n***Reply with `confirm` in the next 10 seconds to pay for and publish your challenge.***")
     resp = None
     try:

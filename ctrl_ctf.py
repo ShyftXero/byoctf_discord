@@ -225,9 +225,19 @@ class Commands:
         self.subs()
         self.users()
 
+    def INIT(self):
+        """this will create tables in db with no test data"""
+        confirm = input("are you sure? [y/N]")
+        if confirm.lower() != 'y':
+            print('aborting... ')
+            return
+        self.reinit_config()
+        from database import db, buildDatabase
+        buildDatabase()
         
 
-    def FULL_RESET(self):
+
+    def DEV_RESET(self):
         """This is mainly for development. deletes logs and database and populates some test data. 
 
         """

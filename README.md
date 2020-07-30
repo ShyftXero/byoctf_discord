@@ -247,7 +247,8 @@ add your own token to `secrets.py`
 git clone https://github.com/ShyftXero/byoctf_discord
 cd byoctf_discord
 echo "DISCORD_TOKEN='asdfasdfasdf'" > secrets.py # https://discord.com/developers/applications; setup a bot  
-./ctrl_ctf.py FULL_RESET # creates the db and fills with test data by calling populateTestData.py
+./ctrl_ctf.py DEV_RESET # creates the db and fills with test data by calling populateTestData.py
+# or ./ctrol_ctf.py INIT # for no test data
 python byoctf_discord.py
 ```
 
