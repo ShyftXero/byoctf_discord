@@ -684,6 +684,14 @@ def buildChallenge(challenge_object, byoc=False):
         else:
             tags.append(t)
     
+    #add a tag for byoc 
+    if byoc:
+        byoc_tag = Tag.get(name='byoc')
+        if byoc_tag == None:
+            byoc_tag = Tag(name='byoc')    
+        tags.append(byoc_tag)
+    tags = list(set(tags)) # incase someone added byoc tag manually
+
     # if challenge_object.get('bulk'): # this should be the bulk creation method / not BYOC; a way for us to load challenges described in json files. it will populate ALL fields.
     flags = []
     for f in challenge_object.get('flags',[]):

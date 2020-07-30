@@ -114,6 +114,7 @@ Notes about BYOC challenges
   - Make sure you don't have typos 
   - use DNS names rather than hardcoded IPs for links
   - use non-dynamic links for sharing files (google drive may yield a different link even you create a new version of the "same" file )
+  - use a git repo?
   - ***Make sure it's solvable*** 
     - The bot can't prove or know that it is or isn't
   - ***ALL SALES ARE FINAL!***
@@ -131,7 +132,7 @@ Notes about BYOC challenges
     - https://bashupload.com/
     - https://www.file.io/
     - https://github.com - not ephimeral
-      - least sketch and editable by you if you make a mistake. 
+      - **least sketch and editable by you if you make a mistake. **
       - 100mb file limit
       - maybe serve large file via transfer.sh and update the link every couple of weeks(if the event runs that long)?
   - Words
@@ -153,7 +154,7 @@ Notes about BYOC challenges
 - Commit your challenge (actually post it) by attaching the json file in a DM to the bot with the command `!byoc_commit`
   - If the challenge is valid, the preview will show up and you will be prompted to type `confirm` within 10 seconds.
     - If you do, you are charged the fee (again, by default 50% of the cumulative value) and the challenge is made available to others.
-- Others can use `!v <chall_id>` to see it. 
+- Others can use `!all byoc` and `!v <chall_id>` to see it. 
   
 ---
 A basic single flag challenge.

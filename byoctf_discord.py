@@ -469,12 +469,12 @@ async def list_all(ctx, tag:str=None):
         # 
         # db.percentComplete(c, user)  
         if tag == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), c.byoc, f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
         
         else:
-            res = [[c.id, c.author.name, c.title, db.challValue(c), c.byoc, f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
+            res = [[c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
 
-    res.insert(0, ['ID', "Author", "Title", "Value", "BYOC", "Done", "Tags"])
+    res.insert(0, ['ID', "Author", "Title", "Value", "Done", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
     # logger.debug("discord",challs)
     msg = f'Showing all unlocked challenges```{table.table}```'
@@ -764,10 +764,14 @@ async def byoc_commit(ctx):
         await ctx.send("**Cancelling...**")
         return 
     if resp.content == 'confirm':
-        chall_id = db.buildChallenge(result)
+        chall_id = db.buildChallenge(result, byoc=True)
         if chall_id == -1:
+            if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:
+                logger.debug(f'{username(ctx)} had insufficient funds.')
             await ctx.send("Insufficient funds...")
             return
+        if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:
+            logger.debug(f'{username(ctx)} created  chall id {chall_id}')
         await ctx.send(f'Done. use `!view {chall_id}` to see it. and `!byoc_stats` to see who has solved it.')
         return
     
