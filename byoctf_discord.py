@@ -111,7 +111,7 @@ def renderChallenge(result, preview=False):
     msg += f"**Title**: `{result['challenge_title']}`\n"
     msg += f"**Value**: `{result['value']}` points\n"
     msg += f"**Description**: {result['challenge_description']}\n"
-    msg += f"**Tags**: {result.get('tags',[])}\n"
+    msg += f"**Tags**: {', '.join(result.get('tags',[]))}\n"
     msg += '-'*40 + '\n'
     msg += f'**Number of Flags**: {result.get("num_flags",0)}\n'
     msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
@@ -279,15 +279,13 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
     with db.db_session:
         # is this a valid flag
         flag = db.Flag.get(flag=submitted_flag)
-
+        user = db.User.get(name=username(ctx))
 
         if flag == None:
             msg = f'incorrect: we got "{submitted_flag}"'
             logger.debug(msg)
             await ctx.send(msg)
             return
-
-        user = db.User.get(name=username(ctx))
 
         # have I already submitted this flag?
         solves = list(db.select(solve for solve in db.Solve if submitted_flag == solve.flag.flag and username(ctx) == solve.user.name)) # should be an empty list 
@@ -325,11 +323,17 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         # if I get this far, it has not been solved by any of my teammates
 
         # is this challenge unlocked? 
-        chall = db.select((c) for c in db.Challenge if flag.challenges in db.get_all_challenges(user))
+        # get parent challenges.
+        flag_challs = list(flag.challenges)
 
-
-        if db.challegeUnlocked(user, chall) == False:
-            pass
+        for chall in flag_challs:
+            for p_chall in list(chall.parent):
+                print(p_chall.title, p_chall.id)
+                # is the parent complete?
+                # if db.challegeUnlocked(user, chall) == False:
+                if db.challengeComplete(p_chall, user) == False:
+                    await ctx.send(f"This challenge is not unlocked yet... good job? Look at `{p_chall.title}` and complete it then try again?")
+                    return
 
         msg = "Correct!\n"
         reward = flag.value 
@@ -338,15 +342,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         
         if challenge:     # was this flag part of a challenge? 
             msg += f'You submitted a flag for challenge `{challenge.title}`.\n'
-        
-
-        # is the challenge unlocked? 
-        if challenge not in db.get_all_challenges(user):
-            if SETTINGS['_debug']:
-                logmsg = f'{user.name} submitted a flag to a challenge that is not unlocked yet. "{challenge.title}": flag:{flag.flag}'
-                logger.debug(logmsg)
-                await ctx.send(logmsg)
-            return
 
         # are ALL of the flags for this challenge complete? 
 
@@ -572,7 +567,7 @@ async def show_hints(ctx):
 
 @bot.command(name='logs', help='show a list of all transactions you are involved in. (solves, purchases, tips, etc.)', aliases=['log','transactions'])
 async def logs(ctx):
-    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't show your logs in public channels..."):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't dump logs in public channels..."):
         return
     
     msg  = "Your Transaction Log" 
@@ -805,13 +800,27 @@ Key commands
 - `!solves` - show all the flags your team has submitted. 
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
+- `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 """
 
     await sendBigMessage(ctx, msg, wrap=False)
     
 
+@bot.command('public_log', help='list of all transactions (sans sensitive info)', aliases=['plog','pub','ledger','led'])
+async def public_log(ctx):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't dump logs public channels..."):
+        return
+    with db.db_session:
+        if SETTINGS['scoreboard'] == 'public':
+            logs = list(db.select((t.sender.name, t.recipient.name, t.type, t.value, t.time) for t in db.Transaction))
+            logs.insert(0, ['Sender', 'Recipient', 'Type', 'Amount' 'Time'])
+        else:
+            logs = list(db.select((t.sender.name, t.recipient.name, t.type, t.time) for t in db.Transaction))
+            logs.insert(0, ['Sender', 'Recipient', 'Type', 'Time'])
 
+    table = GithubFlavoredMarkdownTable(logs)
+    await sendBigMessage(ctx, f"Public Log of Transactions:\n\n{table.table}")
 
 if __name__ == '__main__':
     from secrets import DISCORD_TOKEN

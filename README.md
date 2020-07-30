@@ -81,11 +81,11 @@ This implements several features that are unique to SOTB or match our event's ae
 
 ## TODO / bugs
 - Flag solves only report 1 challenge that it is a part of during the "congrats" message. 
-- You can submit a flag for a challenge that isn't unlocked yet. 
-  - may not be a huge issue. How would you know to find it if you hadn't been prompted to search for it some how?
+- ~~You can submit a flag for a challenge that isn't unlocked yet.~~ 
+  - ~~may not be a huge issue. How would you know to find it if you hadn't been prompted to search for it some how?
   - this is more likely to occur for challenges with a lot of narrative and that build on each other. 
     - things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. 
-
+~~
 ---
 ## How to play
 
@@ -98,11 +98,13 @@ Key commands
 - `!top` - shows your score 
 - `!all [tag]` - list all challenges or all challenges with the tag `tag`
 - `!v <challenge_id>` - detail view of a specific challenge
+- `!bh <challenge_id>` - purchase a hint for a specific challenge. 
 - `!sub <flag>` - submit a flag you find while working on a challenge
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
 - `!solves` - show all the flags your team has submitted.
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
+- `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 
 ---
@@ -124,6 +126,11 @@ Notes about BYOC challenges
 - Flags must be globally unique.   
   - potential info leak about a flag that exists, but we just have to accept that... 
 - Description is limited to 1500 chars. 
+- Hints are given to user by lowest cost first. 
+  - create the hint you would like to give first with the lowest cost.
+  - points are required to purchase hints. (doesn't reduce value of challenge.) 
+    - Admins can grant points via ctrl_ctf.py but shouldn't make a habit of it...
+  - ***Question to the audience: Should authors get a portion of hint buys?*** 
 - The framework doesn't (can't) host files. 
   - Link to a pastebin, google drive, github, torrent, etc. if you need storage or more space for words... 
   - Files - most are ephimeral and are deleted after 1-2 weeks
