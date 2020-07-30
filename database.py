@@ -113,17 +113,23 @@ class Hint(db.Entity):
     challenge = Required(Challenge)
     transaction = Optional(Transaction)
 
-# https://docs.ponyorm.org/database.html
-if SETTINGS['_db_type'] == 'sqlite':
-    db.bind(provider='sqlite', filename=SETTINGS['_db_database'], create_db=True)
-elif SETTINGS['_db_type'] == 'postgres':
-    print("postgres is untested... good luck...")
-    db.bind(provider='postgres', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
-elif SETTINGS['_db_type'] == 'mysql':
-    print("mysql is untested... good luck...")
-    db.bind(provider='mysql', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
-db.generate_mapping(create_tables=True)
 
+
+#########
+
+def buildDatabase():
+    # https://docs.ponyorm.org/database.html
+    if SETTINGS['_db_type'] == 'sqlite':
+        db.bind(provider='sqlite', filename=SETTINGS['_db_database'], create_db=True)
+    elif SETTINGS['_db_type'] == 'postgres':
+        print("postgres is untested... good luck...")
+        db.bind(provider='postgres', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
+    elif SETTINGS['_db_type'] == 'mysql':
+        print("mysql is untested... good luck...")
+        db.bind(provider='mysql', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
+    db.generate_mapping(create_tables=True)
+
+buildDatabase()
 
 
 @db_session
