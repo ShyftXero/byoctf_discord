@@ -33,14 +33,15 @@ with db_session:
     aykay = db.User(name='AyKay#3420', team=fourthteam)
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
-    flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=shyft, byoc=True)
-    flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200,  author=shyft, byoc=True)
+    flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=malloc, byoc=True)
+    flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200,  author=malloc, byoc=True)
     flag_qwer = db.Flag(flag="FLAG{qwer}", value=200,  author=fie, byoc=True)
     flag_zxcv = db.Flag(flag="FLAG{zxcv}", value=300,  author=r3d, byoc=True)
     flag_nosolve = db.Flag(flag="FLAG{DONT_SOLVE}", value=300,  author=r3d)
     flag_dosolve = db.Flag(flag="FLAG{DO_SOLVE}", value=600, byoc=True, author=r3d)
     flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=malloc)
     flag_bonus2 = db.Flag(flag='FLAG{bonus2}', value=250, author=bot)
+    flag_fgh = db.Flag(flag='FLAG{fgh}', value=150, author=aykay)
 
     #tags 
     byoc_tag        = Tag(name='byoc')
@@ -53,7 +54,7 @@ with db_session:
     #challenges
     bonus_challenge = db.Challenge(id=0, title="__bonus__", description='this is the description for all bonus challenges...', author=bot)
 
-    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft, byoc=True, tags=[byoc_tag, puzzle_tag, forensics_tag] )
+    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=malloc, byoc=True, tags=[byoc_tag, puzzle_tag, forensics_tag] )
     c2 = db.Challenge(title="challenge 2", description="challenge 2 description; unlocks c3",flags=[flag_qwer], author=fie, tags=[pentest_tag, forensics_tag, crypto_tag] )
     c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=fie, parent=[c2], tags=[crypto_tag] )
     
@@ -62,6 +63,8 @@ with db_session:
     c5 = db.Challenge(title="challenge 5", description="challenge 5 description;DO SOLVE",flags=[flag_dosolve], author=r3d, tags=[byoc_tag, pentest_tag, reversing_tag] )
     
     c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=malloc, parent=[c5,c4], tags=[byoc_tag, pentest_tag, forensics_tag])
+
+    c7 = db.Challenge(title="chall 7", description="chall 7 desc", flags=[flag_fgh], author=aykay, tags=[forensics_tag])
     
 
     #hints
@@ -101,7 +104,7 @@ with db_session:
 
     createSolve(user=fie, flag=flag_asdf) # invalid; teammate can't solve. 
     
-    createSolve(user=shyft, flag=flag_asdf) #test rejection of author solves
+    # createSolve(user=shyft, flag=flag_asdf) #test rejection of author solves
 
     createSolve(user=r3d, flag=flag_asdf) # test rejection of duplicate solves
    

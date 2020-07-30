@@ -563,6 +563,7 @@ def validateChallenge(challenge_object):
         'tags': [],
         'challenge_title': "",
         'challenge_description': "",
+        'parents': [],
         'flags': [],
         'hints': [],
         'value': 0, # sum of flags
@@ -661,6 +662,25 @@ def validateChallenge(challenge_object):
 
         result['flags'] = challenge_object['flags']
 
+    # parent challenges
+    parents = challenge_object.get('depends_on', [])
+    for parent_id in parents:
+        try:
+            parent_id = int(parent_id)
+        except:
+            result['fail_reason'] += f'; invalid parent ID {parent_id}; should be an int '
+            if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1:
+                logger.debug(result['fail_reason'])
+            return result
+        parent = Challenge.get(id=parent_id)
+        if parent == None:
+            result['fail_reason'] += f'; parent ID {parent_id} does not exist'
+            if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1:
+                logger.debug(result['fail_reason'])
+            return result
+
+    result['parent_ids'] = parents
+
 
     result['cost'] = result['value'] * SETTINGS['_byoc_commit_fee']
 
@@ -674,9 +694,13 @@ def buildChallenge(challenge_object, byoc=False):
     if SETTINGS['_debug']:
         logger.debug(f"building the challenge from {challenge_object['author']}")
     result = challenge_object
-    if challenge_object.get('valid') != True:
-        result = validateChallenge(challenge_object)
+    
+    # result = validateChallenge(challenge_object) # force validation... 
 
+    if result.get('valid', False) == False:
+        # result = validateChallenge(challenge_object)
+        return -1
+    
     author = User.get(name=result['author'])
 
     # if some one is short points to submit a challenge, GMs can grant points via ctrl_ctf.
@@ -688,10 +712,9 @@ def buildChallenge(challenge_object, byoc=False):
         # something went wrong... 
         logger.debug(result)
         logger.debug(result['fail_reason'])
-        return
+        return -1
     
-    
-    chall_obj_tags = set([t.lower().strip() for t in challenge_object['tags']]) # remove duplicates like ['forensics', 'Forensics', 'FoReNsIcS']
+    chall_obj_tags = set([t.lower().strip() for t in result['tags']]) # remove duplicates like ['forensics', 'Forensics', 'FoReNsIcS']
     tags = []
     for tag in chall_obj_tags: 
         t = Tag.get(name=tag)
@@ -710,17 +733,23 @@ def buildChallenge(challenge_object, byoc=False):
 
     # if challenge_object.get('bulk'): # this should be the bulk creation method / not BYOC; a way for us to load challenges described in json files. it will populate ALL fields.
     flags = []
-    for f in challenge_object.get('flags',[]):
+    for f in result.get('flags',[]):
         fo = Flag(flag=f.get('flag_flag'), value=f.get('flag_value'), author=author, tags=tags)
         flags.append(fo)
-
+    
+    parents = []
+    for parent in result.get('parent_ids',[]):
+        c = Challenge.get(id=parent)
+        parents.append(c)
+    # breakpoint()
     chall = Challenge(
-        title=challenge_object.get('challenge_title'),
+        title=result.get('challenge_title'),
         description=result['challenge_description'],
         author=author, 
         flags=flags, 
         tags=tags,
-        byoc=challenge_object.get('byoc', result.get('byoc', False)),  
+        parent=parents,
+        byoc=result.get('byoc', result.get('byoc', False)),  
         byoc_ext_url=result.get('external_validation_url'),
         byoc_ext_value=result.get('value',0)
     )

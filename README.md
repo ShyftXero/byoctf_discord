@@ -50,8 +50,10 @@ This implements several features that are unique to SOTB or match our event's ae
   - helps motivate teams who would give up if they felt they didn't stand a chance.
   - Can show MVPs for individual score. 
 - Challenge dependencies
-  - Challenges are hidden until at least one flag from each "parent" challenge is solved. 
+  - Challenges are hidden until at least all flags from each "parent" challenge is solved. 
   - _pretty sure this is working._ 
+  - BYOC challenges can depend on byoc or non-byoc challenges. 
+    - Allows individuals to extend a challenge that already exists. 
 - Reactive points for solves
   - FirstBlood
     - Bonus for first team to solve a flag
@@ -74,7 +76,7 @@ This implements several features that are unique to SOTB or match our event's ae
   - It can be done in the DM as well but you need the username of the recipient (like `shyft#0760`; click on their name in Discord to view that.)
 
 ## Expected Features
-- BYOC challenges being dependent on other BYOC challenges or Non BYOC challenges. 
+- ~~BYOC challenges being dependent on other BYOC challenges or Non BYOC challenges.~~ 
 - public http scoreboard for live events. 
 - API access to challenges and solves. (removing dependecy on discord although it is integral right now; not any time soon)
 - maybe an admin web gui? idk... 
@@ -86,6 +88,9 @@ This implements several features that are unique to SOTB or match our event's ae
   - this is more likely to occur for challenges with a lot of narrative and that build on each other. 
     - things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. 
 ~~
+- We chose to not show your teammates challenges or your own challenges
+  - You can use `!bstat` to see your challenges. 
+  - This helps prevent a teammate working on your challenges when they couldn't submit it anyway. 
 ---
 ## How to play
 
@@ -212,6 +217,30 @@ A challenge with multiple flags.
         {
             "hint_cost": 25,
             "hint_text": "Both of the the flags are easy"
+        }
+    ]
+}
+```
+A challenge that depends on other challenges (by challenge ID)
+```json
+{
+    "author": "Combaticus#8292",
+    "challenge_title": "r3d's child challenge",
+    "challenge_description": "good luck finding my flag",
+    "tags": ["pentest"], 
+    "depends_on": [6,7],
+    "flags": [
+        {
+            "flag_title": "r3d dependent flag ", 
+            "flag_value": 200,
+            "flag_flag": "FLAG{solved_1_3}"
+
+        }
+    ], 
+    "hints": [
+        {
+            "hint_cost": 10,
+            "hint_text": "the flag depends on solving chall 1 and 3"
         }
     ]
 }

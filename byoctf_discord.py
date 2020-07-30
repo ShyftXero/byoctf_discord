@@ -112,6 +112,7 @@ def renderChallenge(result, preview=False):
     msg += f"**Value**: `{result['value']}` points\n"
     msg += f"**Description**: {result['challenge_description']}\n"
     msg += f"**Tags**: {', '.join(result.get('tags',[]))}\n"
+    msg += f"**Unlocked By**: {','.join(result.get('parent'))}\n"
     msg += '-'*40 + '\n'
     msg += f'**Number of Flags**: {result.get("num_flags",0)}\n'
     msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
@@ -343,10 +344,6 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         if challenge:     # was this flag part of a challenge? 
             msg += f'You submitted a flag for challenge `{challenge.title}`.\n'
 
-        # are ALL of the flags for this challenge complete? 
-
-        # if so award xx points. 
-        
         if flag.unsolved == True:
             msg += f'**First blood!** \nYou are the first to submit `{flag.flag}` and have earned a bonus {SETTINGS["_firstblood_rate"] * 100 }% \nTotal reward `{flag.value * (1 + SETTINGS["_firstblood_rate"])}` rather than `{flag.value}`\n'
         elif SETTINGS['_decay_solves'] == True:
@@ -367,6 +364,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
         # firstblood and decay points/award/reductions logic is now in create solve. above is for display only
         db.createSolve(user=user, flag=flag, challenge=challenge, msg='\n'.join([c.title for c in flag.challenges]))
         
+        msg += f'Challenge is {db.percentComplete(challenge, user)}% complete.\n'
         msg += f'Your score is now `{db.getScore(user)}`'
         logger.debug(msg)
         await ctx.send(msg)
@@ -462,12 +460,12 @@ async def list_all(ctx, tag:str=None):
         challs = db.get_all_challenges(user)
         # It'd be nice to show a percentage complete as well...
         # 
-        # db.percentComplete(c, user)  
+        # don't show teammates challenges or your own challenges. !bstat to see yours. helps prevent a teammate working on your challenges when they couldn't submit it anyway. 
         if tag == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0 and c.author not in db.getTeammates(user)]
         
         else:
-            res = [[c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags]]
+            res = [[c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags] and c.author not in db.getTeammates(user)]
 
     res.insert(0, ['ID', "Author", "Title", "Value", "Done", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
@@ -504,6 +502,7 @@ async def view_challenge(ctx, chall_id:int):
             res = {}
             res['challenge_title'] = chall.title
             res['challenge_description'] = chall.description
+            res['parent'] = [c.id for c in list(chall.parent)]
             res['value'] = db.challValue(chall)
             res['hints'] = [h for h in chall.hints]
             res['hints_purchased'] = [t.hint for t in db.getHintTransactions(user) if t.hint.challenge == chall]

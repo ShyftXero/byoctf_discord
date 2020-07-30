@@ -414,7 +414,7 @@ class Commands:
             result['byoc'] = False
 
         if result['valid'] == True:    
-            chall_id = db.buildChallenge(result)
+            chall_id = db.buildChallenge(result, byoc=byoc)
             print(f"Challenge ID {chall_id} created attributed to {result['author']} byoc mode was {byoc}.")
         else:
             print(result['fail_reason'])
