@@ -51,6 +51,15 @@ class Commands:
         print("unpausing CTF")
         SETTINGS['ctf_paused'] = False
 
+    def toggle_scores(self):
+        """toggle the visibility of the scoreboard; makes showscores and hidescores redundant """
+        if SETTINGS['scoreboard'] == 'private':
+            SETTINGS['scoreboard'] = 'public'
+        else:
+            SETTINGS['scoreboard'] = 'private'
+        
+        print(f"Scores are now {SETTINGS['scoreboard']}")
+
     def hidescores(self):
         """Make scores on scoreboard private 
         """

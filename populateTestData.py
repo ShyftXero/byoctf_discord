@@ -39,28 +39,29 @@ with db_session:
     flag_zxcv = db.Flag(flag="FLAG{zxcv}", value=300,  author=r3d, byoc=True)
     flag_nosolve = db.Flag(flag="FLAG{DONT_SOLVE}", value=300,  author=r3d)
     flag_dosolve = db.Flag(flag="FLAG{DO_SOLVE}", value=600, byoc=True, author=r3d)
-    flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=shyft)
+    flag_jkl = db.Flag(flag="FLAG{jkl}", value=200, byoc=True, author=malloc)
     flag_bonus2 = db.Flag(flag='FLAG{bonus2}', value=250, author=bot)
 
     #tags 
-    pentest_tag = Tag(name='pentest')
-    forensics_tag = Tag(name='forensics')
-    reversing_tag = Tag(name='reversing')
-    puzzle_tag = Tag(name='puzzle')
-    crypto_tag = Tag(name='crypto')
+    byoc_tag        = Tag(name='byoc')
+    pentest_tag     = Tag(name='pentest')
+    forensics_tag   = Tag(name='forensics')
+    reversing_tag   = Tag(name='reversing')
+    puzzle_tag      = Tag(name='puzzle')
+    crypto_tag      = Tag(name='crypto')
     
     #challenges
     bonus_challenge = db.Challenge(id=0, title="__bonus__", description='this is the description for all bonus challenges...', author=bot)
 
-    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft, byoc=True, tags=[puzzle_tag, forensics_tag] )
+    c1 = db.Challenge(title="challenge 1", description="challenge 1 description",flags=[flag_asdf, flag_ASDF], author=shyft, byoc=True, tags=[byoc_tag, puzzle_tag, forensics_tag] )
     c2 = db.Challenge(title="challenge 2", description="challenge 2 description; unlocks c3",flags=[flag_qwer], author=fie, tags=[pentest_tag, forensics_tag, crypto_tag] )
     c3 = db.Challenge(title="challenge 3", description="challenge 3 description; requires c2",flags=[flag_qwer], author=fie, parent=[c2], tags=[crypto_tag] )
     
     c4 = db.Challenge(title="challenge 4", description="challenge 4 description;DONT SOLVE",flags=[flag_nosolve], author=r3d )
 
-    c5 = db.Challenge(title="challenge 5", description="challenge 5 description;DO SOLVE",flags=[flag_dosolve], author=r3d, tags=[pentest_tag, reversing_tag] )
+    c5 = db.Challenge(title="challenge 5", description="challenge 5 description;DO SOLVE",flags=[flag_dosolve], author=r3d, tags=[byoc_tag, pentest_tag, reversing_tag] )
     
-    c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=shyft, parent=[c5], tags=[pentest_tag, forensics_tag])
+    c6 = db.Challenge(title="challenge 6", description="challenge 6 description;",flags=[flag_jkl], author=malloc, parent=[c5,c4], tags=[byoc_tag, pentest_tag, forensics_tag])
     
 
     #hints
@@ -107,8 +108,8 @@ with db_session:
     createSolve(user=r3d, flag=flag_ASDF)
     createSolve(user=shyft, flag=flag_qwer)
     createSolve(user=fie, flag=flag_zxcv) 
-    createSolve(user=shyft, flag=flag_jkl) # test byoc self solve 
-    createSolve(user=fie, flag=flag_jkl) # test byoc duplicate\
+    # createSolve(user=shyft, flag=flag_jkl) # test byoc self solve 
+    # createSolve(user=fie, flag=flag_jkl) # test byoc duplicate\
 
     createSolve(user=aykay, flag=flag_asdf)
     createSolve(user=aykay, flag=flag_ASDF)

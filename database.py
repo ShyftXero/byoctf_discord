@@ -240,6 +240,7 @@ def challegeUnlocked(user, chall):
         logger.debug(f'team_solves: {team_solves}')
         logger.debug(f'parent_flags: {parent_flags}')
         logger.debug(f'got_all_flags { got_all_flags}')
+
     if got_all_flags == True:
         return True
     return False
@@ -534,10 +535,19 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
 def percentComplete(chall:Challenge, user:User):
     flags = list(chall.flags)
     num_solves_for_chall = 0
+    teammates = getTeammates(user) #look for all solves from my team. not just me. 
     for flag in flags:
-        if Solve.get(user=user, flag_text=flag.flag):
-            num_solves_for_chall += 1
+        for teammate in teammates:
+            if Solve.get(user=teammate, flag_text=flag.flag):
+                num_solves_for_chall += 1
     return (num_solves_for_chall / len(flags)) * 100
+
+@db_session
+def challengeComplete(chall:Challenge, user:User):
+    if percentComplete(chall, user) == 100:
+        return True
+    return False
+
 
 
 @db_session()
