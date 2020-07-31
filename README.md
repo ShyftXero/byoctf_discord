@@ -77,6 +77,7 @@ This implements several features that are unique to SOTB or match our event's ae
 
 ## Expected Features
 - ~~BYOC challenges being dependent on other BYOC challenges or Non BYOC challenges.~~ 
+  - This seems to be working now.
 - public http scoreboard for live events. 
 - API access to challenges and solves. (removing dependecy on discord although it is integral right now; not any time soon)
 - maybe an admin web gui? idk... 
@@ -84,9 +85,10 @@ This implements several features that are unique to SOTB or match our event's ae
 ## TODO / bugs
 - Flag solves only report 1 challenge that it is a part of during the "congrats" message. 
 - ~~You can submit a flag for a challenge that isn't unlocked yet.~~ 
-  - ~~may not be a huge issue. How would you know to find it if you hadn't been prompted to search for it some how?
-  - this is more likely to occur for challenges with a lot of narrative and that build on each other. 
-    - things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. 
+  - ~~may not be a huge issue. How would you know to find it if you hadn't been prompted to search for it some how?~~
+  - ~~this is more likely to occur for challenges with a lot of narrative and that build on each other. ~~
+    - ~~things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. ~~
+  - resolved. 100% unlock
 ~~
 - We chose to not show your teammates challenges or your own challenges
   - You can use `!bstat` to see your challenges. 
@@ -96,10 +98,10 @@ This implements several features that are unique to SOTB or match our event's ae
 
 Key commands 
 - `!reg <team_name> <team_password>` - register and join *teamname*; super case-sensitive.  
-  -- wrap in quotes if you have spaces in the teamname; 
-  -- if the team exists and your password is correct, you're in. 
-  -- if no team exists with the name specified, the team will be created with password specified. 
-  -- leading and trailing spaces are stripped from team name and password.
+  - - wrap in quotes if you have spaces in the teamname; 
+  - - if the team exists and your password is correct, you're in. 
+  - - if no team exists with the name specified, the team will be created with password specified. 
+  - - leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
 - `!all [tag]` - list all challenges or all challenges with the tag `tag`
 - `!v <challenge_id>` - detail view of a specific challenge
@@ -153,7 +155,24 @@ Notes about BYOC challenges
     
 - By default, it costs 50% of the total challenge value (sum of flags) to post a challenge. 
 - By default, your reward for the solve of a flag which is part of your challenge is 25% of that flags value. 
-  - if the challenge is externally validated, it's based on the challenge value. 
+  - If the challenge is externally validated, it's based on the challenge value.
+  - You will get a reward of 25% of the flag value everytime there is a successful solve. (not including firstblood or decayed point value)
+  - Example: (assuming default settings for fees and rewards)
+    - you have a challenge with 2 flags.
+      - flag 1 is worth 150 points and flag 2 is 50 points for a total of 200 points
+    - It will cost you 100 points to post it via `!byoc_commit` so you do.
+    - Now you are down `100` points
+    - When the first solve comes in for flag 1, you will get a reward of `37.5` points
+    - Now you are only down `62.5` points. 
+    - When the second solve for flag 1 comes in, you will get another reward of `37.5` points
+    - Now you are only down `25` points.
+    - When the first solve comes in for flag 2, you will get a reward of `12.5` points
+    - Now you are only down `12.5` points.
+    - When the third solve for flag 1 solve for flag 1 comes in, you will get another reward of `37.5` points
+    - At this point you have earned back your commit fee and have turned a profit of `25` points
+  - This is only possible if your challenge is solvable. You could create some time-sink challenge that's impossible, but you'd have to pay to do so... 
+  - Also, keep in mind that the BYOC fee and rewards can be tuned while the game is running. All transactions that take place after the change will reflect the newer rate and old transactions will reflect the older rate. 
+  - Admins can also prevent your challenge from being solvable if you figure out a scheme that is in violation of the spirit of the game. That depends on them and you, of course. 
 - ~~This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)~~
   - ~~we need to store it the flag so the `!solves` command can show you which flags you've already submitted.~~ 
   - ~~open to arguments against this or a PR to avoid it.~~ 
