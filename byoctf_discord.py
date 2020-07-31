@@ -822,5 +822,9 @@ async def public_log(ctx):
     await sendBigMessage(ctx, f"Public Log of Transactions:\n\n{table.table}")
 
 if __name__ == '__main__':
-    from secrets import DISCORD_TOKEN
+    try:
+        from secrets import DISCORD_TOKEN
+    except ImportError:
+        print("Failure to import DISCORD_TOKEN from secrets.py")
+        exit()
     bot.run(DISCORD_TOKEN)
