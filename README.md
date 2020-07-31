@@ -158,18 +158,20 @@ Notes about BYOC challenges
   - If the challenge is externally validated, it's based on the challenge value.
   - You will get a reward of 25% of the flag value everytime there is a successful solve. (not including firstblood or decayed point value)
   - Example: (assuming default settings for fees and rewards)
-    - you have a challenge with 2 flags.
-      - flag 1 is worth 150 points and flag 2 is 50 points for a total of 200 points
-    - It will cost you 100 points to post it via `!byoc_commit` so you do.
-    - Now you are down `100` points
-    - When the first solve comes in for flag 1, you will get a reward of `37.5` points
-    - Now you are only down `62.5` points. 
-    - When the second solve for flag 1 comes in, you will get another reward of `37.5` points
-    - Now you are only down `25` points.
-    - When the first solve comes in for flag 2, you will get a reward of `12.5` points
-    - Now you are only down `12.5` points.
-    - When the third solve for flag 1 solve for flag 1 comes in, you will get another reward of `37.5` points
-    - At this point you have earned back your commit fee and have turned a profit of `25` points
+```
+- you have a challenge with 2 flags.
+  - flag 1 is worth 150 points and flag 2 is 50 points for a total of 200 points
+- It will cost you 100 points to post it via `!byoc_commit` so you do.
+- Now you are down `100` points
+- When the first solve comes in for flag 1, you will get a reward of `37.5` points
+- Now you are only down `62.5` points. 
+- When the second solve for flag 1 comes in, you will get another reward of `37.5` points
+- Now you are only down `25` points.
+- When the first solve comes in for flag 2, you will get a reward of `12.5` points
+- Now you are only down `12.5` points.
+- When the third solve for flag 1 solve for flag 1 comes in, you will get another reward of `37.5` points
+- At this point you have earned back your commit fee and have turned a profit of `25` points
+```
   - This is only possible if your challenge is solvable. You could create some time-sink challenge that's impossible, but you'd have to pay to do so... 
   - Also, keep in mind that the BYOC fee and rewards can be tuned while the game is running. All transactions that take place after the change will reflect the newer rate and old transactions will reflect the older rate. 
   - Admins can also prevent your challenge from being solvable if you figure out a scheme that is in violation of the spirit of the game. That depends on them and you, of course. 
