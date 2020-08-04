@@ -50,8 +50,8 @@ This implements several features that are unique to SOTB or match our event's ae
   - helps motivate teams who would give up if they felt they didn't stand a chance.
   - Can show MVPs for individual score. 
 - Challenge dependencies
-  - Challenges are hidden until at least all flags from each "parent" challenge is solved. 
-  - _pretty sure this is working._ 
+  - Challenges are hidden until all flags from each "parent" challenge (or dependecy) is solved. 
+  - _pretty sure this is working as intended._ 
   - BYOC challenges can depend on byoc or non-byoc challenges. 
     - Allows individuals to extend a challenge that already exists. 
 - Reactive points for solves
@@ -103,7 +103,7 @@ Key commands
   - - if no team exists with the name specified, the team will be created with password specified. 
   - - leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
-- `!all [tag]` - list all challenges or all challenges with the tag `tag`
+- `!all [tag]` - list all challenges or all challenges with the tag `tag` or `![tag]` to omit tag
 - `!v <challenge_id>` - detail view of a specific challenge
 - `!bh <challenge_id>` - purchase a hint for a specific challenge. 
 - `!sub <flag>` - submit a flag you find while working on a challenge
@@ -116,9 +116,9 @@ Key commands
 
 ---
 
-## BYOC Challenges
+# BYOC Challenges
 
-Notes about BYOC challenges
+## A few notes about BYOC challenges
 - ### ***There is no way to edit your challenge once you commit it***
   - Make sure you don't have typos 
   - use DNS names rather than hardcoded IPs for links
@@ -145,6 +145,7 @@ Notes about BYOC challenges
       - 10gb files; no account; wget-able; tor service for your protection or whatever.
     - https://bashupload.com/
     - https://www.file.io/
+    - https://onionshare.org/ - a good choice but requires tooling.
     - https://github.com - not ephimeral
       - **least sketch and editable by you if you make a mistake. **
       - 100mb file limit
@@ -180,8 +181,60 @@ Notes about BYOC challenges
   - ~~open to arguments against this or a PR to avoid it.~~ 
   - We kind of worked around this by storing a hash of the flag in the solve text rather than the flag itself. As the author you will see the hash in the solve and can hash your own flags to see which one matches. 
   - Keep in mind that we still touch the unhashed flag so you have to trust that we're not logging... 😉 good luck... 
-
-## Submitting a challenge
+---
+## Common criticisms of the BYOC concept
+- ***Creating an impossible challenge in an effort distract players.*** 
+  - This is a possibility and always has been.
+  - Part of developing your CTF skillset is to be able to recognize this and manage your time effectively. 
+  - There is also the fact that it costs points to post a challenge. that might be enough of a deterent for most. Others, maybe not. 
+  - I don't think the issue will be rampant enough to warrant scrapping the idea.
+- ***Creating a trivial challenge worth a lot of points***
+  - I believe that this issue will self-regulate. 
+  - If it's just a simple challenge and everyone can solve it, then it doesn't have much bearing on the final outcome. 
+  - If everyone's a loser, no one's a loser. 
+  - There's also a task management component to this. Don't let one of the high value easy flags slip by. 
+- If you don't want to risk it and avoid BYOC, use `!all !byoc` 
+  - `!` like _not_ or a logical inversion. 
+---
+## Notes or guidance for developing challenges.
+Most of the following are considerations regarding building your challenge. 
+- ***Defining outcomes/objectives***
+  - How much prior knowledge do you have to have in order to accomplish the task? 
+    - Can you learn all of it during the amount of time that the challenge is available
+  - Is this something targeting a beginner in infosec or a beginner in a certian infosec discipline
+    - computer n00b vs web app pentesting n00b but 10 year network engineering vet vs ...
+  - Are you validating experience or guiding a learning experience?
+- ***Assigning a score to your challenge***
+  - What is the range or scale of your event?
+    - many are done in 25-50 point increments upto 500
+    - This is arbitrary. 
+  - how "off the shelf" is the attack/vector?
+    - does a metasploit module already exist?
+  - How "custom" is the target system or attack technique?
+    - stock config = less understanding of the application required to exploit
+    - intentionally misconfigured = more understanding of the application required to exploit
+    - how recent is the application, exploit, or technique?
+    - 
+  - What skills are required to accomplish the challenge?
+    - how much customization/tailoring of existing exploit code is required?
+    - How much code
+  - How impactful is the challenge
+    - "gee whiz" factor for the uninitated
+  - ? 
+- ***What infrastructure do I(the author of the challenge) need to have in place?***
+  - This doesn't/shouldn't have much bearing on the score. 
+  - **REALLY** depends on the challenge
+    - You should have one server per team if:
+      - attempting to solve the challenge (attacking/exploiting the server) has a high probability of reducing other teams ability to solve.
+      - this is like having someone reset your box on hackthebox just after you get a shell. (realistic-ish but frustrating) 
+    - You could use a shared server if:
+      - if attacking the server has a high probability of reducing other teams ability to solve. 
+  - Docker is a fair middle-ground regarding hosting a suite of challenges on a single server while minimizing exposure/risk of compromising other challenges if exploited. 
+    - We have some dockerfiles and control scripts to talk about that if the time comes. 
+  - The external validation server (or one like it) if you choose to not share your flags with the bot.
+  
+---
+## Submitting a challenge 
 - Validate your challenge by attaching the json file in a DM to the bot with the command `!byoc_check`
   - If it's valid, an extended preview will show up showing the cost. 
 - Commit your challenge (actually post it) by attaching the json file in a DM to the bot with the command `!byoc_commit`
@@ -195,7 +248,7 @@ A basic single flag challenge.
 {
     "author": "Combaticus#8292",
     "challenge_title": "r3d's challenge",
-    "challenge_description": "good luck finding my flag",
+    "challenge_description": "good luck finding my flag -> https://pastebin.com/tiRMg9dR",
     "tags": ["pentest"], 
     "flags": [
         {
@@ -218,7 +271,7 @@ A challenge with multiple flags.
 {
     "author": "Combaticus#8292",
     "challenge_title": "r3d's multi-flag challenge",
-    "challenge_description": "good luck finding my flags",
+    "challenge_description": "good luck finding my flags at 3.43.54.28",
     "tags": ["pentest", "forensics"], 
     "flags": [
         {
@@ -254,14 +307,14 @@ A challenge that depends on other challenges (by challenge ID)
         {
             "flag_title": "r3d dependent flag ", 
             "flag_value": 200,
-            "flag_flag": "FLAG{solved_1_3}"
+            "flag_flag": "FLAG{solved_6_7}"
 
         }
     ], 
     "hints": [
         {
             "hint_cost": 10,
-            "hint_text": "the flag depends on solving chall 1 and 3"
+            "hint_text": "the flag depends on solving chall 6 and 7"
         }
     ]
 }
