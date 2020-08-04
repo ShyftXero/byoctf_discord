@@ -1,6 +1,5 @@
-# from logging import log
-# from pony.orm.core import commit
-# from database import Challenge, getTeammates
+from pony.orm.core import args2str
+from settings import SETTINGS, init_config, is_initialized
 import datetime
 import time
 import json
@@ -9,7 +8,7 @@ from typing import Union
 import hashlib
 
 from loguru import logger
-logger.add('byoctf.log')
+logger.add(SETTINGS["_logfile"])
 
 import requests
 from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
@@ -21,7 +20,7 @@ import database as db
 
 import json
 
-from settings import SETTINGS, init_config, is_initialized
+
 
 # should be handled in settings now. 
 # if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset 
@@ -446,8 +445,14 @@ async def list_unsolved(ctx):
 
     await ctx.send(msg)
 
+def anyIn(list1, list2):
+    return any(elem in list1  for elem in list2)
+
+def allIn(list1, list2):
+    return all(elem in list1  for elem in list2)
+
 @bot.command(name="all_challenges", help="list all visible challenges. solved or not. ", aliases=['all', 'allc','ac'])
-async def list_all(ctx, tag:str=None):
+async def list_all(ctx, *, tags=None):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
         return
 
@@ -461,11 +466,30 @@ async def list_all(ctx, tag:str=None):
         # It'd be nice to show a percentage complete as well...
         # 
         # don't show teammates challenges or your own challenges. !bstat to see yours. helps prevent a teammate working on your challenges when they couldn't submit it anyway. 
-        if tag == None:
+        res = []
+        if tags == None:
             res = [(c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0 and c.author not in db.getTeammates(user)]
         
         else:
-            res = [[c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])] for c in challs if c.id > 0 and tag in [t.name for t in c.tags] and c.author not in db.getTeammates(user)]
+            tags = tags.split(' ')
+            includes = [x for x in tags if x.startswith('!') == False]
+            excludes = [x[1:] for x in tags if x.startswith('!')]
+            
+            if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1:
+                logger.debug(f'tags: {tags}; filter including {includes}; excluding {excludes}')
+
+            for chall in challs:
+                chall_tags = [t.name for t in chall.tags]
+                if anyIn(excludes, chall_tags): # kick it back if any of the excludes are in the chall_tags
+                    continue
+
+                if not anyIn(includes, chall_tags): # if it doesn't have any of the includes, skip it. 
+                    continue
+                
+                if chall.id < 1 or chall.author in db.getTeammates(user): # other reasons to skip this challenge... 
+                    continue
+
+                res += [[chall.id, chall.author.name, chall.title, db.challValue(chall), f"{db.percentComplete(chall, user)}%", ', '.join(chall_tags)]] 
 
     res.insert(0, ['ID', "Author", "Title", "Value", "Done", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
@@ -813,7 +837,7 @@ async def public_log(ctx):
     with db.db_session:
         if SETTINGS['scoreboard'] == 'public':
             logs = list(db.select((t.sender.name, t.recipient.name, t.type, t.value, t.time) for t in db.Transaction))
-            logs.insert(0, ['Sender', 'Recipient', 'Type', 'Amount' 'Time'])
+            logs.insert(0, ['Sender', 'Recipient', 'Type', 'Amount', 'Time'])
         else:
             logs = list(db.select((t.sender.name, t.recipient.name, t.type, t.time) for t in db.Transaction))
             logs.insert(0, ['Sender', 'Recipient', 'Type', 'Time'])

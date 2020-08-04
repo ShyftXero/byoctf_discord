@@ -540,7 +540,11 @@ def percentComplete(chall:Challenge, user:User):
         for teammate in teammates:
             if Solve.get(user=teammate, flag_text=flag.flag):
                 num_solves_for_chall += 1
-    return (num_solves_for_chall / len(flags)) * 100
+    try:
+        return (num_solves_for_chall / len(flags)) * 100
+    except ZeroDivisionError as e:
+        # the len() of flags is zero... challenge without flags...
+        return 0
 
 @db_session
 def challengeComplete(chall:Challenge, user:User):
