@@ -284,6 +284,8 @@ async def scores(ctx):
             table = GithubFlavoredMarkdownTable(scores)
             
             msg += f'Top {SETTINGS["_scoreboard_size"]} Team scores \n```{table.table}```'
+        else:
+            msg += f"Scoreboard is set to private\n"
 
         if SETTINGS['_show_mvp'] == True:
             # top players in the game
@@ -293,6 +295,8 @@ async def scores(ctx):
             table = GithubFlavoredMarkdownTable(data)
             table = GithubFlavoredMarkdownTable(data)
             msg += f'Top {SETTINGS["_mvp_size"]} Players\n```{table.table}```'
+        else:
+            msg += f"MVP is set to False    "
 
         await ctx.send(msg)
 
