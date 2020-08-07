@@ -89,7 +89,6 @@ This implements several features that are unique to SOTB or match our event's ae
   - ~~this is more likely to occur for challenges with a lot of narrative and that build on each other. ~~
     - ~~things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. ~~
   - resolved. 100% unlock
-~~
 - We chose to not show your teammates challenges or your own challenges
   - You can use `!bstat` to see your challenges. 
   - This helps prevent a teammate working on your challenges when they couldn't submit it anyway. 
