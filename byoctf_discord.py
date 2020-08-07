@@ -84,12 +84,16 @@ async def sendBigMessage(ctx, content, wrap=True):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):  
         await ctx.send(f"Command `{ctx.message.content}` not found... \n\nTry `!help` or `!help <command>`")
+    elif isinstance(error, commands.errors.BadArgument):
+        await ctx.send(f'Invalid argument to command')
     elif isinstance(error, commands.errors.CommandOnCooldown):
         msg = f'***Whoa... Slow down... Please try again in {error.retry_after:.2f}s***'
         await ctx.send(msg)
-        logger.debug(f'Brute-forcing for flags? - {username(ctx)}: {msg}')
+        logger.debug(f'Brute forcing for flags? - {username(ctx)}: {msg}')
     else:
-        raise error
+        logger.debug(f"{error}")
+        # raise error
+        
 
 async def inPublicChannel(ctx, msg='this command should only be done in a private message (DM) to the bot'):
     if ctx.channel.type.name == 'text':
@@ -863,11 +867,37 @@ Key commands
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
 - `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
+- `!psol [challenge_id]` - all solves for all challenges or just challenge_id 
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 """
 
     await sendBigMessage(ctx, msg, wrap=False)
     
+@bot.command('public_solves', help='show who solved challenges for all challenges (sans sensitive info)', aliases=['psol','psolves'])
+async def public_solves(ctx, chall_id:int=0):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't dump logs public channels..."):
+        return
+    
+    with db.db_session:
+        if chall_id > 0:
+            if SETTINGS['scoreboard'] == 'public':
+                logs = list(db.select((t.recipient.team.name, t.recipient.name, t.challenge.title, t.value, t.time) for t in db.Transaction if t.type == 'solve' and t.challenge.id == chall_id))
+                logs.insert(0, ['Team', 'Recipient','Challenge', 'Amount', 'Time'])
+            else:
+                logs = list(db.select((t.recipient.team.name, t.recipient.name, t.challenge.name, t.time) for t in db.Transaction if t.type == 'solve' and t.challenge.id == chall_id))
+                logs.insert(0, ['Team', 'Recipient','Challenge', 'Time'])
+        else:
+            if SETTINGS['scoreboard'] == 'public':
+                logs = list(db.select((t.recipient.team.name, t.recipient.name, t.challenge.title, t.value, t.time) for t in db.Transaction if t.type == 'solve'))
+                logs.insert(0, ['Team', 'Recipient','Challenge', 'Amount', 'Time'])
+            else:
+                logs = list(db.select((t.recipient.team.name, t.recipient.name, t.challenge.name, t.time) for t in db.Transaction if t.type == 'solve'))
+                logs.insert(0, ['Team', 'Recipient','Challenge', 'Time'])
+
+    table = GithubFlavoredMarkdownTable(logs)
+    await sendBigMessage(ctx, f"Public Log of Solves for all challenges:\n\n{table.table}")
+
+
 
 @bot.command('public_log', help='list of all transactions (sans sensitive info)', aliases=['plog','pub','ledger','led'])
 async def public_log(ctx):
