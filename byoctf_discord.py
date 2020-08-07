@@ -1,3 +1,4 @@
+from logging import log
 from pony.orm.core import args2str
 from settings import SETTINGS, init_config, is_initialized
 import datetime
@@ -111,7 +112,7 @@ def renderChallenge(result, preview=False):
     msg += f"**Value**: `{result['value']}` points\n"
     msg += f"**Description**: {result['challenge_description']}\n"
     msg += f"**Tags**: {', '.join(result.get('tags',[]))}\n"
-    msg += f"**Unlocked By**: {','.join(result.get('parent'))}\n"
+    msg += f"**Unlocked By**: {','.join(result.get('parent',[]))}\n"
     msg += '-'*40 + '\n'
     msg += f'**Number of Flags**: {result.get("num_flags",0)}\n'
     msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
@@ -133,6 +134,32 @@ def renderChallenge(result, preview=False):
         for flag in result['flags']:
             msg += f"Flag: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}`\n" 
     return msg
+
+@db.db_session()
+@bot.command(name='unregister', help='Leave a team... you still exist as a player but without a team... no fun.', aliases=['unreg'])
+@commands.dm_only()
+async def unregister(ctx: discord.ext.commands.Context):
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't leave a team in public channels..."):
+        return
+
+    if SETTINGS['registration'] == 'disabled':
+        await ctx.send("registration is disabled")
+        return
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+
+        if user == None:
+            logger.debug(f"user {username(ctx)} not registered to play.")
+            await ctx.send("You weren't registered")
+            return
+        
+        await ctx.send(f"Leaving team {user.team.name}... bye.")
+        user.team = None
+        db.commit()
+
+    
+
+
 
 @db.db_session()
 @bot.command(name='register', help='register on the scoreboard. !register <teamname> <password>; wrap team name in quotes if you need a space', aliases=['reg'])
@@ -157,7 +184,7 @@ async def register(ctx: discord.ext.commands.Context, teamname:str=None, passwor
         team = db.Team.get(name=teamname)
         user = db.User.get(name=username(ctx))
 
-        if user:
+        if user.team != None:
             msg = f'already registered as `{username(ctx)}` on team `{user.team.name}`'
             await ctx.send(msg)
             return
@@ -168,12 +195,16 @@ async def register(ctx: discord.ext.commands.Context, teamname:str=None, passwor
 
         if team == None: # This team doesn't exist    
             team = db.Team(name=teamname, password=hashed_pass)
-            user = db.User(name=username(ctx), team=team)
+            if user == None:
+                user = db.User(name=username(ctx), team=team)
             msg = f'Registered as `{user.name}` on a new team `{team.name}`\n'
             logger.debug(msg)
             await ctx.send(msg)
         elif hashed_pass == team.password:
-            user = db.User(name=username(ctx), team=team) # team already existed
+            if user == None:
+                user = db.User(name=username(ctx), team=team) # team already existed
+            else:
+                user.team = team
             msg = f'Joined team `{team.name}` as `{user.name}`'
             logger.debug(msg)
             await ctx.send(msg)
@@ -480,10 +511,11 @@ async def list_all(ctx, *, tags=None):
 
             for chall in challs:
                 chall_tags = [t.name for t in chall.tags]
+                
                 if anyIn(excludes, chall_tags): # kick it back if any of the excludes are in the chall_tags
                     continue
 
-                if not anyIn(includes, chall_tags): # if it doesn't have any of the includes, skip it. 
+                if len(includes) > 0 and anyIn(includes, chall_tags) == False: # if it doesn't have any of the includes, skip it. 
                     continue
                 
                 if chall.id < 1 or chall.author in db.getTeammates(user): # other reasons to skip this challenge... 
@@ -774,7 +806,7 @@ async def byoc_commit(ctx):
 
     chall_preview = renderChallenge(result, preview=True)
     # await ctx.send(chall_preview)
-    await sendBigMessage(chall_preview)
+    await sendBigMessage(ctx, chall_preview, wrap=False)
     await ctx.send("\n\n\n***Reply with `confirm` in the next 10 seconds to pay for and publish your challenge.***")
     resp = None
     try:
@@ -791,14 +823,19 @@ async def byoc_commit(ctx):
             return
         if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 1:
             logger.debug(f'{username(ctx)} created  chall id {chall_id}')
-        await ctx.send(f'Done. use `!view {chall_id}` to see it. and `!byoc_stats` to see who has solved it.')
+        
+        # alert others via the ctf channel
+        ctf_chan = bot.get_channel(SETTINGS["_ctf_channel_id"]) 
+        user = await getDiscordUser(ctx,username(ctx))
+        await ctf_chan.send(f"New BYOC challenge from <@{user.id}>. \n`{result['challenge_title']}` for `{result['value']}` points\nUse `!view {chall_id}` to see it")
+        await ctx.send(f'Challenge Accepted! Use `!view {chall_id}` to see it and `!byoc_stats` to see who has solved it.')
         return
     
     await ctx.send("**Cancelling...**")
     return
 
 
-@bot.command("!tutorial", help='a tldr for essential commands', aliases=['tut'])
+@bot.command("tutorial", help='a tldr for essential commands', aliases=['tut'])
 async def tutorial(ctx):
     # if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
     #     return
@@ -807,7 +844,9 @@ async def tutorial(ctx):
     msg = f"""
 **How to play**
 
-Try to keep your "public" interactions (tips mainly) in the {byoctf_chan.mention} channel
+Try to keep your "public" interactions (tips mainly) in the {byoctf_chan.mention} channel. 
+
+Only communicate with <@{bot.user.id}> via direct messages (User ID:{bot.user.id}) 
 
 Key commands 
 - `!reg <team_name> <team_password>` - register and join *teamname*; super case-sensitive.  

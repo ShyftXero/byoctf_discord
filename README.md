@@ -103,7 +103,7 @@ Key commands
   - - if no team exists with the name specified, the team will be created with password specified. 
   - - leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
-- `!all [tag]` - list all challenges or all challenges with the tag `tag` or `![tag]` to omit tag
+- `!all [tag, ...]` - list all challenges or all challenges with the tag `tag` or `![tag]` to omit tag
 - `!v <challenge_id>` - detail view of a specific challenge
 - `!bh <challenge_id>` - purchase a hint for a specific challenge. 
 - `!sub <flag>` - submit a flag you find while working on a challenge
@@ -128,11 +128,11 @@ Key commands
     - The bot can't prove or know that it is or isn't
   - ***ALL SALES ARE FINAL!***
 - Cumulative challenge value is the sum of flag values
-  - Must exceed 100 points
+  - Must exceed 100 points ; configurable
 - Challenge titles must be unique. 
 - Flags must be globally unique.   
-  - potential info leak about a flag that exists, but we just have to accept that... 
-- Description is limited to 1500 chars. 
+  - potential info leak about a flag that exists, but we just have to accept that risk... `!byoc_check` and `!byoc_commit` rate limited to help mitigate this.
+- Description is limited to 1500 chars. (more of a discord UI thing. messages can't exceed 2000 chars, )
 - Hints are given to user by lowest cost first. 
   - create the hint you would like to give first with the lowest cost.
   - points are required to purchase hints. (doesn't reduce value of challenge.) 
