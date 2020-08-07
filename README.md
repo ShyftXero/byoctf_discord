@@ -98,20 +98,20 @@ This implements several features that are unique to SOTB or match our event's ae
 
 Key commands 
 - `!reg <team_name> <team_password>` - register and join *teamname*; super case-sensitive.  
-  - - wrap in quotes if you have spaces in the teamname; 
-  - - if the team exists and your password is correct, you're in. 
-  - - if no team exists with the name specified, the team will be created with password specified. 
-  - - leading and trailing spaces are stripped from team name and password.
+  -- wrap in quotes if you have spaces in the teamname; 
+  -- if the team exists and your password is correct, you're in. 
+  -- if no team exists with the name specified, the team will be created with password specified. 
+  -- leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
-- `!all [tag, ...]` - list all challenges or all challenges with the tag `tag` or `![tag]` to omit tag
+- `!all [tag]` - filter challenges by tag; use !tag to exclude
 - `!v <challenge_id>` - detail view of a specific challenge
-- `!bh <challenge_id>` - purchase a hint for a specific challenge. 
 - `!sub <flag>` - submit a flag you find while working on a challenge
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
-- `!solves` - show all the flags your team has submitted.
+- `!solves` - show all the flags your team has submitted. 
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
 - `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
+- `!psol [challenge_id]` - all solves for all challenges or just challenge_id 
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 
 ---
