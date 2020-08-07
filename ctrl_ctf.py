@@ -353,9 +353,11 @@ class Commands:
     def flags(self):
         """dump all flags... useful for debugging"""
         with db.db_session:
-            flags = list(db.select((flag.id, flag.flag, flag.value, flag.challenges) for flag in db.Flag))
-            for flag in flags:
-                print(flag)
+            # flags = list(db.select((flag.id, flag.flag, flag.value, flag.challenges) for flag in db.Flag))
+            # for flag in flags:
+            #     print(flag)
+            flags = list(db.select((flag.id, flag.flag, flag.value, ','.join([c.title for c in flag.challenges]) for flag in db.Flag)))
+            print(flags)
 
     def del_trans(self, trans_id:int):
         """delete a transaction by ID. has the effect of undoing something. points stolen, etc. """
