@@ -356,8 +356,13 @@ class Commands:
             # flags = list(db.select((flag.id, flag.flag, flag.value, flag.challenges) for flag in db.Flag))
             # for flag in flags:
             #     print(flag)
-            flags = list(db.select((flag.id, flag.flag, flag.value, ','.join([c.title for c in flag.challenges]) for flag in db.Flag)))
-            print(flags)
+            # flags = list(db.select((flag.id, flag.flag, flag.value, ','.join((c.title for c in flag.challenges))) for flag in db.Flag))
+            data = []
+            for flag in db.Flag.select():
+                data.append([flag.id, flag.flag, flag.value, ','.join([c.title for c in flag.challenges])])
+            data.insert(0, ['ID', 'Flag', 'Value', 'Challenges'])
+            table = mdTable(data)
+            print(table.table)
 
     def del_trans(self, trans_id:int):
         """delete a transaction by ID. has the effect of undoing something. points stolen, etc. """
