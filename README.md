@@ -86,8 +86,8 @@ This implements several features that are unique to SOTB or match our event's ae
 - Flag solves only report 1 challenge that it is a part of during the "congrats" message. 
 - ~~You can submit a flag for a challenge that isn't unlocked yet.~~ 
   - ~~may not be a huge issue. How would you know to find it if you hadn't been prompted to search for it some how?~~
-  - ~~this is more likely to occur for challenges with a lot of narrative and that build on each other. ~~
-    - ~~things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge. ~~
+  - ~~this is more likely to occur for challenges with a lot of narrative and that build on each other.~~
+    - ~~things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge.~~
   - resolved. 100% unlock
 - We chose to not show your teammates challenges or your own challenges
   - You can use `!bstat` to see your challenges. 
