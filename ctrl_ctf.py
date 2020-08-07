@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import fire
+from pony.orm.core import commit, db_session
 from settings import *
 
 if is_initialized() == False:
@@ -72,7 +73,7 @@ class Commands:
         print("showing scores")
         SETTINGS['scoreboard'] = 'public'
 
-    def togglemvp(self):
+    def toggle_mvp(self):
         """Shows the top N players by score regardless of team"""
         SETTINGS['_show_mvp'] = not SETTINGS['_show_mvp']
 
@@ -376,20 +377,44 @@ class Commands:
                     return
                 print("cancelled")
 
-
-    def add_flag(self):
-        """NOT IMPLEMENTED
-        Useful for adhoc or bonus flag creation.
+    @db.db_session
+    def add_flag(self, submitted_flag:str, value:float):
+        """Useful for adhoc or bonus flag creation. not associated with a challenge. 
         """
-        print("not implemented")
-        pass
+        print(f"Got flag '{submitted_flag}' for {value} points'")
 
-    def del_flag(self, flag_id):
-        """NOT IMPLEMENTED
-        useful for deleting a flag. 
+        # is the flag unique?
+        flag = db.Flag.get(flag=submitted_flag)
+        if flag:
+            print(f"Flag not unique: matches flag id {flag.id}")
+            return
+        #is the value numeric? allows for positive or negative values here... just incase we need some landmine flags. 
+        try:
+            value = float(value)
+        except BaseException as e:
+            print("invalid value...", e)
+            return 
+        botuser = db.User.get(name=SETTINGS['_botusername'])
+        flag = db.Flag(flag=submitted_flag, value=value, author=botuser, byoc=False)
+        db.commit()
+        print(f'Flag {flag.id} created: {flag.flag}')
+
+    @db.db_session
+    def del_flag(self, flag_id:int):
+        """useful for deleting an adhoc or bonus flag. 
         """
-        print("not implemented")
-        pass
+        flag = db.Flag.get(id=flag_id)
+        if flag == None:
+            print("Invalid flag id...")
+            return 
+
+        resp = input(f"Are you sure you want to delete flag {flag.id}? [y/N]")
+        if resp == 'y':
+            flag.delete()
+            db.commit
+            print("Done")
+            return 
+        print("Cancelling...")
 
     def add_chall(self, json_file, byoc=False):
         """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user. """
