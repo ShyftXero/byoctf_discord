@@ -805,7 +805,7 @@ async def byoc_commit(ctx):
         return
 
     chall_preview = renderChallenge(result, preview=True)
-    # await ctx.send(chall_preview)
+
     await sendBigMessage(ctx, chall_preview, wrap=False)
     await ctx.send("\n\n\n***Reply with `confirm` in the next 10 seconds to pay for and publish your challenge.***")
     resp = None
@@ -855,7 +855,7 @@ Key commands
   -- if no team exists with the name specified, the team will be created with password specified. 
   -- leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
-- `!all [tag]` - list all challenges or all challenges with the tag [tag]
+- `!all [tag]` - filter challenges by tag; use !tag to exclude
 - `!v <challenge_id>` - detail view of a specific challenge
 - `!sub <flag>` - submit a flag you find while working on a challenge
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
