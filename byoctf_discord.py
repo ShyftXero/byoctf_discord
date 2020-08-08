@@ -169,6 +169,9 @@ async def unregister(ctx: discord.ext.commands.Context):
             await ctx.send("You weren't registered")
             return
         
+        if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 0:
+            logger.debug(f"{user.name} left team {user.team.name}")
+
         await ctx.send(f"Leaving team {user.team.name}... bye.")
         unaffiliated = db.Team.get(name='__unaffiliated__')
         user.team = unaffiliated
