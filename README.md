@@ -173,7 +173,8 @@ Key commands
 - At this point you have earned back your commit fee and have turned a profit of `25` points
 ```
   - This is only possible if your challenge is solvable. You could create some time-sink challenge that's impossible, but you'd have to pay to do so... 
-  - Also, keep in mind that the BYOC fee and rewards can be tuned while the game is running. All transactions that take place after the change will reflect the newer rate and old transactions will reflect the older rate. 
+  - Also, keep in mind that the BYOC fee and rewards can be tuned while the game is running. All transactions that take place after the change will reflect the newer rate and old transactions will reflect the older rate.
+  - **Consider adding a rating system for BYOC challs** 
   - Admins can also prevent your challenge from being solvable if you figure out a scheme that is in violation of the spirit of the game. That depends on them and you, of course. 
 - ~~This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)~~
   - ~~we need to store it the flag so the `!solves` command can show you which flags you've already submitted.~~ 
