@@ -260,9 +260,9 @@ class Commands:
         except BaseException as e:
             print(e)
 
-        from database import db, buildDatabase
+        from database import db, generateMapping
         self.reinit_config()
-        buildDatabase()
+        generateMapping()
         
 
 
