@@ -54,6 +54,7 @@ class Challenge(db.Entity):
     byoc_ext_value = Optional(float)
     solve = Set('Solve')
     transaction = Set('Transaction')
+    ratings = Set('Rating')
 
 
 class User(db.Entity):
@@ -65,6 +66,7 @@ class User(db.Entity):
     sent_transactions = Set('Transaction', reverse='sender')
     recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
+    ratings = Set('Rating')
 
 
 class Solve(db.Entity):
@@ -114,6 +116,13 @@ class Hint(db.Entity):
     transaction = Optional(Transaction)
 
 
+class Rating(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    user = Required(User)
+    challenge = Required(Challenge)
+    value = Optional(int, default=0)  # 1-5
+
+
 
 #########
 
@@ -146,7 +155,9 @@ def generateMapping():
         print("mysql is untested... good luck...")
         db.bind(provider='mysql', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
     
+    # db.create_tables()
     db.generate_mapping(create_tables=True)
+    
 
 
 generateMapping()
@@ -268,7 +279,27 @@ def challegeUnlocked(user, chall):
         return True
     return False
 
+
+@db_session()
+def rate(user, chall, user_rating):
+    if chall == None or challegeUnlocked(user, chall) == False:
+        return -1
+
+    # is the rating within the bounds 
+    if user_rating < SETTINGS['_rating_min']:
+        user_rating = SETTINGS['_rating_min']
+    elif user_rating > SETTINGS['_rating_max']:
+        user_rating = SETTINGS['_rating_max'] 
+
+
+    prev_rating = Rating.get(user=user, challenge=chall)
+    if prev_rating:
+        # update your previous rating 
+        prev_rating.value = user_rating
+    else:
+        new_rating = Rating(user=user, challenge=chall, value=user_rating)
     
+    return user_rating
 
 @db_session()
 def get_all_challenges(user: User):
