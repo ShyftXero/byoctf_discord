@@ -533,7 +533,10 @@ def createSolve(user:User=None, flag:Flag=None, msg:str='', challenge:Challenge=
 
 @db_session
 def percentComplete(chall:Challenge, user:User):
-    flags = list(chall.flags)
+    try:
+        flags = list(chall.flags)
+    except AttributeError as e:
+        return 0
     num_solves_for_chall = 0
     teammates = getTeammates(user) #look for all solves from my team. not just me. 
     for flag in flags:

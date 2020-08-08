@@ -84,15 +84,15 @@ async def sendBigMessage(ctx, content, wrap=True):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):  
         await ctx.send(f"Command `{ctx.message.content}` not found... \n\nTry `!help` or `!help <command>`")
-    elif isinstance(error, commands.errors.BadArgument):
-        await ctx.send(f'Invalid argument to command')
+    # elif isinstance(error, commands.errors.BadArgument):
+    #     await ctx.send(f'Invalid argument to command')
     elif isinstance(error, commands.errors.CommandOnCooldown):
         msg = f'***Whoa... Slow down... Please try again in {error.retry_after:.2f}s***'
         await ctx.send(msg)
         logger.debug(f'Brute forcing for flags? - {username(ctx)}: {msg}')
     else:
         logger.debug(f"{error}")
-        # raise error
+        raise error
         
 
 async def inPublicChannel(ctx, msg='this command should only be done in a private message (DM) to the bot'):
@@ -118,6 +118,7 @@ def renderChallenge(result, preview=False):
     msg += f"**Tags**: {', '.join(result.get('tags',[]))}\n"
     msg += f"**Unlocked By**: {','.join(result.get('parent',[]))}\n"
     msg += '-'*40 + '\n'
+    #TODO num_flags is returning zero because that key likely doesn't exist
     msg += f'**Number of Flags**: {result.get("num_flags",0)}\n'
     msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
     for idx, hint in enumerate(result.get('hints_purchased',[]), 1):
@@ -304,7 +305,7 @@ async def scores(ctx):
 
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
-async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
+async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
         return
 
@@ -383,6 +384,10 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag: str = None):
             msg += f'You submitted a flag for challenge `{challenge.title}`.\n'
 
         if flag.unsolved == True:
+            ctf_chan = bot.get_channel(SETTINGS["_ctf_channel_id"])
+            logger.debug(user.name)
+            discord_user = await getDiscordUser(ctx, user.name)
+            await ctf_chan.send(f"<@{discord_user.id}> drew First Blood!")
             msg += f'**First blood!** \nYou are the first to submit `{flag.flag}` and have earned a bonus {SETTINGS["_firstblood_rate"] * 100 }% \nTotal reward `{flag.value * (1 + SETTINGS["_firstblood_rate"])}` rather than `{flag.value}`\n'
         elif SETTINGS['_decay_solves'] == True:
             solve_count = db.count(db.select(t for t in db.Transaction if t.flag == flag).without_distinct())  
