@@ -90,6 +90,8 @@ async def on_command_error(ctx, error):
         msg = f'***Whoa... Slow down... Please try again in {error.retry_after:.2f}s***'
         await ctx.send(msg)
         logger.debug(f'Brute forcing for flags? - {username(ctx)}: {msg}')
+    elif isinstance(error, commands.errors.MissingRequiredArgument ):
+        await ctx.send(f'Missing argument to command')
     else:
         logger.debug(f"{error}")
         if SETTINGS['_debug']:
@@ -539,7 +541,7 @@ async def list_all(ctx, *, tags=None):
         # don't show teammates challenges or your own challenges. !bstat to see yours. helps prevent a teammate working on your challenges when they couldn't submit it anyway. 
         res = []
         if tags == None:
-            res = [(c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0 and c.author not in db.getTeammates(user)]
+            res = [(c.id, c.author.name, c.title, db.challValue(c), f"{db.percentComplete(c, user)}%", "*"*int(db.avg(r.value for r in db.Rating if r.challenge == c) or 0), ', '.join([t.name for t in c.tags])) for c in challs if c.id > 0 and c.author not in db.getTeammates(user)]
         
         else:
             tags = tags.split(' ')
@@ -561,9 +563,9 @@ async def list_all(ctx, *, tags=None):
                 if chall.id < 1 or chall.author in db.getTeammates(user): # other reasons to skip this challenge... 
                     continue
 
-                res += [[chall.id, chall.author.name, chall.title, db.challValue(chall), f"{db.percentComplete(chall, user)}%", ', '.join(chall_tags)]] 
+                res += [[chall.id, chall.author.name, chall.title, db.challValue(chall), f"{db.percentComplete(chall, user)}%","*"*int(db.avg(r.value for r in db.Rating if r.challenge == chall) or 0), ', '.join(chall_tags)]] 
 
-    res.insert(0, ['ID', "Author", "Title", "Value", "Done", "Tags"])
+    res.insert(0, ['ID', "Author", "Title", "Value", "Done", "Rating", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
     # logger.debug("discord",challs)
     msg = f'Showing all unlocked challenges```{table.table}```'
@@ -730,6 +732,28 @@ async def solves(ctx):
             msg += f"```{table.table}```"
             await ctx.send(msg)
 
+@bot.command(name='rate', help=f'rate a given challenge on a scale of 1-5')
+async def rate(ctx, chall_id:int, user_rating:int):
+    if await isRegistered(ctx) == False:
+        return
+
+    if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
+        return
+    with db.db_session:
+        chall = db.Challenge.get(id=chall_id)
+        user = db.User.get(name=username(ctx))
+
+        if db.percentComplete(chall, user) == 0:
+            await ctx.send("You can only rate a challenge if you have captured at least 1 flag for it...")
+            return
+
+        user_rating = db.rate(user, chall, user_rating )
+
+    if user_rating == -1:
+        await ctx.send("Invalid challenge or challenge not unlocked...")
+        return
+    else:
+        await ctx.send(f"You rated challenge {chall_id} a {user_rating}.")
 
 @bot.command(name='byoc_stats', help="this will show you stats about the BYOC challenges you've created. total profit from solves, etc.", aliases=['bstats','bstat'])
 async def byoc_stats(ctx):

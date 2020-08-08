@@ -34,7 +34,9 @@ def default_config():
         '_byoc_reward_rate':    .25,        # percentage of a solve that is given back to the author for making the challenge. 
         '_byoc_commit_fee':     .5,         # percentage of challenge value to charge author to post a BYOC challenge
         '_byoc_chall_min_val':  100,        # minimum value for byoc chall to be considered valid
-        '_rate_limit_window':     2         # 2 second cooldown time; 1 submission every 2 seconds per player.  requires restart 
+        '_rate_limit_window':     2,         # 2 second cooldown time; 1 submission every 2 seconds per player.  requires restart 
+        "_rating_min":         1,           # min value for rating system
+        "_rating_max":         5,           # max value for rating system
     }
 
     return config 
