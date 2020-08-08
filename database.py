@@ -58,7 +58,7 @@ class Challenge(db.Entity):
 
 class User(db.Entity):
     id = PrimaryKey(int, auto=True)
-    name = Optional(str)
+    name = Required(str, unique=True)
     challenges = Set(Challenge)
     solves = Set('Solve')
     team = Optional('Team')
@@ -117,7 +117,25 @@ class Hint(db.Entity):
 
 #########
 
-def buildDatabase():
+def seedDB():
+    # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
+    with db_session:
+        unaffiliated = db.Team.get(name='__unaffiliated__')
+        if unaffiliated == None:
+            unaffiliated = db.Team(name='__unaffiliated__', password='__unaffiliated__')
+
+        botteam = db.Team.get(name='__botteam__')
+        if botteam == None:
+            botteam = db.Team(name='__botteam__', password='__botteam__')
+        
+        bot = db.User.get(id=0)
+        if bot == None:
+            bot = db.User(id=0, name=SETTINGS['_botusername'], team=botteam)
+        
+        commit()
+
+
+def generateMapping():
     # https://docs.ponyorm.org/database.html
     if SETTINGS['_db_type'] == 'sqlite':
         db.bind(provider='sqlite', filename=SETTINGS['_db_database'], create_db=True)
@@ -127,9 +145,14 @@ def buildDatabase():
     elif SETTINGS['_db_type'] == 'mysql':
         print("mysql is untested... good luck...")
         db.bind(provider='mysql', user=SETTINGS['_db_user'], password=SETTINGS['_db_pass'], host=SETTINGS['_db_host'], database=SETTINGS['_db_database'])
+    
     db.generate_mapping(create_tables=True)
 
-buildDatabase()
+
+generateMapping()
+
+
+
 
 
 @db_session
