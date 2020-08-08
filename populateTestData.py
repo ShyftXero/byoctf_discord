@@ -11,13 +11,14 @@ db.drop_all_tables(with_all_data=True)
 
 db.create_tables()
 
+seedDB()
 
 AMOUNT_OF_DATA = 10
 
 with db_session:
     
     #teams; These passwords are sha256 of teamname.
-    botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f') 
+    # botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
     bestteam = db.Team(name="bestteam", password='af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785')
     secondteam = db.Team(name='secondteam', password='4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f')
     thirdteam = db.Team(name='thirdteam', password='7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b')
@@ -25,12 +26,15 @@ with db_session:
 
 
     #users
-    bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
-    shyft = db.User(name='shyft#0760', team=bestteam)
-    fie = db.User(name='notfie#4785', team=bestteam)
-    r3d = db.User(name='Combaticus#8292', team=secondteam)
-    malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
-    aykay = db.User(name='AyKay#3420', team=fourthteam)
+    # bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
+    bot = db.User.get(id=0)
+    # print(bot)
+    # exit()
+    shyft = db.User(name='shyft#0760_', team=bestteam)
+    fie = db.User(name='notfie#4785_', team=bestteam)
+    r3d = db.User(name='Combaticus#8292_', team=secondteam)
+    malloc = db.User(name='0xDrMalloc#4492_', team=thirdteam)
+    aykay = db.User(name='AyKay#3420_', team=fourthteam)
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=malloc, byoc=True)

@@ -84,15 +84,16 @@ async def sendBigMessage(ctx, content, wrap=True):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):  
         await ctx.send(f"Command `{ctx.message.content}` not found... \n\nTry `!help` or `!help <command>`")
-    # elif isinstance(error, commands.errors.BadArgument):
-    #     await ctx.send(f'Invalid argument to command')
+    elif isinstance(error, commands.errors.BadArgument):
+        await ctx.send(f'Invalid argument to command')
     elif isinstance(error, commands.errors.CommandOnCooldown):
         msg = f'***Whoa... Slow down... Please try again in {error.retry_after:.2f}s***'
         await ctx.send(msg)
         logger.debug(f'Brute forcing for flags? - {username(ctx)}: {msg}')
     else:
         logger.debug(f"{error}")
-        raise error
+        if SETTINGS['_debug']:
+            raise error
         
 
 async def inPublicChannel(ctx, msg='this command should only be done in a private message (DM) to the bot'):
@@ -103,6 +104,13 @@ async def inPublicChannel(ctx, msg='this command should only be done in a privat
         return True
     return False
 
+async def isRegistered(ctx, msg="It doesn't look like you're registered yet. `!reg <teamname> <teampass>`"):
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+        if user == None:
+            await ctx.send(msg)
+            return False
+    return True
 
 def renderChallenge(result, preview=False):
     """returns the string to be sent to the user via discord. preview is mostly for BYOC challenges to validate that flags came through correctly.""" 
@@ -144,6 +152,9 @@ def renderChallenge(result, preview=False):
 @bot.command(name='unregister', help='Leave a team... you still exist as a player but without a team... no fun.', aliases=['unreg'])
 @commands.dm_only()
 async def unregister(ctx: discord.ext.commands.Context):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't leave a team in public channels..."):
         return
 
@@ -159,17 +170,18 @@ async def unregister(ctx: discord.ext.commands.Context):
             return
         
         await ctx.send(f"Leaving team {user.team.name}... bye.")
-        user.team = None
+        unaffiliated = db.Team.get(name='__unaffiliated__')
+        user.team = unaffiliated
         db.commit()
 
     
-
-
-
 @db.db_session()
 @bot.command(name='register', help='register on the scoreboard. !register <teamname> <password>; wrap team name in quotes if you need a space', aliases=['reg'])
 @commands.dm_only()
 async def register(ctx: discord.ext.commands.Context, teamname:str=None, password:str=None):
+    # if await isRegistered(ctx, msg="Looks like you're already registered.... try `!unreg`") == False:
+    #     return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't register or join a team in public channels..."):
         return
 
@@ -178,68 +190,67 @@ async def register(ctx: discord.ext.commands.Context, teamname:str=None, passwor
         return
 
     if teamname == None or password == None:
-        await ctx.send("I know it looks like the teamname and password are optional parameters, but they aren't... sorry. ")
+        await ctx.send("I know it looks like the teamname and password are optional parameters, but they aren't... sorry. wrap the team name in quotes if it has spaces. ")
         return
 
 
     with db.db_session:
         teamname = teamname.strip()
         password = password.strip()
-
-        team = db.Team.get(name=teamname)
-        user = db.User.get(name=username(ctx))
-
-        if user.team != None:
-            msg = f'already registered as `{username(ctx)}` on team `{user.team.name}`'
-            await ctx.send(msg)
-            return
-
         hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
-        
+        team = db.Team.get(name=teamname)
+        unafilliated = db.Team.get(name='__unaffiliated__')
+        user = db.User.get(name=username(ctx))
 
-        if team == None: # This team doesn't exist    
-            team = db.Team(name=teamname, password=hashed_pass)
-            if user == None:
-                user = db.User(name=username(ctx), team=team)
-            msg = f'Registered as `{user.name}` on a new team `{team.name}`\n'
-            logger.debug(msg)
-            await ctx.send(msg)
-        elif hashed_pass == team.password:
-            if user == None:
-                user = db.User(name=username(ctx), team=team) # team already existed
-            else:
-                user.team = team
-            msg = f'Joined team `{team.name}` as `{user.name}`'
-            logger.debug(msg)
-            await ctx.send(msg)
-        else:
-            msg = f'Password incorrect for team {team.name}'
-            logger.debug(msg)
+        if user == None:    
+            user = db.User(name=username(ctx), team=unafilliated)
+        
+        if user.team.name != '__unaffiliated__':
+            msg = f'already registered as `{username(ctx)}` on team `{user.team.name}`. Use `!unreg` to leave.'
             await ctx.send(msg)
             if SETTINGS['_debug']:
+                logger.debug(msg)
+            return
+
+        # does the team exist?
+        if team == None: 
+            team = db.Team(name=teamname, password=hashed_pass)
+            
+        if hashed_pass != team.password: # if it's a new team, these should match automatically.. 
+            msg = f'Password incorrect for team {team.name}'
+            await ctx.send(msg)
+
+            if SETTINGS['_debug']:
                 logger.debug(f'{username(ctx)} failed registration; Team {teamname} pass {password} hashed {hashed_pass}')
+            return 
+
+        
+        user.team = team        
         db.commit()
         
-        
-        
 
-        #give them the 'byoctf' channel on Arkansas hackers
+    #give them the 'byoctf' channel on Arkansas hackers
+    # add them to the appropriate channels on your server. 
+    guild:discord.Guild = bot.get_guild(SETTINGS['_ctf_guild_id'])
+    
+    role = guild.get_role(SETTINGS['_ctf_channel_role_id'])
+    channel = bot.get_channel(SETTINGS["_ctf_channel_id"])
 
-        # add them to the appropriate channels on your server. 
-        guild:discord.Guild = bot.get_guild(SETTINGS['_ctf_guild_id'])
-        
-        role = guild.get_role(SETTINGS['_ctf_channel_role_id'])
-        
-        member = guild.get_member(ctx.author.id)
-        await member.add_roles(role)
+    member = guild.get_member(ctx.author.id)
+    await member.add_roles(role)
 
-        if SETTINGS['_debug'] and SETTINGS['_debug_level'] >= 1: 
-            logger.debug(f'{member} on {guild} got role {role}')
-        
+    if SETTINGS['_debug'] and SETTINGS['_debug_level'] > 0: 
+        logger.debug(f'{member} on {guild} got role {role}')
+    
+    msg = f'Registered as `{username(ctx)}` on team `{teamname}`. Check the {channel.mention} channel' 
+    await ctx.send(msg)
 
 @bot.command(name='ctfstatus', help="shows status information about the CTF", aliases=['ctfstat','ctfstats'])
 async def ctfstatus(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view ctf status info in public channels..."):
         return
 
@@ -251,6 +262,9 @@ async def ctfstatus(ctx):
 @bot.command(name='scores', help='shows your indivivually earned points, your teams collective points, and the top N teams without their scores.', aliases=['score','points','top'])
 # @commands.dm_only()
 async def scores(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't show your scores in public channels..."):
         return
 
@@ -306,6 +320,9 @@ async def scores(ctx):
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
         return
 
@@ -416,7 +433,8 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
 @bot.command(name='tip', help="send a tip (points) to another player; msg has 100 char limit e.g. !tip @user <some_points> ['some message here']")
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def tip(ctx, target_user: Union[discord.User,str] , tip_amount: float, msg=None):
-    # logger.debug(username(target_user))
+    if await isRegistered(ctx) == False:
+        return
 
     if msg == None:
         msg  = "Thank you for being a friend." # make this a random friendly message?
@@ -462,6 +480,9 @@ async def tip(ctx, target_user: Union[discord.User,str] , tip_amount: float, msg
 
 @bot.command(name='unsolved', help="list only the challenges that your team HASN'T solved", aliases=['usol', 'un', 'unsol'])
 async def list_unsolved(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
         return
 
@@ -497,6 +518,9 @@ def allIn(list1, list2):
 
 @bot.command(name="all_challenges", help="list all visible challenges. solved or not. ", aliases=['all', 'allc','ac'])
 async def list_all(ctx, *, tags=None):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
         return
 
@@ -505,7 +529,7 @@ async def list_all(ctx, *, tags=None):
         return
 
     with db.db_session:
-        user = db.User.get(name=username(ctx))
+        user = db.User.get(name=username(ctx))            
         challs = db.get_all_challenges(user)
         # It'd be nice to show a percentage complete as well...
         # 
@@ -544,6 +568,9 @@ async def list_all(ctx, *, tags=None):
 
 @bot.command(name='view', help='view a challenge by id e.g. !view <chall_id>', aliases=['vc','v'])
 async def view_challenge(ctx, chall_id:int):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view challenges in public channels..."):
         return
     if ctfRunning() == False:
@@ -586,6 +613,9 @@ async def view_challenge(ctx, chall_id:int):
 
 @bot.command(name="buy_hint", help="buy a hint for a specific challenge e.g. !buy_hint <challenge_id>", aliases=['bh'])
 async def buy_hint(ctx, challenge_id: int):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't buy hints in public channels..."):
         return
 
@@ -606,6 +636,9 @@ async def buy_hint(ctx, challenge_id: int):
 
 @bot.command(name='hints', help="show your purchased hints")
 async def show_hints(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't show your hints in public channels..."):
         return
 
@@ -635,6 +668,9 @@ async def show_hints(ctx):
 
 @bot.command(name='logs', help='show a list of all transactions you are involved in. (solves, purchases, tips, etc.)', aliases=['log','transactions'])
 async def logs(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't dump logs in public channels..."):
         return
     
@@ -655,6 +691,9 @@ async def logs(ctx):
 
 @bot.command(name='solves', help="show all of the flags you have submitted", aliases=['flags'] )
 async def solves(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't show your flags in public channels..."):
         return
 
@@ -691,6 +730,9 @@ async def solves(ctx):
 
 @bot.command(name='byoc_stats', help="this will show you stats about the BYOC challenges you've created. total profit from solves, etc.", aliases=['bstats','bstat'])
 async def byoc_stats(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
         return
 
@@ -740,6 +782,9 @@ async def loadBYOCFile(ctx):
 @bot.command(name='byoc_ext', help="this is how you will submit BYOC challenges that are externally validated.", aliases=['esub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_flag: str):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit flags in public channels..."):
         return
 
@@ -772,6 +817,9 @@ async def byoc_ext(ctx:discord.ext.commands.Context, chall_id:int, submitted_fla
 @bot.command(name="byoc_check", help="this will check your BYOC challenge is valid. It will show you how much it will cost to post", aliases=['bcheck'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def byoc_check(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't check a challenge in public channels..."):
         return
     
@@ -793,6 +841,9 @@ async def byoc_check(ctx):
 @bot.command(name="byoc_commit", help="this will commit your BYOC challege. You will be charged a fee and will have to confirm the submission", aliases=['bcommit'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def byoc_commit(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
         return
 
@@ -850,6 +901,7 @@ async def byoc_commit(ctx):
 
 @bot.command("tutorial", help='a tldr for essential commands', aliases=['tut'])
 async def tutorial(ctx):
+
     # if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
     #     return
 
@@ -884,6 +936,8 @@ Key commands
     
 @bot.command('public_solves', help='show who solved challenges for all challenges (sans sensitive info)', aliases=['psol','psolves'])
 async def public_solves(ctx, chall_id:int=0):
+    if await isRegistered(ctx) == False:
+        return
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't dump logs public channels..."):
         return
     
@@ -910,6 +964,9 @@ async def public_solves(ctx, chall_id:int=0):
 
 @bot.command('public_log', help='list of all transactions (sans sensitive info)', aliases=['plog','pub','ledger','led'])
 async def public_log(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't dump logs public channels..."):
         return
     with db.db_session:

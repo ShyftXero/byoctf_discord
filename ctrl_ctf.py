@@ -217,7 +217,7 @@ class Commands:
                     f.delete()
                 for h in c.hints:
                     h.delete()
-                c.delete()
+                    c.delete()
 
         # db.db.generate_mapping()
     @db.db_session
@@ -242,7 +242,26 @@ class Commands:
             print('aborting... ')
             return
         self.reinit_config()
+        
+        import os     
+        cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
+        print(f"killing bot via {cmd}")
+        os.system(cmd)
+    
+        print('Deleting logs')
+        try:
+            os.remove(SETTINGS['_logfile'])
+        except BaseException as e:
+            print(e)
+
+        print("Deleting and recreating database")
+        try:
+            os.remove(SETTINGS['_db_database'])
+        except BaseException as e:
+            print(e)
+
         from database import db, buildDatabase
+        self.reinit_config()
         buildDatabase()
         
 
