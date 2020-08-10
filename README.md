@@ -108,6 +108,7 @@ Key commands
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
 - `!solves` - show all the flags your team has submitted. 
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
+- `!rate <challenge_id> <val>` - rate a challenge on a scale (default 1-5). if others say it's garbage, don't waste your time... you can only rate if you capture at least one of the flags for the challenge. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
 - `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
 - `!psol [challenge_id]` - all solves for all challenges or just challenge_id 
@@ -136,7 +137,8 @@ Key commands
   - create the hint you would like to give first with the lowest cost.
   - points are required to purchase hints. (doesn't reduce value of challenge.) 
     - Admins can grant points via ctrl_ctf.py but shouldn't make a habit of it...
-  - ***Question to the audience: Should authors get a portion of hint buys?*** 
+  - ~~***Question to the audience: Should authors get a portion of hint buys?***~~
+    - Went ahead and implemented it. You can tune the reward rate in settings.py or via cmdline.  
 - The framework doesn't (can't) host files. 
   - Link to a pastebin, google drive, github, torrent, etc. if you need storage or more space for words... 
   - Files - most are ephimeral and are deleted after 1-2 weeks
@@ -174,7 +176,8 @@ Key commands
 ```
   - This is only possible if your challenge is solvable. You could create some time-sink challenge that's impossible, but you'd have to pay to do so... 
   - Also, keep in mind that the BYOC fee and rewards can be tuned while the game is running. All transactions that take place after the change will reflect the newer rate and old transactions will reflect the older rate.
-  - **Consider adding a rating system for BYOC challs** 
+  - ~~**Consider adding a rating system for BYOC challs**~~ 
+    - Implemented this. scale is tunable. default is 1-5. use `!rate <chall_id> <1-5>`
   - Admins can also prevent your challenge from being solvable if you figure out a scheme that is in violation of the spirit of the game. That depends on them and you, of course. 
 - ~~This sucks to admit... but we can still find your externally validated flags if someone successfully submits it... it'll end up in the Solves table in the db (we won't know the flag before that happens though)~~
   - ~~we need to store it the flag so the `!solves` command can show you which flags you've already submitted.~~ 
