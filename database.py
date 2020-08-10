@@ -286,10 +286,10 @@ def rate(user, chall, user_rating):
         return -1
 
     # is the rating within the bounds 
-    if user_rating < SETTINGS['_rating_min']:
-        user_rating = SETTINGS['_rating_min']
-    elif user_rating > SETTINGS['_rating_max']:
-        user_rating = SETTINGS['_rating_max'] 
+    if user_rating < SETTINGS['rating_min']:
+        user_rating = SETTINGS['rating_min']
+    elif user_rating > SETTINGS['rating_max']:
+        user_rating = SETTINGS['rating_max'] 
 
 
     prev_rating = Rating.get(user=user, challenge=chall)
@@ -398,14 +398,25 @@ def buyHint(user:User=None, challenge_id:int=0):
         cheapest_hint = sorted_hints[0]
         hint_buy = Transaction(sender=user, recipient=botuser, hint=cheapest_hint, value=cheapest_hint.cost, type='hint buy', message=f'bought hint for challengeID {challenge_id}')
 
-        # return f'hint purchased for challenge ID {challenge_id}```{sorted_hints[0].text}```'
+        if 'byoc' in [t.name for t in chall.tags] and SETTINGS['_byoc_hint_reward_rate'] > 0:
+            botuser = db.User.get(id=0)
+            reward = cheapest_hint.cost * SETTINGS['_byoc_hint_reward_rate']
+            byoc_hint = Transaction(     
+                sender=botuser, 
+                recipient=chall.author,
+                value=reward,
+                type='byoc hint reward',
+                message=f"hint buy from {user.name}",
+                challenge=chall,
+                hint=cheapest_hint
+            )
         return 'ok', cheapest_hint
     return 'insufficient funds', None
     
 @db_session
 def createExtSolve(user:User, chall:Challenge, submitted_flag:str):
     if chall.byoc_ext_url == None:
-        msg = f'Challenge id {chall_id} is not an externally validated challenge.'
+        msg = f'Challenge id {chall.id} is not an externally validated challenge.'
         if SETTINGS['_debug']:
             logger.debug(msg)
         return msg

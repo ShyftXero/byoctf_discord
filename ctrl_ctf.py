@@ -243,26 +243,26 @@ class Commands:
             return
         self.reinit_config()
         
-        import os     
-        cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
-        print(f"killing bot via {cmd}")
-        os.system(cmd)
+        # import os     
+        # cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
+        # print(f"killing bot via {cmd}")
+        # os.system(cmd)
     
-        print('Deleting logs')
-        try:
-            os.remove(SETTINGS['_logfile'])
-        except BaseException as e:
-            print(e)
+        # print('Deleting logs')
+        # try:
+        #     os.remove(SETTINGS['_logfile'])
+        # except BaseException as e:
+        #     print(e)
 
-        print("Deleting and recreating database")
-        try:
-            os.remove(SETTINGS['_db_database'])
-        except BaseException as e:
-            print(e)
+        # print("Deleting and recreating database")
+        # try:
+        #     os.remove(SETTINGS['_db_database'])
+        # except BaseException as e:
+        #     print(e)
 
-        from database import db, generateMapping
-        self.reinit_config()
-        generateMapping()
+        # from database import db, generateMapping
+        # self.reinit_config()
+        # generateMapping()
         
 
 

@@ -55,7 +55,10 @@ async def getDiscordUser(ctx, target_user):
     # this is only for the gui representation of the recipient
     # https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.UserConverter
     uc = discord.ext.commands.UserConverter()
-    res =  await uc.convert(ctx, target_user)
+    try:
+        res =  await uc.convert(ctx, target_user)
+    except BaseException as e:
+        res = target_user
     return res
 
 async def sendBigMessage(ctx, content, wrap=True):
@@ -84,8 +87,8 @@ async def sendBigMessage(ctx, content, wrap=True):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):  
         await ctx.send(f"Command `{ctx.message.content}` not found... \n\nTry `!help` or `!help <command>`")
-    elif isinstance(error, commands.errors.BadArgument):
-        await ctx.send(f'Invalid argument to command')
+    # elif isinstance(error, commands.errors.BadArgument):
+    #     await ctx.send(f'Invalid argument to command')
     elif isinstance(error, commands.errors.CommandOnCooldown):
         msg = f'***Whoa... Slow down... Please try again in {error.retry_after:.2f}s***'
         await ctx.send(msg)
@@ -596,9 +599,12 @@ async def view_challenge(ctx, chall_id:int):
         user = db.User.get(name=username(ctx))
         # is it unlocked for this user? 
         chall = db.Challenge.get(id=chall_id)
-        if db.challegeUnlocked(user, chall):
+        if chall != None and db.challegeUnlocked(user, chall):
             author = await getDiscordUser(ctx, chall.author.name)
-            msg = f'viewing challenge ID: `{chall_id}` by author <@{author.id}>\n'
+            if isinstance(author, discord.User):
+                msg = f'viewing challenge ID: `{chall_id}` by author <@{author.id}>\n'
+            else:
+                msg = f'viewing challenge ID: `{chall_id}` by author {author}\n'
             # msg += f'\nTitle`{chall.title}`\nDescription```{chall.description} ```'
             res = {}
             res['challenge_title'] = chall.title
@@ -739,12 +745,14 @@ async def rate(ctx, chall_id:int, user_rating:int):
 
     if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't submit a challenge in public channels..."):
         return
+
     with db.db_session:
         chall = db.Challenge.get(id=chall_id)
         user = db.User.get(name=username(ctx))
 
+        # percentComplete does account your teammates.
         if db.percentComplete(chall, user) == 0:
-            await ctx.send("You can only rate a challenge if you have captured at least 1 flag for it...")
+            await ctx.send("You can only rate a challenge if you or someone on your team has captured at least 1 flag for it...")
             return
 
         user_rating = db.rate(user, chall, user_rating )
@@ -753,7 +761,7 @@ async def rate(ctx, chall_id:int, user_rating:int):
         await ctx.send("Invalid challenge or challenge not unlocked...")
         return
     else:
-        await ctx.send(f"You rated challenge {chall_id} a {user_rating}.")
+        await ctx.send(f"You rated challenge ID `{chall_id}` a `{user_rating}`.")
 
 @bot.command(name='byoc_stats', help="this will show you stats about the BYOC challenges you've created. total profit from solves, etc.", aliases=['bstats','bstat'])
 async def byoc_stats(ctx):
@@ -953,6 +961,7 @@ Key commands
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
 - `!solves` - show all the flags your team has submitted. 
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
+- `!rate <challenge_id> <val>` - rate a challenge on a scale (`Currently {SETTINGS['rating_min']}-{SETTINGS['rating_max']}`). if others say it's garbage, don't waste your time... you can only rate if you capture at least one of the flags for the challenge. 
 - `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
 - `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
 - `!psol [challenge_id]` - all solves for all challenges or just challenge_id 
