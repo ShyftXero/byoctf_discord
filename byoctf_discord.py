@@ -323,7 +323,20 @@ async def scores(ctx):
 
         await ctx.send(msg)
 
+@bot.command(name='whoami', help="Show username and teamname", aliases=['w'] ) #shows authorid, name, teamname
+async def byoc_stats(ctx):
+    if await isRegistered(ctx) == False:
+        return
 
+    if await inPublicChannel(ctx, msg=f"<@{ctx.author.id}>, dm this command to CTFBot"):
+        return
+
+    msg = ''
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+        teammates = db.getTeammates(user)
+
+    await ctx.send(f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name},\nTeamName: {user.team.name}\n")
 
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
