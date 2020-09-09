@@ -49,6 +49,7 @@ This implements several features that are unique to SOTB or match our event's ae
   - submissions and unlocked challenges are viewable by all teammates. 
   - if you buy it, your team gets access to it.
   - You can't submit flags authored by your team, of course. 
+  - Configurable team size; defaults to 4
 - Public/Private mode for the scoreboard. 
   - you can see your team scores but not other teams. 
   - helps motivate teams who would give up if they felt they didn't stand a chance.
@@ -64,7 +65,7 @@ This implements several features that are unique to SOTB or match our event's ae
     - default
   - Flag Decay
     - Flags become less valuable as they are solved by other teams.
-    - not default, fully implemented or tested.
+    - not default, fully implemented, or tested.
   - Configurable via text editor or CLI
     - decay rate
     - BYOC fees and reward 
@@ -73,7 +74,7 @@ This implements several features that are unique to SOTB or match our event's ae
 - Rating system for challenges. 
   - You can only rate a challenge if you or your team have captured at least one flag from it. 
 - User management and registration handled via discord...
-  - uses account name and its descriminator e.g. `shyft#0760`
+  - Uses account name and its descriminator e.g. `shyft#0760`
 - Flag submission is ratelimited
   - tunable via settings. 
 - Most commands are restricted to DM with the bot
@@ -497,7 +498,7 @@ Obviously, teammates can't solve your flags.
 
 This framework is very team oriented.
 
-No limit on team size. 
+~~No limit on team size.~~ Configurable; defaults to 4
 
 So, for the paranoid, you don't have to trust us with the flags. Although, this does make it harder to have a unified experience and violates the 'flag oriented' design, but... whatever. 
 
