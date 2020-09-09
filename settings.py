@@ -13,6 +13,7 @@ def default_config():
         "registration":     "enabled",      # enabled or disabled
         "scoreboard":       "public",       # public or private 
         "_scoreboard_size": 3,              # how many teams to show
+        "_team_size":       4,              # max team members
         "_show_mvp":        True,           # whether or not to show high scoring
         "_mvp_size":        4,              # how many top scoring players to show
         "_debug":           True,           # interactively enable/disable certain debugging messages 

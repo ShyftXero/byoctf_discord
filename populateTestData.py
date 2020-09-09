@@ -35,6 +35,8 @@ with db_session:
     r3d = db.User(name='Combaticus#8292', team=secondteam)
     malloc = db.User(name='0xDrMalloc#4492', team=thirdteam)
     aykay = db.User(name='AyKay#3420', team=fourthteam)
+    
+
     #flags
     flag_seed = db.Flag(flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False) # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100,  author=malloc, byoc=True)

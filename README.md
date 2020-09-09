@@ -66,6 +66,8 @@ This implements several features that are unique to SOTB or match our event's ae
     - BYOC fees and reward 
     - firstblood rewards
     - see `settings.py` and `ctrl_ctf.py`
+- Rating system for challenges. 
+  - You can only rate a challenge if you or your team have captured at least one flag from it. 
 - User management and registration handled via discord...
   - uses account name and its descriminator e.g. `shyft#0760`
 - Flag submission is ratelimited

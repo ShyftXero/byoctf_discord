@@ -1,9 +1,11 @@
+from fileinput import filename
 from logging import log
 from pony.orm.core import args2str
 from settings import SETTINGS, init_config, is_initialized
 import datetime
 import time
 import json
+
 from typing import Union
 
 import hashlib
@@ -19,7 +21,7 @@ from discord.ext import commands
 import asyncio
 import database as db
 
-import json
+import toml
 
 
 
@@ -224,7 +226,15 @@ async def register(ctx: discord.ext.commands.Context, teamname:str=None, passwor
         # does the team exist?
         if team == None: 
             team = db.Team(name=teamname, password=hashed_pass)
-            
+        
+        if len(team.members) == SETTINGS['_team_size']:
+            msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
+            await ctx.send(msg)
+            if SETTINGS['_debug']:
+                logger.debug(msg)
+            return 
+
+
         if hashed_pass != team.password: # if it's a new team, these should match automatically.. 
             msg = f'Password incorrect for team {team.name}'
             await ctx.send(msg)
@@ -800,19 +810,36 @@ async def byoc_stats(ctx):
 
 async def loadBYOCFile(ctx):
     if len(ctx.message.attachments) != 1:
-        await ctx.send("You didn't attach the json file...")
+        await ctx.send("You didn't attach the challenge file...")
         return {}
 
     raw = await ctx.message.attachments[0].read()
     raw = raw.decode()
 
-    try:
-        challenge_object = json.loads(raw) # how do we get the challenge object loaded? 
-    except json.JSONDecodeError as e:
-        await ctx.send("Error decoding json. check syntax ")
-        return {}
+    fname = ctx.message.attachments[0].filename
 
-    return challenge_object    
+    # Do I want to support as many formats as possible? 
+    # keep json, add toml, add yaml
+
+    # how do I distinguish between toml and json and yaml? 
+
+    if '.json' in fname.lower():
+        try:
+            challenge_object = json.loads(raw) # how do we get the challenge object loaded?
+            return challenge_object  
+        except json.JSONDecodeError as e:
+            await ctx.send("Error decoding json. check syntax ")
+    elif '.toml' in fname.lower():
+        try:
+            challenge_object = toml.loads(raw) # how do we get the challenge object loaded?
+            return challenge_object  
+        except toml.TomlDecodeError as e:
+            await ctx.send("Error decoding toml. check syntax ")
+    else:
+        await ctx.send("Unsupported file type... make sure the extensions are json or toml")
+
+    return {}
+       
 
 @bot.command(name='byoc_ext', help="this is how you will submit BYOC challenges that are externally validated.", aliases=['esub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
