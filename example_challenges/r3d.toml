@@ -1,0 +1,13 @@
+author = "Combaticus#8292"
+challenge_title = "r3d's challenge"
+challenge_description = "good luck finding my flag"
+tags = [ "pentest",]
+[[flags]]
+flag_title = "r3d flag"
+flag_value = 200
+flag_flag = "FLAG{this_is_a_flag_from_r3d}"
+
+[[hints]]
+hint_cost = 10
+hint_text = "the flag is easy"
+

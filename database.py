@@ -4,6 +4,7 @@ import hashlib
 from requests.sessions import session
 from settings import SETTINGS
 import json
+import toml
 
 import requests
 

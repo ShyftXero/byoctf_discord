@@ -9,3 +9,4 @@ diskcache
 fire
 faker
 ipython
+toml

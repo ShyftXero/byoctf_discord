@@ -1,0 +1,31 @@
+author = "Combaticus#8292"
+challenge_title = "byoc challenge asdfasf"
+# you can now have comments
+challenge_description = """this is some markdown for the challenge description... 1500 character limit. use a link to a pastebin if you need more space.
+go to this ** EXTERANLLY HOSTED ** link to download the files or access resources -> [http://yoursite.com/1337_challenge] WE DON'T / CAN'T HOST FILES.
+That is up to you to figure out (google drive, mega, torrent, etc.). 100 point minimum cumulative value for the challenge. If you deviate from the `FLAG{xxx}` format you have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently, we don't have dynamic or regex flags enabled. just static, case-sensitive flags. First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward; [https://github.com/Bios-Marcel/cordless]. depends means this challenge isn't available until at least one flag from each of the challenges is found."""
+tags = [ "forensics", "osint",]
+depends = [ 2, 3,] 
+[[flags]]
+flag_title = "flag 1 title for challenge 1"
+flag_value = 200
+flag_flag = "FLAG{THIS_IS_THE_FLAG}"
+
+[[flags]]
+flag_title = "flag 2 title for challenge 1"
+flag_value = 200
+flag_flag = "FLAG{THIS_IS_another_FLAG}"
+
+[[flags]]
+flag_title = "flag 3 title for challenge 1"
+flag_value = 100
+flag_flag = "FLAG{THIS_IS_THE_3rd_FLAG}"
+
+[[hints]]
+hint_cost = 50
+hint_text = "look in `/etc/shadow`"
+
+[[hints]]
+hint_cost = 150
+hint_text = "try running `find / -name vulnerable`"
+

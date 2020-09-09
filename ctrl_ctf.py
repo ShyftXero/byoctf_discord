@@ -220,6 +220,7 @@ class Commands:
                     c.delete()
 
         # db.db.generate_mapping()
+    
     @db.db_session
     def SOFT_RESET(self):
         msg = """this will drop all transactions and solves but leave flags, hints, challenges, and users in place """
@@ -243,10 +244,10 @@ class Commands:
             return
         self.reinit_config()
         
-        # import os     
-        # cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
-        # print(f"killing bot via {cmd}")
-        # os.system(cmd)
+        import os     
+        cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
+        print(f"killing bot via {cmd}")
+        os.system(cmd)
     
         # print('Deleting logs')
         # try:
