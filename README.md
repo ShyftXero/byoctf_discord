@@ -25,7 +25,11 @@ This implements several features that are unique to SOTB or match our event's ae
   - Purchasable hints
   - Reward system for user contributed challenges.
     - Some percentage of flag value
-  - JSON based challenge definition.
+  - TOML or JSON based challenge definition. 
+    - Use TOML... it's much nicer. Check out the `example_challenge.toml` vs `example_challenge.json`
+    - There's a converter for challenges that exist in either format.
+      - `converter.py to_toml chall.json chall.toml`
+  
 - Flag oriented
   - Points are bound to flags (except for externally validated challenges)
   - One flag can belong to several challenges. 
@@ -248,7 +252,26 @@ Most of the following are considerations regarding building your challenge.
 - Others can use `!all byoc` and `!v <chall_id>` to see it. 
   
 ---
-A basic single flag challenge.
+A basic single flag challenge in toml
+```toml
+author = "Combaticus#8292"
+challenge_title = "r3d's challenge"
+# We can have comments and multiline strings with TOML...
+challenge_description = """
+good luck finding my flag -> https://pastebin.com/tiRMg9dR
+"""
+tags = [ "pentest",]
+[[flags]]
+flag_title = "r3d flag"
+flag_value = 200
+flag_flag = "FLAG{this_is_a_flag_from_r3d}"
+
+[[hints]]
+hint_cost = 10
+hint_text = "the flag is easy"
+```
+
+The same basic single flag challenge in JSON.
 ```json
 {
     "author": "Combaticus#8292",
@@ -271,7 +294,28 @@ A basic single flag challenge.
     ]
 }
 ```
-A challenge with multiple flags.
+A multi-flag challenge in TOML
+```toml
+author = "Combaticus#8292"
+challenge_title = "r3d's multi-flag challenge"
+challenge_description = "good luck finding my flags at 3.43.54.28"
+tags = [ "pentest", "forensics",]
+[[flags]]
+flag_title = "flag 1 "
+flag_value = 100
+flag_flag = "FLAG{this_is_flag_1_for_multiflag}"
+
+[[flags]]
+flag_title = "flag 2"
+flag_value = 300
+flag_flag = "FLAG{this_is_flag_2_for_multiflag}"
+
+[[hints]]
+hint_cost = 25
+hint_text = "Both of the the flags are easy"
+```
+
+The same challenge with multiple flags in JSON.
 ```json
 {
     "author": "Combaticus#8292",
@@ -300,7 +344,25 @@ A challenge with multiple flags.
     ]
 }
 ```
-A challenge that depends on other challenges (by challenge ID)
+
+A challenge that depends on other challenges (by challenge ID) in TOML
+```toml
+author = "Combaticus#8292"
+challenge_title = "r3d's child challenge"
+challenge_description = "good luck finding my flag"
+tags = [ "pentest",]
+depends_on = [ 6, 7,]
+[[flags]]
+flag_title = "r3d dependent flag "
+flag_value = 200
+flag_flag = "FLAG{solved_6_7}"
+
+[[hints]]
+hint_cost = 10
+hint_text = "the flag depends on solving chall 6 and 7"
+```
+
+A challenge that depends on other challenges (by challenge ID) in JSON
 ```json
 {
     "author": "Combaticus#8292",
@@ -324,7 +386,22 @@ A challenge that depends on other challenges (by challenge ID)
     ]
 }
 ```
-An externally validated challenge.
+An externally validated challenge in TOML.
+```toml
+author = "Combaticus#8292"
+challenge_title = "r3d's external challenge"
+challenge_description = "good luck finding my flag. "
+tags = [ "coding",]
+external_challenge_value = 250
+external_validation = true
+external_validation_url = "http://mydomain.com:5000/validate"
+[[hints]]
+hint_cost = 25
+hint_text = "the flag is also easy"
+
+```
+
+The same externally validated challenge in JSON.
 ```json
 {
     "author": "Combaticus#8292",
