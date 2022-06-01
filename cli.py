@@ -18,11 +18,13 @@ byoctf_bot = discord.C
 
 dmchan = discord.DMChannel()
 
+
 def sendMessage(msg):
-    return f'sent message {msg}'
+    return f"sent message {msg}"
+
 
 class Commands(discord.Client):
-    def sub(self,  flag):
+    def sub(self, flag):
         # print(f"ctx {ctx} ")
         resp = sendMessage(f"!sub {flag}")
         print(resp)
@@ -31,17 +33,17 @@ class Commands(discord.Client):
         resp = sendMessage(f"!solves")
         print(resp)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     ### fix for displaying help -> https://github.com/google/python-fire/issues/188#issuecomment-631419585
     def Display(lines, out):
         text = "\n".join(lines) + "\n"
         out.write(text)
 
     from fire import core
+
     core.Display = Display
     ###
     commands = Commands()
     fire.Fire(commands)
     client.run(USER_TOKEN, bot=False)
-
-

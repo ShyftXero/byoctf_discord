@@ -1,0 +1,12 @@
+requests
+discord.py
+flask
+requests
+loguru
+pony
+terminaltables
+diskcache
+fire
+faker
+ipython
+toml

@@ -4,3 +4,4 @@ byoctf.log
 byoctf_diskcache/
 __pycache__/
 .vscode/
+venv
