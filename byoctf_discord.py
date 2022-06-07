@@ -394,15 +394,6 @@ async def byoc_stats(ctx):
     if await isRegistered(ctx) == False:
         return
 
-<<<<<<< HEAD
-@bot.command(
-    name="submit", help="submit a flag e.g. !submit FLAG{some_flag}", aliases=["sub"]
-)
-@commands.cooldown(
-    1, SETTINGS["_rate_limit_window"], type=discord.ext.commands.BucketType.user
-)  # one submission per second per user
-async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
-=======
     if await inPublicChannel(ctx, msg=f"<@{ctx.author.id}>, dm this command to CTFBot"):
         return
 
@@ -416,7 +407,6 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
->>>>>>> bb69d8c0f324d3e9a2fd6e306e5307eda73267b4
     if await isRegistered(ctx) == False:
         return
 
