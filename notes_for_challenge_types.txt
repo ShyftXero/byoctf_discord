@@ -1,0 +1,49 @@
+
+Mystery Challenge 3000
+	Point value unknown to players until a given time
+		all 
+
+	ex 
+		250 points for some web exploitation challenge
+		only 10 people solve
+		those teams get 250 points 
+
+
+Jackpot Pool
+	2500 split equally between all players that solve within a given time frame
+
+Challenge Expiry
+	challenges disappear at a 
+
+
+
+User mgmt 
+	add a role (paid_in_eventbrite) that the bot will check for prior to assigning ctf_player
+
+
+Add welcome message to user 
+
+add alias to reg command
+
+
+tie the challenge royalty percentage to the number of teams
+
+penalize the challenge creator for 
+
+
+cap royalty at 100% of challenge value
+	ex 
+		200 point chal costs 100 to points and can yield up to 400 points
+		if 50% of teams 
+
+	establish an objective difficulty rating
+		number of solves
+		user ratings
+		avg time to solve  
+
+reporting bullshit challenges 
+	report a challenge to the GM for quality review. 
+	if it is bullshit
+
+*** Market based dynamic point value assignment based on first time to solve 
+	objective is to get no more than 51% of teams to solve it. At that point royalty 	
