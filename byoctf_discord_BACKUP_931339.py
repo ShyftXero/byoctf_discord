@@ -176,7 +176,7 @@ def renderChallenge(result, preview=False):
 @bot.command(
     name="unregister",
     help="Leave a team... you still exist as a player but without a team... no fun.",
-    aliases=["unreg",'leave'],
+    aliases=["unreg"],
 )
 @commands.dm_only()
 async def unregister(ctx: discord.ext.commands.Context):
@@ -212,7 +212,7 @@ async def unregister(ctx: discord.ext.commands.Context):
 @bot.command(
     name="register",
     help="register on the scoreboard. !register <teamname> <password>; wrap team name in quotes if you need a space",
-    aliases=["reg","join"],
+    aliases=["reg"],
 )
 @commands.dm_only()
 async def register(
@@ -290,11 +290,6 @@ async def register(
     channel = bot.get_channel(SETTINGS["_ctf_channel_id"])
 
     member = guild.get_member(ctx.author.id)
-    if member == None:
-        msg = f"Error {member=}"
-        logger.debug(msg)
-        await ctx.send(msg)
-        return None
     await member.add_roles(role)
 
     if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 0:
@@ -399,6 +394,15 @@ async def byoc_stats(ctx):
     if await isRegistered(ctx) == False:
         return
 
+<<<<<<< HEAD
+@bot.command(
+    name="submit", help="submit a flag e.g. !submit FLAG{some_flag}", aliases=["sub"]
+)
+@commands.cooldown(
+    1, SETTINGS["_rate_limit_window"], type=discord.ext.commands.BucketType.user
+)  # one submission per second per user
+async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
+=======
     if await inPublicChannel(ctx, msg=f"<@{ctx.author.id}>, dm this command to CTFBot"):
         return
 
@@ -412,6 +416,7 @@ async def byoc_stats(ctx):
 @bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
 @commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
 async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
+>>>>>>> bb69d8c0f324d3e9a2fd6e306e5307eda73267b4
     if await isRegistered(ctx) == False:
         return
 
