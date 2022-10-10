@@ -3,7 +3,7 @@ import discord
 
 # https://github.com/Tyrrrz/DiscordChatExporter/wiki/Obtaining-Token-and-Channel-IDs#how-to-get-a-user-token
 
-from secrets import USER_TOKEN
+from custom_secrets import USER_TOKEN
 
 DISCORD_BOT = "BYOCTF_Automaton#7840"
 

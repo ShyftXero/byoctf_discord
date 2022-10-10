@@ -36,6 +36,7 @@ class Flag(db.Entity):
     author = Required("User")
     byoc = Optional(bool)
     transaction = Optional("Transaction")
+    reward_capped = Optional(bool, default=False)
 
 
 class Challenge(db.Entity):
@@ -518,6 +519,13 @@ def createExtSolve(user: User, chall: Challenge, submitted_flag: str):
             solve=solve,
             challenge=chall,
         )
+        flag: Flag
+        for flag in chall.flags:
+            if flag.reward_capped == True:
+                logger.debug(
+                    f"reward capped (possibly for abuse) for flag {flag.flag} by {flag.author.name}. No BYOC points will be awarded to challenge author for this solve"
+                )
+                return
 
         # reward for author
         reward = chall.byoc_ext_value * SETTINGS["_byoc_reward_rate"]
@@ -647,6 +655,12 @@ def createSolve(
 
     commit()
 
+    if flag.reward_capped == True:
+        logger.debug(
+            f"reward capped (possibly for abuse) for flag {flag.flag} by {flag.author.name}. No BYOC points will be awarded to challenge author for this solve"
+        )
+        return
+
     if flag.byoc == True:
         reward = value * SETTINGS["_byoc_reward_rate"]
         if SETTINGS["_debug"] == True:
@@ -719,13 +733,13 @@ def challengeComplete(chall: Challenge, user: User):
 @db_session()
 def validateChallenge(challenge_object):
     if SETTINGS["_debug"]:
-        logger.debug(f"validating the challenge from {challenge_object['author']}")
+        logger.debug(f"validating the challenge from {challenge_object.get('author')}")
         if SETTINGS["_debug_level"] >= 1:
             logger.debug(f"Got challenge object: { challenge_object}")
 
     result = {
         "valid": False,
-        "author": challenge_object["author"],
+        "author": challenge_object.get("author"),
         "tags": [],
         "challenge_title": "",
         "challenge_description": "",
@@ -745,7 +759,7 @@ def validateChallenge(challenge_object):
     # title
     if (
         type(challenge_object.get("challenge_title")) == None
-        or len(challenge_object.get("challenge_title")) < 1
+        or len(challenge_object.get("challenge_title", "")) < 1
     ):
         result["fail_reason"] += "; failed title len"
         return result
@@ -758,8 +772,8 @@ def validateChallenge(challenge_object):
     result["challenge_title"] = challenge_object["challenge_title"]
 
     if type(challenge_object.get("challenge_description")) == None or (
-        len(challenge_object.get("challenge_description")) < 1
-        or len(challenge_object.get("challenge_description")) > 1500
+        len(challenge_object.get("challenge_description",'')) < 1
+        or len(challenge_object.get("challenge_description",'')) > 1500
     ):
 
         result["fail_reason"] += "; failed description; check length "
