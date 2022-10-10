@@ -41,7 +41,7 @@ with db_session:
     bot = db.User.get(id=0)
     # print(bot)
     # exit()
-    shyft = db.User(name="shyft#0760_", team=bestteam)
+    shyft = db.User(name="shyft#0760", team=bestteam)
     fie = db.User(name="notfie#4785", team=bestteam)
     r3d = db.User(name="Combaticus#8292", team=secondteam)
     malloc = db.User(name="0xDrMalloc#4492", team=thirdteam)

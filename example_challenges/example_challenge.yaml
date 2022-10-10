@@ -9,8 +9,7 @@ challenge_description: 'this is some markdown for the challenge description... 1
   cumulative value for the challenge. If you deviate from the `FLAG{xxx}` format you
   have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently,
   we don''t have dynamic or regex flags enabled. just static, case-sensitive flags.
-  First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward;
-  [https://github.com/Bios-Marcel/cordless]. depends means this challenge isn''t available
+  First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward; depends means this challenge isn''t available
   until at least one flag from each of the challenges is found.'
 challenge_title: byoc challenge asdfasf
 depends:

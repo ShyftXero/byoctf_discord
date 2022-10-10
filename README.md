@@ -434,12 +434,12 @@ There are a couple of other examples in the `example_challenges` folder...
 
 # Setup
 
-add your own token to `secrets.py`
+add your own token to `custom_secrets.py`
 
 ```bash
 git clone https://github.com/ShyftXero/byoctf_discord
 cd byoctf_discord
-echo "DISCORD_TOKEN='asdfasdfasdf'" > secrets.py # https://discord.com/developers/applications; setup a bot  
+echo "DISCORD_TOKEN='asdfasdfasdf'" > custom_secrets.py # https://discord.com/developers/applications; setup a bot  
 ./ctrl_ctf.py DEV_RESET # creates the db and fills with test data by calling populateTestData.py
 # or ./ctrol_ctf.py INIT # for no test data
 python byoctf_discord.py

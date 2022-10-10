@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+og_print = print
+from rich import print
 import fire
 from pony.orm.core import commit, db_session
 from settings import *
@@ -7,7 +9,7 @@ if is_initialized() == False:
     init_config()
 
 
-from terminaltables import GithubFlavoredMarkdownTable as mdTable
+from terminaltables import AsciiTable as mdTable
 
 import database as db
 
@@ -108,28 +110,39 @@ class Commands:
                     user.team = team
                     db.commit()
 
+    @db.db_session
     def grant_points(self, user: str, amount: int):
-        """give points to a user from the byoctf_automaton. remember to use '"user#1234"' as the cmdline parameter for user"""
+        """give points to a user from the byoctf_automaton. remember to use '"user#1234"' as the cmdline parameter for user; Can also "grant" negative points to take points away..."""
 
-        with db.db_session:
-            botuser = db.User.get(name=SETTINGS["_botusername"])
-            user = db.User.get(name=user)
-            if user:
-                t = db.Transaction(
-                    sender=botuser,
-                    recipient=user,
-                    value=amount,
-                    type="admin grant",
-                    message="admin granted points",
-                )
-                db.commit()
-                print(f"granted {amount} points to {user.name}")
-            else:
-                print("invalid user")
+        botuser = db.User.get(name=SETTINGS["_botusername"])
+        user = db.User.get(name=user)
+        if user:
+            t = db.Transaction(
+                sender=botuser,
+                recipient=user,
+                value=amount,
+                type="admin grant",
+                message="admin granted points",
+            )
+            db.commit()
+            print(f"granted {amount} points to {user.name}")
+        else:
+            print("invalid user")
 
     def get_score(self, user: str):
         """dumps score for a user by name. remember to use '"user#1234"' as the cmdline parameter for user"""
         # print(f'User {user} has {db.getScore(user)} points')
+
+    @db.db_session
+    def toggle_byoc_reward(self, chall_id: int):
+        chall = db.Challenge[chall_id]
+        if chall == None:
+            print("no such challenge")
+            return
+        flag: db.Flag
+        for flag in chall.flags:
+            flag.reward_capped = not flag.reward_capped
+        self.flags()
 
     @db.db_session
     def sub_as(self, user: str, flag: str):
@@ -152,7 +165,7 @@ class Commands:
     def subs(self):
         """dumps time that a flag was submitted. useful to prove who submitted fastest?"""
         solves = list(
-            db.select((s.time, s.flag.flag, s.user.name, s.value) for s in db.Solve)
+            db.select((s.time, s.flag.flag, s.user.name, s.value) for s in db.Solve)  # type: ignore
         )
         solves.insert(0, ["Time", "Flag", "User", "Value"])
         table = mdTable(solves)
@@ -165,7 +178,7 @@ class Commands:
 
         data = [(u.id, u.name, u.team.name, db.getScore(u)) for u in data]
 
-        data.insert(0, ["ID", "Name", "Team", "Score"])
+        data.insert(0, ["ID", "Name", "Team", "Score"])  # type: ignore
         table = mdTable(data)
         print(table.table)
 
@@ -183,7 +196,7 @@ class Commands:
                     t.message,
                     t.time,
                 )
-                for t in db.Transaction
+                for t in db.Transaction  # type: ignore
             )
         )
 
@@ -307,26 +320,26 @@ class Commands:
             print(
                 f'Challenge id {chall.id} "{chall.title}" visible set to {chall.visible}'
             )
-
+    
     def challs(self):
         """This dumps the all the challenges"""
-        with db.db_session:
-            challs = list(
-                db.select(
-                    (
-                        chall.id,
-                        chall.title,
-                        chall.description[:20],
-                        chall.flags,
-                        chall.visible,
-                        chall.byoc,
-                    )
-                    for chall in db.Challenge
+        with db_session:
+
+
+            data = list()
+            chal: db.Challenge
+            for chal in db.Challenge.select():
+                data.append(
+                    [
+                        chal.id,
+                        chal.title,
+                        chal.description,
+                        '; '.join([f.flag for f in chal.flags]),
+                        chal.visible,
+                        chal.byoc,
+                    ]
                 )
-            )
-            # data = [c for c in challs]
-            challs.insert(
-                0,
+            data.insert(0,
                 [
                     "ID",
                     "Title",
@@ -335,12 +348,14 @@ class Commands:
                     "Visible",
                     "BYOC",
                     "BYOC_External",
-                ],
+                ]
             )
-            table = mdTable(challs)
-            print(table.table)
-            # for chall in challs:
-            #     # print(chall)
+
+            
+        table = mdTable(data)
+        print(table.table)
+        # for chal in data:
+        #     print(chall)
 
     @db.db_session
     def teams(self):
@@ -384,7 +399,7 @@ class Commands:
             chall_rewards = sum(
                 db.select(
                     sum(t.value)
-                    for t in db.Transaction
+                    for t in db.Transaction  # type: ignore
                     if t.type == "byoc reward" and t.challenge == chall
                 ).without_distinct()
             )
@@ -411,13 +426,10 @@ class Commands:
         print(f"\nTotal BYOC rewards granted: {total_byoc_rewards}")
 
     def flags(self):
-        """dump all flags... useful for debugging"""
+        """dump all flags... useful for debugging... yeah.... "debugging"... """
         with db.db_session:
-            # flags = list(db.select((flag.id, flag.flag, flag.value, flag.challenges) for flag in db.Flag))
-            # for flag in flags:
-            #     print(flag)
-            # flags = list(db.select((flag.id, flag.flag, flag.value, ','.join((c.title for c in flag.challenges))) for flag in db.Flag))
             data = []
+            flag: db.Flag
             for flag in db.Flag.select():
                 data.append(
                     [
@@ -425,9 +437,10 @@ class Commands:
                         flag.flag,
                         flag.value,
                         ",".join([c.title for c in flag.challenges]),
+                        flag.reward_capped,
                     ]
                 )
-            data.insert(0, ["ID", "Flag", "Value", "Challenges"])
+            data.insert(0, ["ID", "Flag", "Value", "Challenges", "byoc_reward_capped"])
             table = mdTable(data)
             print(table.table)
 

@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+og_print = print
+from rich import print
 from fileinput import filename
 from logging import log
 from pony.orm.core import args2str
@@ -25,11 +28,47 @@ import database as db
 import toml
 
 
+def banner():
+    msg = """
+.______   ____    ____  ______     ______ .___________. _______ 
+|   _  \  \   \  /   / /  __  \   /      ||           ||   ____|
+|  |_)  |  \   \/   / |  |  |  | |  ,----'`---|  |----`|  |__   
+|   _  <    \_    _/  |  |  |  | |  |         |  |     |   __|  
+|  |_)  |     |  |    |  `--'  | |  `----.    |  |     |  |     
+|______/      |__|     \______/   \______|    |__|     |__|     
+
+by fs2600 / SOTB crew                                                                   
+    """
+    og_print(msg)
+
+
 # should be handled in settings now.
 # if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset
 #     init_config()
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+
+
+@db.db_session
+def getDecayChallengeValue(chall_id: id) -> tuple[int, int, float]:
+    raise NotImplementedError
+    chall = db.Challenge[chall_id]
+
+    solve_count = db.count(
+        db.select(t for t in db.Transaction if t.flag == flag).without_distinct()
+    )
+
+    team_count = (
+        db.count(db.select(t for t in db.Team)) - 1
+    )  # don't count discordbot's team
+
+    solve_percent = solve_count / team_count
+
+    reward *= max(
+        [1 - solve_percent, SETTINGS["_decay_minimum"]]
+    )  # don't go below the minimum established
+
+    return solve_count, team_count, reward
 
 
 @bot.event
@@ -59,14 +98,17 @@ def ctfRunning():
     return False
 
 
-async def getDiscordUser(ctx, target_user):
+async def getDiscordUser(ctx, target_user: str):
     # this is only for the gui representation of the recipient
     # https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.UserConverter
+    logger.debug(f"looking up user {target_user}")
     uc = discord.ext.commands.UserConverter()
-    try:
-        res = await uc.convert(ctx, target_user)
-    except BaseException as e:
-        res = target_user
+    # try:
+    res = await uc.convert(ctx, target_user)
+    # except BaseException as e:
+    #     logger.debug(e)
+    #     res = target_user
+    logger.debug(f"{res=}, {type(res)}")
     return res
 
 
@@ -109,12 +151,12 @@ async def on_command_error(ctx, error):
         await ctx.send(f"Missing argument to command")
     else:
         logger.debug(f"{error}")
-        if SETTINGS["_debug"]:
-            raise error
+        # if SETTINGS["_debug"]:
+        raise error
 
 
 async def inPublicChannel(
-    ctx, msg="this command should only be done in a private message (DM) to the bot"
+    ctx, msg="this command should only be done in a private message (a DM) to the bot"
 ):
     if ctx.channel.type.name == "text":
         # we're in public
@@ -139,7 +181,10 @@ def renderChallenge(result, preview=False):
     """returns the string to be sent to the user via discord. preview is mostly for BYOC challenges to validate that flags came through correctly."""
     msg = ""
     if preview == True:
-        msg = f"Challenge valid. \nHere's a preview:\n"
+        if result.get("valid"):
+            msg = f"Challenge valid. \nHere's a preview:\n"
+        else:
+            msg = f"Challenge INVALID. \nfailed because: {result['fail_reason']}\nHere's a preview:\n"
         msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
 
     msg += "-" * 40 + "\n"
@@ -176,7 +221,7 @@ def renderChallenge(result, preview=False):
 @bot.command(
     name="unregister",
     help="Leave a team... you still exist as a player but without a team... no fun.",
-    aliases=["unreg",'leave'],
+    aliases=["unreg", "leave"],
 )
 @commands.dm_only()
 async def unregister(ctx: discord.ext.commands.Context):
@@ -212,11 +257,11 @@ async def unregister(ctx: discord.ext.commands.Context):
 @bot.command(
     name="register",
     help="register on the scoreboard. !register <teamname> <password>; wrap team name in quotes if you need a space",
-    aliases=["reg","join"],
+    aliases=["reg", "join"],
 )
 @commands.dm_only()
 async def register(
-    ctx: discord.ext.commands.Context, teamname: str = None, password: str = None
+    ctx: discord.ext.commands.Context, teamname: str = "", password: str = ""
 ):
     # if await isRegistered(ctx, msg="Looks like you're already registered.... try `!unreg`") == False:
     #     return
@@ -293,7 +338,7 @@ async def register(
     if member == None:
         msg = f"Error {member=}"
         logger.debug(msg)
-        await ctx.send(msg)
+        # await ctx.send(msg)
         return None
     await member.add_roles(role)
 
@@ -394,7 +439,10 @@ async def scores(ctx):
 
         await ctx.send(msg)
 
-@bot.command(name='whoami', help="Show username and teamname", aliases=['w'] ) #shows authorid, name, teamname
+
+@bot.command(
+    name="whoami", help="Show username and teamname", aliases=["w"]
+)  # shows authorid, name, teamname
 async def byoc_stats(ctx):
     if await isRegistered(ctx) == False:
         return
@@ -402,16 +450,23 @@ async def byoc_stats(ctx):
     if await inPublicChannel(ctx, msg=f"<@{ctx.author.id}>, dm this command to CTFBot"):
         return
 
-    msg = ''
+    msg = ""
     with db.db_session:
         user = db.User.get(name=username(ctx))
         teammates = db.getTeammates(user)
 
-    await ctx.send(f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name},\nTeamName: {user.team.name}\n")
+    await ctx.send(
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name},\nTeamName: {user.team.name}\n"
+    )
 
-@bot.command(name='submit', help='submit a flag e.g. !submit FLAG{some_flag}', aliases=['sub'])
-@commands.cooldown(1,SETTINGS['_rate_limit_window'],type=discord.ext.commands.BucketType.user) # one submission per second per user
-async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
+
+@bot.command(
+    name="submit", help="submit a flag e.g. !submit FLAG{some_flag}", aliases=["sub"]
+)
+@commands.cooldown(
+    1, SETTINGS["_rate_limit_window"], type=discord.ext.commands.BucketType.user
+)  # one submission per second per user
+async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
     if await isRegistered(ctx) == False:
         return
 
@@ -442,7 +497,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
         solves = list(
             db.select(
                 solve
-                for solve in db.Solve
+                for solve in db.Solve  # type: ignore
                 if submitted_flag == solve.flag.flag
                 and username(ctx) == solve.user.name
             )
@@ -461,7 +516,7 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
             res = list(
                 db.select(
                     solve
-                    for solve in db.Solve
+                    for solve in db.Solve  # type: ignore
                     if submitted_flag == solve.flag.flag
                     and teammate.name == solve.user.name
                 )
@@ -506,18 +561,21 @@ async def submit(ctx:discord.ext.commands.Context , submitted_flag:str = None):
         msg = "Correct!\n"
         reward = flag.value
 
-        challenge = db.select(c for c in db.Challenge if flag in c.flags).first()
+        challenge: db.Challenge = db.select(
+            c for c in db.Challenge if flag in c.flags
+        ).first()
 
         if challenge:  # was this flag part of a challenge?
             msg += f"You submitted a flag for challenge `{challenge.title}`.\n"
 
         if flag.unsolved == True:
             ctf_chan = bot.get_channel(SETTINGS["_ctf_channel_id"])
-            logger.debug(user.name)
             discord_user = await getDiscordUser(ctx, user.name)
+            logger.debug(f"{discord_user=} {type(discord_user)}")
             await ctf_chan.send(f"<@{discord_user.id}> drew First Blood!")
             msg += f'**First blood!** \nYou are the first to submit `{flag.flag}` and have earned a bonus {SETTINGS["_firstblood_rate"] * 100 }% \nTotal reward `{flag.value * (1 + SETTINGS["_firstblood_rate"])}` rather than `{flag.value}`\n'
         elif SETTINGS["_decay_solves"] == True:
+            # solve_count, team_count, decay_value = getDecayValue(challenge.id)
             solve_count = db.count(
                 db.select(
                     t for t in db.Transaction if t.flag == flag
@@ -578,8 +636,15 @@ async def tip(ctx, target_user: Union[discord.User, str], tip_amount: float, msg
         sender = db.User.get(name=username(ctx))
 
         recipient = db.User.get(name=username(target_user))
+
+        if sender == recipient:
+            await ctx.send("nice try... ")
+            return
+
         if recipient == None:
-            await ctx.send(f"invalid recipient...`{target_user}`")
+            await ctx.send(
+                f"invalid recipient...`{target_user}`. Are they registered for the ctf using the `!reg` command?"
+            )
             return
 
         # check funds
@@ -1009,18 +1074,18 @@ async def byoc_stats(ctx):
     with db.db_session:
         user = db.User.get(name=username(ctx))
         team_challs = list(
-            db.select(c for c in db.Challenge if c.author in db.getTeammates(user))
+            db.select(c for c in db.Challenge if c.author in db.getTeammates(user))  # type: ignore
         )
 
         # num solves per challenge
         stats = []
         for chall in team_challs:
-            num_solves = list(db.select(s for s in db.Solve if s.challenge == chall))
+            num_solves = list(db.select(s for s in db.Solve if s.challenge == chall))  # type: ignore
 
             chall_rewards = sum(
                 db.select(
                     sum(t.value)
-                    for t in db.Transaction
+                    for t in db.Transaction  # type: ignore
                     if t.type == "byoc reward"
                     and t.recipient in db.getTeammates(user)
                     and t.challenge == chall
@@ -1138,7 +1203,7 @@ async def byoc_ext(
             return
 
         await ctx.send(
-            f"External validation server reported that your was incorrect... talk to <@{(await getDiscordUser(ctx,chall.author.name)).id}>: {res}"
+            f"External validation server reported that your flag was incorrect... talk to <@{(await getDiscordUser(ctx,chall.author.name)).id}>: {res}"
         )
 
 
@@ -1174,7 +1239,7 @@ async def byoc_check(ctx):
         await ctx.send(msg)
     else:
         await ctx.send(
-            f"challenge invalid. Ensure that all required fields are present. see example_challenge.json\n\nfail_reason:{result['fail_reason']}"
+            f"challenge invalid. Ensure that all required fields are present. see `example_challenge.toml` \n\nfail_reason:{result['fail_reason']}"
         )
 
 
@@ -1213,7 +1278,7 @@ async def byoc_commit(ctx):
 
     if result["valid"] == False:
         await ctx.send(
-            f"challenge invalid. Ensure that all required fields are present. see example_challenge.json\n\nfail_reason:{result['fail_reason']}"
+            f"challenge invalid. Ensure that all required fields are present. see example_challenge.toml\n\nfail_reason:{result['fail_reason']}"
         )
         return
 
@@ -1408,8 +1473,9 @@ async def public_log(ctx):
 
 
 if __name__ == "__main__":
+    banner()
     try:
-        from secrets import DISCORD_TOKEN
+        from custom_secrets import DISCORD_TOKEN
     except ImportError:
         print("Failure to import DISCORD_TOKEN from secrets.py")
         exit()

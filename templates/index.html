@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BYOCTF Challenge Validator</title>
+	<script src="https://unpkg.com/htmx.org@1.8.0" integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc" crossorigin="anonymous"></script>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.umd.min.js" integrity="sha512-dG5ZzvFUfkBdjYdJbsKdGGh8tOa9fv9wHmiChCFJYHRIW1XgfxN2cGzt2HaEPeunXqbAQXBOJvSBQpGOl0qikw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.css" integrity="sha512-2KRz1UY/OYx7yBlulfAB4FqeSUMzlkvxCX6IalaJfhrihGo8lbY+AOm5isINAIcGV/sCqi7Pic6Mq6pznnP4mA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	
+
+</head>
+
+<body>
+	<center>
+		<marquee behavior="scroll" direction=""><h1>SoTB2023 BYOCTF Challenge Validator</h1></marquee>
+		<form>
+			<textarea name="challenge" id="challenge" cols="60" rows="15"
+				placeholder="Paste your challenge toml here..." width="100%"></textarea>
+			<br>
+			<button hx-post="/validate" hx-target="#results">
+				Validate Your Challenge
+			</button>
+		</form>
+		<textarea id="results" disabled placeholder="submit your challenge above" cols="60" rows="15"></textarea>
+	</center>
+</body>
+
+</html>
