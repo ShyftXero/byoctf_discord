@@ -761,7 +761,7 @@ def validateChallenge(challenge_object):
         type(challenge_object.get("challenge_title")) == None
         or len(challenge_object.get("challenge_title", "")) < 1
     ):
-        result["fail_reason"] += "; failed title len"
+        result["fail_reason"] += "; title too short"
         return result
 
     c = Challenge.get(title=challenge_object.get("challenge_title"))
@@ -776,27 +776,27 @@ def validateChallenge(challenge_object):
         or len(challenge_object.get("challenge_description",'')) > 1500
     ):
 
-        result["fail_reason"] += "; failed description; check length "
+        result["fail_reason"] += "; failed description length (too long or too short?) "
         return result
     result["challenge_description"] = challenge_object["challenge_description"]
 
     # check that at least one tag exists
     if len(challenge_object["tags"]) < 1:
-        result["fail_reason"] += "; failed tags exist"
+        result["fail_reason"] += "; failed tags exist (mispelled?)"
         return result
     for tag in challenge_object["tags"]:
         if type(tag) == str and len(tag) < 1:
-            result["fail_reason"] += "; failed tag len"
+            result["fail_reason"] += "; failed tag name length"
             return result
     result["tags"] = challenge_object["tags"]
 
     # check the hints.
     for hint in challenge_object.get("hints", []):
         if hint.get("hint_cost") < 0:
-            result["fail_reason"] += "; failed hint cost"
+            result["fail_reason"] += "; failed hint cost value (less than 0)"
             return result
         if len(hint.get("hint_text")) < 1:
-            result["fail_reason"] += "; failed hint len"
+            result["fail_reason"] += "; failed hint text length"
             return result
 
     result["hints"] = challenge_object["hints"]
