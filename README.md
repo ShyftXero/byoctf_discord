@@ -11,7 +11,7 @@ Players can create challenges and distribute them to other players and get rewar
 
 Players can trade points amongst themselves for favors, info, etc.
 
-I'm not a great dev so code is a hodge-podge, but 100% of the time 90% of the time.
+I'm not a great dev so code is a hodge-podge, but 90% of the time it works 100% of the time.
 
 People kept asking if fs2600 was going to host Shell On The Border again. My answer internally was 'not until the byoc framework is done.' Here we are... 
 
