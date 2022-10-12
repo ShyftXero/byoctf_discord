@@ -1,4 +1,4 @@
-# byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
+# byoctf_discord - Bring Your Own [Challenge && Capture] The Flag
 
 ## TL;DR
 A CTF framework that allows players to submit and complete challenges from other players. They are rewarded when players solve their challenges. 
