@@ -306,7 +306,7 @@ def challegeUnlocked(user, chall):
 
 
 @db_session()
-def rate(user:User, chall:Challenge, user_rating:float):
+def rate(user: User, chall: Challenge, user_rating: float):
     if chall == None or challegeUnlocked(user, chall) == False:
         return -1
 

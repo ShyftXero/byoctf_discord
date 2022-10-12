@@ -34,7 +34,7 @@ def default_config():
         "_decay_minimum": 0.10,  # minimum percent award.
         "_botusername": "BYOCTF_Automaton#7840",  # this is the discordbot's username+discriminator
         "_byoc_reward_rate": 0.25,  # percentage of a solve that is given back to the author for making the challenge.
-        "_byoc_commit_fee": 0.5,  # percentage of challenge value to charge author to post a BYOC challenge 
+        "_byoc_commit_fee": 0.5,  # percentage of challenge value to charge author to post a BYOC challenge
         "_byoc_max_reward": 2.0,  # maximux return for creating a challenge. # 08OCT22 I still want to leverage other tools than this one as I believe the challenge market can behave itself.
         "_byoc_chall_min_val": 100,  # minimum value for byoc chall to be considered valid
         "_byoc_hint_reward_rate": 0.1,  # how much of a tip should be given to the challenge author.
