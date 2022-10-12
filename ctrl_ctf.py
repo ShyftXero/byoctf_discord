@@ -320,11 +320,10 @@ class Commands:
             print(
                 f'Challenge id {chall.id} "{chall.title}" visible set to {chall.visible}'
             )
-    
+
     def challs(self):
         """This dumps the all the challenges"""
         with db_session:
-
 
             data = list()
             chal: db.Challenge
@@ -334,24 +333,26 @@ class Commands:
                         chal.id,
                         chal.title,
                         chal.description,
-                        '; '.join([f.flag for f in chal.flags]),
+                        "; ".join([f.flag for f in chal.flags]),
+                        ",".join([t.name for t in chal.tags]),
                         chal.visible,
                         chal.byoc,
                     ]
                 )
-            data.insert(0,
+            data.insert(
+                0,
                 [
                     "ID",
                     "Title",
                     "Description",
                     "Flags",
+                    "Tags",
                     "Visible",
                     "BYOC",
                     "BYOC_External",
-                ]
+                ],
             )
 
-            
         table = mdTable(data)
         print(table.table)
         # for chal in data:
@@ -426,7 +427,7 @@ class Commands:
         print(f"\nTotal BYOC rewards granted: {total_byoc_rewards}")
 
     def flags(self):
-        """dump all flags... useful for debugging... yeah.... "debugging"... """
+        """dump all flags... useful for debugging... yeah.... "debugging"..."""
         with db.db_session:
             data = []
             flag: db.Flag

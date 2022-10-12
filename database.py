@@ -604,6 +604,28 @@ def createSolve(
         return
 
     reward = value
+
+    # this is where we can implement different flag types
+    # FIFO
+    #   only one team can capture this flag
+    #   no other team can get points for a solve...
+    #   it won't be known if this has been solved but it should be clear if this challenge is of that type?
+    # Pool
+    #   teams that solve this flag split the total pot
+    #   ex : total points 3000
+    #   3 of 20 teams solve the challenge
+    #        each team gets 1000 points
+    #   4 of 20 teams solve the challenge
+    #        each team gets 750 points
+    # Mystery
+    #   points awarded unknown until the end of the game
+    #   could be linked to number of solves or rating or simply hidden?
+    #
+    # if flag.type == 'FIFO':
+    #     reward = flag.value
+    #     challenge.visible = False # disable the challenge so noone else can see it?
+
+    # this becomes part of a big elif chain
     if flag.unsolved == True:
         reward += value * (SETTINGS["_firstblood_rate"])
         flag.unsolved = False
@@ -743,7 +765,7 @@ def validateChallenge(challenge_object):
         "tags": [],
         "challenge_title": "",
         "challenge_description": "",
-        "parents": [],
+        "parent_ids": [],
         "flags": [],
         "hints": [],
         "value": 0,  # sum of flags
@@ -761,7 +783,7 @@ def validateChallenge(challenge_object):
         type(challenge_object.get("challenge_title")) == None
         or len(challenge_object.get("challenge_title", "")) < 1
     ):
-        result["fail_reason"] += "; title too short"
+        result["fail_reason"] += "; title too short or non-existent"
         return result
 
     c = Challenge.get(title=challenge_object.get("challenge_title"))
@@ -772,8 +794,8 @@ def validateChallenge(challenge_object):
     result["challenge_title"] = challenge_object["challenge_title"]
 
     if type(challenge_object.get("challenge_description")) == None or (
-        len(challenge_object.get("challenge_description",'')) < 1
-        or len(challenge_object.get("challenge_description",'')) > 1500
+        len(challenge_object.get("challenge_description", "")) < 1
+        or len(challenge_object.get("challenge_description", "")) > 1500
     ):
 
         result["fail_reason"] += "; failed description length (too long or too short?) "
@@ -833,8 +855,10 @@ def validateChallenge(challenge_object):
                 return result
 
             # collect all of the flags from the obj and sum the value then display the cost to post challenge to the user.
-            if flag.get("flag_value") < 0:
-                result["fail_reason"] += "; failed flag individual value "
+            if flag.get("flag_value", -1) < 0:
+                result[
+                    "fail_reason"
+                ] += "; failed flag individual value (missing or less than 0)"
                 return result
             result["value"] += flag.get("flag_value")
 
@@ -853,13 +877,15 @@ def validateChallenge(challenge_object):
         except:
             result[
                 "fail_reason"
-            ] += f"; invalid parent ID {parent_id}; should be an int "
+            ] += f"; invalid parent challenge ID {parent_id}; should be an integer "
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
                 logger.debug(result["fail_reason"])
             return result
         parent = Challenge.get(id=parent_id)
         if parent == None:
-            result["fail_reason"] += f"; parent ID {parent_id} does not exist"
+            result[
+                "fail_reason"
+            ] += f"; parent challenge ID {parent_id} does not exist (it must already exist before you can link them)"
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
                 logger.debug(result["fail_reason"])
             return result

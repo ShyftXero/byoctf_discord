@@ -1,0 +1,17 @@
+author = "shyft#0760"
+challenge_title = "shyft's malicious test challenge"
+challenge_description = "is this description legal? notepad\u202efdp.exe " # 
+tags = [ "pentest",]
+depends_on = [ 4, 5]
+[[flags]]
+flag_title = "a dependent flag "
+flag_value = 200
+flag_flag = "FLAG{solved_4_5}"
+[[flags]]
+flag_title = "other dependent flag "
+flag_value = 200
+flag_flag = "FLAG{mal_flag}"
+
+[[hints]]
+hint_cost = 10
+hint_text = "the flag depends on solving chall 4 and 5"
