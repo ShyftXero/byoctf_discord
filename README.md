@@ -1,15 +1,17 @@
-# byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
+# byoctf_discord - Bring Your Own [Challenge && Capture] The Flag
 
 ## TL;DR
 A CTF framework that allows players to submit and complete challenges from other players. They are rewarded when players solve their challenges. 
 
 People always want to help, but they can't play if they create challenges for us. this addresses that.
 
-Discord provides the UI/UX 
+Discord provides the UI/UX for the game
 
-Users can trade points amongst themselves for favors, info, etc.
+Players can create challenges and distribute them to other players and get rewarded for successful solves. (trivial challenges and schemes are addressed in detail below)
 
-I'm not a great dev so code is a hodge-podge, but it *mostly* works.
+Players can trade points amongst themselves for favors, info, etc.
+
+I'm not a great dev so code is a hodge-podge, but 90% of the time it works 100% of the time.
 
 People kept asking if fs2600 was going to host Shell On The Border again. My answer internally was 'not until the byoc framework is done.' Here we are... 
 
@@ -21,11 +23,11 @@ This implements several features that are unique to SOTB or match our event's ae
 - User contributed challenges meaning GMs/hosts can play too. 
   - Internally validated flags (if you trust us to not look at flags)
   - Externally validated flags (if you don't trust us to not look at flags)
-    - We provide a demo server for you to host on your own infrastructure. 
+    - We provide a flag validation server for you to host on your own infrastructure. 
   - Purchasable hints
   - Reward system for user contributed challenges.
     - Some percentage of flag value
-  - TOML or JSON based challenge definition. 
+  - TOML based challenge definition. 
     - Use TOML... it's much nicer. Check out the `example_challenge.toml` vs `example_challenge.json`
     - There's a converter for challenges that exist in either format.
       - `converter.py to_toml chall.json chall.toml`
@@ -37,12 +39,12 @@ This implements several features that are unique to SOTB or match our event's ae
     - Think of xbox achievements or goals; "Forensicator: solve 3 forensics flags." 
 - Bonus flags 
   - flags not bound to a specific challenge. (internally they are)
-  - useful for flags "found" in the environment or created in an impromptu fashion. Throw-away flags 
+  - These are for flags that can be "found" in the environment or created in an impromptu fashion. 
+  - Throw-away flags (look under your chair type of thing)
 - Inter-player transactions via the "tip" system.
-  - informal hint purchases? 
-  - drug transactions?
+  - informal hint purchases from other players
   - provides a mechanism for players to try and social engineer points off eachother.
-  - rewards for kindness?
+  - rewards for kindness
 - Team oriented
   - scores are often displayed in the context of your team.
   - hints purchased by a teammate are viewable by all teammates
@@ -58,7 +60,7 @@ This implements several features that are unique to SOTB or match our event's ae
   - Challenges are hidden until all flags from each "parent" challenge (or dependecy) is solved. 
   - _pretty sure this is working as intended._ 
   - BYOC challenges can depend on byoc or non-byoc challenges. 
-    - Allows individuals to extend a challenge that already exists. 
+    - Allows individuals to extend a challenge that already exists if they are inspired to do so. 
 - Reactive points for solves
   - FirstBlood
     - Bonus for first team to solve a flag
@@ -78,7 +80,7 @@ This implements several features that are unique to SOTB or match our event's ae
 - Flag submission is ratelimited
   - tunable via settings. 
 - Most commands are restricted to DM with the bot
-  - prevents flag and score info leak in public channels. 
+  - prevents flag, score, or sensitive info leak in public channels. 
   - `!tip` is allowed in public channels to inform others that you offered up a tip. This allows you to use `@<discord_name>` if they are in the same channel. (`statewide hackery` or a dedicated CTF channel is a good place for that)
   - It can be done in the DM as well but you need the username of the recipient (like `shyft#0760`; click on their name in Discord to view that.)
 
@@ -96,7 +98,7 @@ This implements several features that are unique to SOTB or match our event's ae
   - ~~this is more likely to occur for challenges with a lot of narrative and that build on each other.~~
     - ~~things where you are likely to have to "investigate" for perform some sort of forensics as part of a later challenge.~~
   - resolved. 100% unlock
-- We chose to not show your teammates challenges or your own challenges
+- We chose to not show your teammates challenges or your own challenges because you could not solve them anyway. 
   - You can use `!bstat` to see your challenges. 
   - This helps prevent a teammate working on your challenges when they couldn't submit it anyway. 
 ---
@@ -109,7 +111,7 @@ Key commands
   -- if no team exists with the name specified, the team will be created with password specified. 
   -- leading and trailing spaces are stripped from team name and password.
 - `!top` - shows your score 
-- `!all [tag]` - filter challenges by tag; use !tag to exclude
+- `!all [tag]` - filter challenges by tag; use !tag to exclude; `!byoc` to only view "official" challenges 
 - `!v <challenge_id>` - detail view of a specific challenge
 - `!sub <flag>` - submit a flag you find while working on a challenge
 - `!esub <chall_id> <flag>` - submit an externally validated flag. (challenge should say if it's externally validated.)
@@ -134,6 +136,7 @@ Key commands
   - ***Make sure it's solvable*** 
     - The bot can't prove or know that it is or isn't
   - ***ALL SALES ARE FINAL!***
+    - If it's not solvable, that is on you. you lost the points it cost to post it. 
 - Cumulative challenge value is the sum of flag values
   - Must exceed 100 points ; configurable
 - Challenge titles must be unique. 
@@ -161,6 +164,16 @@ Key commands
   - Words
     - https://gist.github.com/
     - https://pastebin.com/
+- Infrastructure
+  - if you are making complex challenges, consider the "solvability" if one team trashes the server and prevents other teams from submitting your flag. 
+  - team isolation or at least multiple instances are helpful to mitigate this. 
+  - How will teams access your hosted challenges if they aren't on the same network?
+  - These services will allow you to host stuff on a private network but all of them have their tradeoffs between cost (to you) or complexity (for players)
+    - **TOR**
+    - **Zerotier**
+    - netbird
+    - weron
+    - nebula
     
 - By default, it costs 50% of the total challenge value (sum of flags) to post a challenge. 
 - By default, your reward for the solve of a flag which is part of your challenge is 25% of that flags value. 
@@ -190,7 +203,7 @@ Key commands
   - ~~we need to store it the flag so the `!solves` command can show you which flags you've already submitted.~~ 
   - ~~open to arguments against this or a PR to avoid it.~~ 
   - We kind of worked around this by storing a hash of the flag in the solve text rather than the flag itself. As the author you will see the hash in the solve and can hash your own flags to see which one matches. 
-  - Keep in mind that we still touch the unhashed flag so you have to trust that we're not logging... 😉 good luck... 
+  - Keep in mind that we still touch the unhashed flag from a legitimate solve so you have to trust that we're not logging... 😉 good luck... 
 ---
 ## Common criticisms of the BYOC concept
 - ***Creating an impossible challenge in an effort distract players.*** 
@@ -200,7 +213,8 @@ Key commands
   - I don't think the issue will be rampant enough to warrant scrapping the idea.
 - ***Creating a trivial challenge worth a lot of points***
   - I believe that this issue will self-regulate. 
-  - If it's just a simple challenge and everyone can solve it, then it doesn't have much bearing on the final outcome. 
+  - If it's just a simple challenge and everyone can solve it, then it doesn't have much bearing on the final outcome as everyone can/will solve it.
+  - As mentioned we can cap/stop the rewards for a challenge or disable it altogether. We can also take points away for bad behavior. 
   - If everyone's a loser, no one's a loser. 
   - There's also a task management component to this. Don't let one of the high value easy flags slip by. 
 - If you don't want to risk it and avoid BYOC, use `!all !byoc` 
@@ -245,9 +259,9 @@ Most of the following are considerations regarding building your challenge.
   
 ---
 ## Submitting a challenge 
-- Validate your challenge by attaching the json file in a DM to the bot with the command `!byoc_check`
+- Validate your challenge by attaching the toml file in a DM to the bot with the command `!byoc_check`
   - If it's valid, an extended preview will show up showing the cost. 
-- Commit your challenge (actually post it) by attaching the json file in a DM to the bot with the command `!byoc_commit`
+- Commit your challenge (actually post it) by attaching the toml file in a DM to the bot with the command `!byoc_commit`
   - If the challenge is valid, the preview will show up and you will be prompted to type `confirm` within 10 seconds.
     - If you do, you are charged the fee (again, by default 50% of the cumulative value) and the challenge is made available to others.
 - Others can use `!all byoc` and `!v <chall_id>` to see it. 
@@ -271,7 +285,7 @@ flag_flag = "FLAG{this_is_a_flag_from_r3d}"
 hint_cost = 10
 hint_text = "the flag is easy"
 ```
-
+MOVED AWAY FROM JSON... USE TOML
 The same basic single flag challenge in JSON.
 ```json
 {
