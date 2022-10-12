@@ -31,13 +31,14 @@ import toml
 
 
 def banner():
-    ret = _spray(msg='byoctf')
+    ret = _spray(msg="byoctf")
     msg = f"""
 {ret}
 
 by fs2600 / SOTB crew                                                                   
     """
     og_print(msg)
+
 
 # should be handled in settings now.
 # if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset
@@ -222,14 +223,15 @@ def renderChallenge(result, preview=False):
 
     return msg
 
-#TODO this might be a problem; disable team unregistration... 
+
+# TODO this might be a problem; disable team unregistration...
 # user1 joins team A
-# user1 joins team A 
-# user2 joins team A 
+# user1 joins team A
+# user2 joins team A
 # user1 creates a challenge X
-# user2 leaves team A 
+# user2 leaves team A
 # user2 joins team B (a burner team)
-# user2 solves challenge X 
+# user2 solves challenge X
 # user2 leaves team B
 # user2 joins team A
 
@@ -269,7 +271,7 @@ def renderChallenge(result, preview=False):
 #         db.commit()
 
 
-def _spray(msg:str="BYOCTF \nby fs2600 ") -> str:
+def _spray(msg: str = "BYOCTF \nby fs2600 ") -> str:
     fonts = [
         "3-d",
         "3x5",
@@ -289,16 +291,16 @@ def _spray(msg:str="BYOCTF \nby fs2600 ") -> str:
 
 
 @bot.command(name="spray", help="show a random byoctf banner")
-async def spray(ctx: discord.ext.commands.Context, msg:str="BYOCTF \nby fs2600 "):
-    
+async def spray(ctx: discord.ext.commands.Context, msg: str = "BYOCTF \nby fs2600 "):
+
     ret = _spray(msg=msg)
     count = 0
     while len(ret) > 2000:
         ret = _spray(msg=msg)
         if count > 4:
-            await ctx.send('message may be too long... try something else')
-            return        
-    await ctx.send(f'```{ret}```')
+            await ctx.send("message may be too long... try something else")
+            return
+    await ctx.send(f"```{ret}```")
 
 
 @db.db_session()
@@ -543,7 +545,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
 
         # have I already submitted this flag?
         solves = list(
-            db.select( #type: ignore
+            db.select(  # type: ignore
                 solve
                 for solve in db.Solve  # type: ignore
                 if submitted_flag == solve.flag.flag
@@ -562,7 +564,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         solved = []
         for teammate in teammates:
             res = list(
-                db.select( #type: ignore
+                db.select(  # type: ignore
                     solve
                     for solve in db.Solve  # type: ignore
                     if submitted_flag == solve.flag.flag
@@ -609,7 +611,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         msg = "Correct!\n"
         reward = flag.value
 
-        challenge: db.Challenge = db.select( #type: ignore
+        challenge: db.Challenge = db.select(  # type: ignore
             c for c in db.Challenge if flag in c.flags
         ).first()
 
@@ -625,7 +627,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         elif SETTINGS["_decay_solves"] == True:
             # solve_count, team_count, decay_value = getDecayValue(challenge.id)
             solve_count = db.count(
-                db.select( #type: ignore
+                db.select(  # type: ignore
                     t for t in db.Transaction if t.flag == flag
                 ).without_distinct()
             )
@@ -1006,7 +1008,7 @@ async def logs(ctx):
     msg = "Your Transaction Log"
     with db.db_session:
         ts = list(
-            db.select( #type: ignore
+            db.select(  # type: ignore
                 (t.value, t.type, t.sender.name, t.recipient.name, t.message, t.time)
                 for t in db.Transaction
                 if username(ctx) == t.recipient.name or username(ctx) == t.sender.name
@@ -1046,7 +1048,7 @@ async def solves(ctx):
         solved = []
         for teammate in teammates:
             solved += list(
-                db.select( #type: ignore
+                db.select(  # type: ignore
                     solve for solve in db.Solve if teammate.name == solve.user.name
                 )
             )
@@ -1072,7 +1074,10 @@ async def solves(ctx):
             await ctx.send(msg)
 
 
-@bot.command(name="rate", help=f"rate a given challenge on a scale of {SETTINGS['rating_min']} to {SETTINGS['rating_max']}")
+@bot.command(
+    name="rate",
+    help=f"rate a given challenge on a scale of {SETTINGS['rating_min']} to {SETTINGS['rating_max']}",
+)
 async def rate(ctx, chall_id: int, user_rating: int):
     if await isRegistered(ctx) == False:
         return
@@ -1131,7 +1136,7 @@ async def byoc_stats(ctx):
             num_solves = list(db.select(s for s in db.Solve if s.challenge == chall))  # type: ignore
 
             chall_rewards = sum(
-                db.select( #type: ignore
+                db.select(  # type: ignore
                     sum(t.value)
                     for t in db.Transaction  # type: ignore
                     if t.type == "byoc reward"
@@ -1155,7 +1160,7 @@ async def byoc_stats(ctx):
 
         # team total byoc rewards sum
         total_byoc_rewards = sum(
-            db.select( #type: ignore
+            db.select(  # type: ignore
                 sum(t.value)
                 for t in db.Transaction  # type: ignore
                 if t.type == "byoc reward" and t.recipient in db.getTeammates(user)
@@ -1421,7 +1426,7 @@ async def public_solves(ctx, chall_id: int = 0):
         if chall_id > 0:
             if SETTINGS["scoreboard"] == "public":
                 logs = list(
-                    db.select( #type: ignore
+                    db.select(  # type: ignore
                         (
                             t.recipient.team.name,
                             t.recipient.name,
@@ -1436,7 +1441,7 @@ async def public_solves(ctx, chall_id: int = 0):
                 logs.insert(0, ["Team", "Recipient", "Challenge", "Amount", "Time"])
             else:
                 logs = list(
-                    db.select( #type: ignore
+                    db.select(  # type: ignore
                         (
                             t.recipient.team.name,
                             t.recipient.name,
@@ -1451,7 +1456,7 @@ async def public_solves(ctx, chall_id: int = 0):
         else:
             if SETTINGS["scoreboard"] == "public":
                 logs = list(
-                    db.select( #type: ignore
+                    db.select(  # type: ignore
                         (
                             t.recipient.team.name,
                             t.recipient.name,
@@ -1466,7 +1471,7 @@ async def public_solves(ctx, chall_id: int = 0):
                 logs.insert(0, ["Team", "Recipient", "Challenge", "Amount", "Time"])
             else:
                 logs = list(
-                    db.select( #type: ignore
+                    db.select(  # type: ignore
                         (
                             t.recipient.team.name,
                             t.recipient.name,
@@ -1501,7 +1506,7 @@ async def public_log(ctx):
     with db.db_session:
         if SETTINGS["scoreboard"] == "public":
             logs = list(
-                db.select( #type: ignore
+                db.select(  # type: ignore
                     (t.sender.name, t.recipient.name, t.type, t.value, t.time)
                     for t in db.Transaction  # type: ignore
                 )
@@ -1509,7 +1514,7 @@ async def public_log(ctx):
             logs.insert(0, ["Sender", "Recipient", "Type", "Amount", "Time"])
         else:
             logs = list(
-                db.select( #type: ignore
+                db.select(  # type: ignore
                     (t.sender.name, t.recipient.name, t.type, t.time)
                     for t in db.Transaction  # type: ignore
                 )
