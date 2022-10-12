@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 og_print = print
+import random
 from rich import print
 from fileinput import filename
 from logging import log
@@ -8,6 +9,7 @@ from settings import SETTINGS, init_config, is_initialized
 import datetime
 import time
 import json
+import pyfiglet
 
 from typing import Union
 
@@ -29,18 +31,13 @@ import toml
 
 
 def banner():
-    msg = """
-.______   ____    ____  ______     ______ .___________. _______ 
-|   _  \  \   \  /   / /  __  \   /      ||           ||   ____|
-|  |_)  |  \   \/   / |  |  |  | |  ,----'`---|  |----`|  |__   
-|   _  <    \_    _/  |  |  |  | |  |         |  |     |   __|  
-|  |_)  |     |  |    |  `--'  | |  `----.    |  |     |  |     
-|______/      |__|     \______/   \______|    |__|     |__|     
+    ret = _spray(msg='byoctf')
+    msg = f"""
+{ret}
 
 by fs2600 / SOTB crew                                                                   
     """
     og_print(msg)
-
 
 # should be handled in settings now.
 # if is_initialized() == False: # basically the ./byoctf_diskcache/cache.db has data in it. rm to reset
@@ -182,38 +179,47 @@ def renderChallenge(result, preview=False):
     msg = ""
     if preview == True:
         if result.get("valid"):
-            msg = f"Challenge valid. \nHere's a preview:\n"
+            msg = f"Challenge **valid**.  😎😎😎 \n\n"
         else:
-            msg = f"Challenge INVALID. \nfailed because: {result['fail_reason']}\nHere's a preview:\n"
-        msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
+            msg = f"Challenge ***INVALID***. ❌❌❌ \n\n **failed because**: {result['fail_reason']}\n\n"
+    else:
+        return msg
+
+    msg += f"{'-'*25}\n"
+    msg += "Here's a preview:\n"
+    msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
 
     msg += "-" * 40 + "\n"
-    msg += f"**Title**: `{result['challenge_title']}`\n"
-    msg += f"**Value**: `{result['value']}` points\n"
-    msg += f"**Description**: {result['challenge_description']}\n"
-    msg += f"**Tags**: {', '.join(result.get('tags',[]))}\n"
-    msg += f"**Unlocked By**: {','.join(result.get('parent',[]))}\n"
-    msg += "-" * 40 + "\n"
+    msg += f"**Title**: `{result['challenge_title']}`\n\n"
+    msg += f"**Value**: `{result['value']}` points\n\n"
+    msg += f"**Description**: `{result['challenge_description']}`\n\n"
+    msg += f"**Tags**: `{', '.join(result.get('tags',[]))}`\n\n"
+    parents = result.get("parent_ids", [])
+    msg += f"**Unlocked By Challenges**:  `{parents}`\n\n"
+    msg += "-" * 40 + "\n\n"
     # TODO num_flags is returning zero because that key likely doesn't exist
-    msg += f'**Number of Flags**: {result.get("num_flags",0)}\n'
-    msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n"
+    msg += f'**Number of Flags**: {len(result.get("flags",[]))}\n\n'
+    msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n\n"
     for idx, hint in enumerate(result.get("hints_purchased", []), 1):
         msg += f"**Hint** {idx}: {hint.text}\n"
-    msg += "-" * 40 + "\n"
+    msg += "-" * 40 + "\n\n"
     if result.get("byoc_ext_url") != None:
-        msg += f"**This is an external flag:** You must submit it with `!byoc_ext <chall_id> <flag>` "
+        msg += f"**This is an externally validated flag:** Players must submit it with `!byoc_ext <chall_id> <flag>` "
 
     if preview == True:
-        msg += "**Hints**:\n"
-        # print(result.get('hints'))
-        for hint in result.get("hints", []):
-            msg += f"Hint: {hint['hint_text']} cost: {hint['hint_cost']}\n"
+        msg += f"\n**Hints**\n\n"
+        for idx, hint in enumerate(result.get("hints", []), 1):
+            msg += (
+                f"   - Hint {idx}: `{hint['hint_text']}` Cost: `{hint['hint_cost']}` \n"
+            )
 
+        msg += f"\n\n"
         msg += "-" * 40 + "\n"
 
-        msg += "**Flags**:\n"
-        for flag in result["flags"]:
-            msg += f"Flag: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}`\n"
+        msg += f"\n**Flags**\n\n"
+        for idx, flag in enumerate(result["flags"], 1):
+            msg += f"   - Flag {idx}: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}` \n"
+
     return msg
 
 
@@ -251,6 +257,38 @@ async def unregister(ctx: discord.ext.commands.Context):
         unaffiliated = db.Team.get(name="__unaffiliated__")
         user.team = unaffiliated
         db.commit()
+
+
+def _spray(msg:str="BYOCTF \nby fs2600 ") -> str:
+    fonts = [
+        "3-d",
+        "3x5",
+        "5lineoblique",
+        "slant",
+        "5lineoblique",
+        "alphabet",
+        "banner3-D",
+        "doh",
+        "isometric1",
+        "letters",
+        "alligator",
+        "bubble",
+    ]
+
+    return pyfiglet.figlet_format(msg, font=random.choice(fonts))
+
+
+@bot.command(name="spray", help="show a random byoctf banner")
+async def spray(ctx: discord.ext.commands.Context, msg:str="BYOCTF \nby fs2600 "):
+    
+    ret = _spray(msg=msg)
+    count = 0
+    while len(ret) > 2000:
+        ret = _spray(msg=msg)
+        if count > 4:
+            await ctx.send('message may be too long... try something else')
+            return        
+    await ctx.send(f'```{ret}```')
 
 
 @db.db_session()
