@@ -1,4 +1,4 @@
-secrets.py
+custom_secrets.py
 byoctf.db
 byoctf.log
 byoctf_diskcache/
