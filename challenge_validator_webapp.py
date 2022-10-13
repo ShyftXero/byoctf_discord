@@ -40,7 +40,7 @@ def validate():
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return render_template("validator/index.html")
 
 
 if __name__ == "__main__":
