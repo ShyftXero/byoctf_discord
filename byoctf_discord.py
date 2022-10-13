@@ -482,7 +482,6 @@ async def scores(ctx):
             data = [(p.name, p.team.name, v) for p, v in topPlayers]
             data.insert(0, ["Player", "Team", "Score"])
             table = GithubFlavoredMarkdownTable(data)
-            table = GithubFlavoredMarkdownTable(data)
             msg += f'Top {SETTINGS["_mvp_size"]} Players\n```{table.table}```'
         else:
             msg += f"MVP is set to False    "
