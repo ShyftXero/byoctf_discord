@@ -209,8 +209,8 @@ def renderChallenge(result, preview=False):
     
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
-    msg += f"**Value**: `{result['value']}` points; "
-    msg += f"Reward rate is currently `{byoc_rate}` of challenge value which means `{break_even_solves}` solves will be required to break even.\n\n"
+    msg += f"**Total Challenge Value**: `{result['value']}` points; "
+    msg += f"Reward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even.\n\n"
     msg += f"**Description**: `{result['challenge_description']}`\n\n"
     msg += f"**Tags**: `{', '.join(result.get('tags',[]))}`\n\n"
     parents = result.get("parent_ids", [])
