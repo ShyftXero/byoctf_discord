@@ -791,7 +791,7 @@ def validateChallenge(challenge_object):
         result["fail_reason"] += "; failed title uniqueness"
         return result
 
-    result["challenge_title"] = challenge_object("challenge_title", "")
+    result["challenge_title"] = challenge_object.get("challenge_title", "")
 
     if type(challenge_object.get("challenge_description")) == None or (
         len(challenge_object.get("challenge_description", "")) < 1
