@@ -197,7 +197,7 @@ def renderChallenge(result, preview=False):
     else:
         return msg
 
-    byoc_rate = SETTINGS.get('byoc_reward_rate',0)
+    byoc_rate = SETTINGS.get('_byoc_reward_rate',0)
     break_even_solves = (result['cost'] * byoc_rate) // 100 
 
     msg += f"{'-'*25}\n"
