@@ -200,14 +200,17 @@ def renderChallenge(result, preview=False):
     byoc_rate = SETTINGS.get('_byoc_reward_rate',0)
     break_even_solves = (result['cost'] / byoc_rate) // 100 
 
-    msg += f"{'-'*25}\n"
-    msg += "Here's a preview:\n\n"
-    msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
-    msg += f"Reward rate is currently `{byoc_rate}` of challenge value which means `{break_even_solves}` solves will be required to break even.\n"
+    msg += f"{'-'*25}\n\n"
 
+    msg += "Here's a preview:\n\n"
+    
+    msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
+    
+    
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
-    msg += f"**Value**: `{result['value']}` points\n\n"
+    msg += f"**Value**: `{result['value']}` points; "
+    msg += f"Reward rate is currently `{byoc_rate}` of challenge value which means `{break_even_solves}` solves will be required to break even.\n\n"
     msg += f"**Description**: `{result['challenge_description']}`\n\n"
     msg += f"**Tags**: `{', '.join(result.get('tags',[]))}`\n\n"
     parents = result.get("parent_ids", [])
