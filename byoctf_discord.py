@@ -201,9 +201,9 @@ def renderChallenge(result, preview=False):
     break_even_solves = (result['cost'] / byoc_rate) // 100 
 
     msg += f"{'-'*25}\n"
-    msg += "Here's a preview:\n"
-    msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
-    msg += f"BYOC reward rate is currently {byoc_rate}; meaning {break_even_solves} solves to breakeven \n"
+    msg += "Here's a preview:\n\n"
+    msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n\n"
+    msg += f"BYOC reward rate is currently `{byoc_rate}`; meaning `{break_even_solves}` solves required to break even.. \n"
 
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
