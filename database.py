@@ -283,7 +283,7 @@ def challegeUnlocked(user, chall):
     teammates = getTeammates(user)  # including self
     # logger.debug(f'players {[x.name for x in teammates]}')
     # logger.debug(user.team.name)
-    team_solves = []
+    team_solves = list()
     for teammate in teammates:
         team_solves += list(
             select(solve.flag for solve in Solve if teammate.name == solve.user.name)
@@ -351,7 +351,7 @@ def get_unsolved_challenges(user: User):
 
     challs = [c for c in raw if challegeUnlocked(user, c)]
 
-    ret = []
+    ret = list()
     for chall in challs:
         if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
             logger.debug("flags", list(chall.flags))
@@ -362,7 +362,7 @@ def get_unsolved_challenges(user: User):
                     s
                     for s in Solve
                     if s.user.id == user.id and s.flag.flag == flag.flag
-                )
+                )  # type: ignore
             )
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
                 logger.debug(solves)
@@ -406,8 +406,8 @@ def buyHint(user: User = None, challenge_id: int = 0):
             f"Trying to buy hint for challenge_id {challenge_id} and user {user.name}"
         )
     # has user purchased these hints
-    hint_transactions = []
-    hints_to_buy = []
+    hint_transactions = list()
+    hints_to_buy = list()
     teammates = getTeammates(user)
     for hint in chall_hints:
         hint_transaction = select(
@@ -762,12 +762,12 @@ def validateChallenge(challenge_object):
     result = {
         "valid": False,
         "author": challenge_object.get("author"),
-        "tags": [],
+        "tags": list(),
         "challenge_title": "",
         "challenge_description": "",
-        "parent_ids": [],
-        "flags": [],
-        "hints": [],
+        "parent_ids": list(),
+        "flags": list(),
+        "hints": list(),
         "value": 0,  # sum of flags
         "cost": 0,
         "fail_reason": "",
@@ -791,7 +791,7 @@ def validateChallenge(challenge_object):
         result["fail_reason"] += "; failed title uniqueness"
         return result
 
-    result["challenge_title"] = challenge_object["challenge_title"]
+    result["challenge_title"] = challenge_object("challenge_title", "")
 
     if type(challenge_object.get("challenge_description")) == None or (
         len(challenge_object.get("challenge_description", "")) < 1
@@ -803,21 +803,21 @@ def validateChallenge(challenge_object):
     result["challenge_description"] = challenge_object["challenge_description"]
 
     # check that at least one tag exists
-    if len(challenge_object["tags"]) < 1:
+    if len(challenge_object.get("tags"), list()) < 1:
         result["fail_reason"] += "; failed tags exist (mispelled?)"
         return result
-    for tag in challenge_object["tags"]:
+    for tag in challenge_object.get("tags",list()):
         if type(tag) == str and len(tag) < 1:
             result["fail_reason"] += "; failed tag name length"
             return result
     result["tags"] = challenge_object["tags"]
 
     # check the hints.
-    for hint in challenge_object.get("hints", []):
-        if hint.get("hint_cost") < 0:
+    for hint in challenge_object.get("hints", list()):
+        if hint.get("hint_cost", -1) < 0:
             result["fail_reason"] += "; failed hint cost value (less than 0)"
             return result
-        if len(hint.get("hint_text")) < 1:
+        if len(hint.get("hint_text", '')) < 1:
             result["fail_reason"] += "; failed hint text length"
             return result
 
@@ -844,7 +844,7 @@ def validateChallenge(challenge_object):
 
     else:  # it's not externally validated so...
         # check the flags
-        for flag in challenge_object["flags"]:
+        for flag in challenge_object.get("flags",list()):
             # Are the flags unique? not likely to occur, but needs to be checked. this has the potential to leak info about flags that exist. Just make sure they are decent flags. Might just have to accept this risk
             try:
                 res = Flag.get(flag=flag.get("flag_flag"))
@@ -870,7 +870,7 @@ def validateChallenge(challenge_object):
         result["flags"] = challenge_object["flags"]
 
     # parent challenges
-    parents = challenge_object.get("depends_on", [])
+    parents = challenge_object.get("depends_on", list())
     for parent_id in parents:
         try:
             parent_id = int(parent_id)
@@ -928,7 +928,7 @@ def buildChallenge(challenge_object, byoc=False):
     chall_obj_tags = set(
         [t.lower().strip() for t in result["tags"]]
     )  # remove duplicates like ['forensics', 'Forensics', 'FoReNsIcS']
-    tags = []
+    tags = list()
     for tag in chall_obj_tags:
         t = Tag.get(name=tag)
         if t == None:  # meaning a tag like this does not exists
@@ -945,15 +945,15 @@ def buildChallenge(challenge_object, byoc=False):
     tags = list(set(tags))  # incase someone added byoc tag manually
 
     # if challenge_object.get('bulk'): # this should be the bulk creation method / not BYOC; a way for us to load challenges described in json files. it will populate ALL fields.
-    flags = []
-    for f in result.get("flags", []):
+    flags = list()
+    for f in result.get("flags", list()):
         fo = Flag(
             flag=f.get("flag_flag"), value=f.get("flag_value"), author=author, tags=tags
         )
         flags.append(fo)
 
-    parents = []
-    for parent in result.get("parent_ids", []):
+    parents = list()
+    for parent in result.get("parent_ids", list()):
         c = Challenge.get(id=parent)
         parents.append(c)
     # breakpoint()
@@ -972,7 +972,7 @@ def buildChallenge(challenge_object, byoc=False):
     # need to do this so I can get an ID from the chall
     # commit()
 
-    hints = []
+    hints = list()
     for h in challenge_object.get("hints"):
         ho = Hint(text=h.get("hint_text"), cost=h.get("hint_cost"), challenge=chall)
         hints.append(ho)
