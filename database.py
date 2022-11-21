@@ -803,7 +803,7 @@ def validateChallenge(challenge_object):
     result["challenge_description"] = challenge_object["challenge_description"]
 
     # check that at least one tag exists
-    if len(challenge_object.get("tags"), list()) < 1:
+    if len(challenge_object.get("tags", list())) < 1:
         result["fail_reason"] += "; failed tags exist (mispelled?)"
         return result
     for tag in challenge_object.get("tags",list()):
