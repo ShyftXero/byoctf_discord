@@ -3,6 +3,7 @@ import database
 from byoctf_discord import renderChallenge
 from flask import Flask, request, render_template
 from flask_limiter import Limiter
+from flask_cors import CORS
 from flask_limiter.util import get_remote_address
 from loguru import logger
 import toml
@@ -16,7 +17,7 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://",
 )
-
+CORS(app)
 app.secret_key = "thisisasecret"
 
 

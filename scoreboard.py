@@ -4,6 +4,7 @@ from settings import SETTINGS
 from flask import Flask, request, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 
 from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
 
@@ -17,6 +18,7 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
+CORS(app)
 app.secret_key = "thisisasecret"
 
 
