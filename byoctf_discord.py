@@ -203,7 +203,7 @@ def renderChallenge(result, preview=False):
     msg += f"{'-'*25}\n"
     msg += "Here's a preview:\n\n"
     msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n\n"
-    msg += f"BYOC reward rate is currently `{byoc_rate}`; meaning `{break_even_solves}` solves required to break even.. \n"
+    msg += f"Reward rate is currently `{byoc_rate}` of challenge value which means `{break_even_solves}` solves will be required to break even.\n"
 
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
