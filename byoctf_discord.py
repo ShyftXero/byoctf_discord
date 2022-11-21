@@ -29,6 +29,7 @@ import database as db
 
 import toml
 
+FIRST_PLACE_TEAM = ""
 
 def banner():
     ret = _spray(msg="byoctf")
@@ -46,6 +47,16 @@ by fs2600 / SOTB crew
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
+
+async def newLeader() -> bool:
+    global FIRST_PLACE_TEAM
+    ctf_chan = bot.get_channel(SETTINGS["_ctf_channel_id"])
+    leader = db.getTopTeams(num=1)[0]
+    if leader[0] != FIRST_PLACE_TEAM:
+        FIRST_PLACE_TEAM = leader[0]
+        await ctf_chan.send(f"There's a new Leader!!! `{leader[0]}` with `{leader[1]}` points")
+        return True
+    return False
 
 @db.db_session
 def getDecayChallengeValue(chall_id: id) -> tuple[int, int, float]:
@@ -441,6 +452,11 @@ async def scores(ctx):
     if ctfRunning() == False:
         await ctx.send("CTF isn't running yet")
         return
+    
+    if newLeader() == True:
+        # hook for doing intersting stuff with lights and sound when there is a new score leader 
+        pass    
+
 
     # individual score
     msg = ""
@@ -661,6 +677,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         logger.debug(msg)
         await ctx.send(msg)
 
+        
 
 @bot.command(
     name="tip",
