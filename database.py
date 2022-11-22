@@ -25,17 +25,17 @@ db = Database()
 
 class Flag(db.Entity):
     id = PrimaryKey(int, auto=True)
-    challenges = Set('Challenge')
+    challenges = Set("Challenge")
     description = Optional(str)
-    solves = Set('Solve')
+    solves = Set("Solve")
     flag = Required(str)
     value = Required(float)
     unsolved = Optional(bool, default=True)
     bonus = Optional(bool, default=False)
-    tags = Set('Tag')
-    author = Required('User')
+    tags = Set("Tag")
+    author = Required("User")
     byoc = Optional(bool)
-    transaction = Optional('Transaction')
+    transaction = Optional("Transaction")
     reward_capped = Optional(bool, default=False)
 
 
@@ -43,33 +43,33 @@ class Challenge(db.Entity):
     id = PrimaryKey(int, auto=True)
     title = Required(str)
     flags = Set(Flag)
-    author = Required('User')
+    author = Required("User")
     description = Optional(str)
-    parent = Set('Challenge', reverse='children')
-    children = Set('Challenge', reverse='parent')
-    tags = Set('Tag')
+    parent = Set("Challenge", reverse="children")
+    children = Set("Challenge", reverse="parent")
+    tags = Set("Tag")
     release_time = Optional(datetime, default=lambda: datetime.now())
     visible = Optional(bool, default=True)
-    hints = Set('Hint')
+    hints = Set("Hint")
     byoc = Optional(bool, default=False)
     byoc_ext_url = Optional(str, nullable=True, default=None)
     unsolved = Optional(bool, default=True)
     byoc_ext_value = Optional(float)
-    solve = Set('Solve')
-    transaction = Set('Transaction')
-    ratings = Set('Rating')
+    solve = Set("Solve")
+    transaction = Set("Transaction")
+    ratings = Set("Rating")
 
 
 class User(db.Entity):
     id = PrimaryKey(int, auto=True)
     name = Required(str, unique=True)
     challenges = Set(Challenge)
-    solves = Set('Solve')
-    team = Optional('Team')
-    sent_transactions = Set('Transaction', reverse='sender')
-    recipient_transactions = Set('Transaction', reverse='recipient')
+    solves = Set("Solve")
+    team = Optional("Team")
+    sent_transactions = Set("Transaction", reverse="sender")
+    recipient_transactions = Set("Transaction", reverse="recipient")
     authored_flags = Set(Flag)
-    ratings = Set('Rating')
+    ratings = Set("Rating")
 
 
 class Solve(db.Entity):
@@ -78,7 +78,7 @@ class Solve(db.Entity):
     flag = Optional(Flag)
     user = Required(User)
     value = Required(float)
-    transaction = Optional('Transaction')
+    transaction = Optional("Transaction")
     challenge = Optional(Challenge)
     flag_text = Optional(str)
 
@@ -100,15 +100,15 @@ class Tag(db.Entity):
 class Transaction(db.Entity):
     id = PrimaryKey(int, auto=True)
     value = Optional(float)
-    sender = Required(User, reverse='sent_transactions')
-    recipient = Required(User, reverse='recipient_transactions')
+    sender = Required(User, reverse="sent_transactions")
+    recipient = Required(User, reverse="recipient_transactions")
     type = Required(str)
     message = Optional(str)
     time = Optional(datetime, default=lambda: datetime.now())
     solve = Optional(Solve)
     flag = Optional(Flag)
     challenge = Optional(Challenge)
-    hint = Optional('Hint')
+    hint = Optional("Hint")
 
 
 class Hint(db.Entity):
@@ -391,7 +391,7 @@ def getHintTransactions(user: User) -> list[Transaction]:
 
 
 @db_session
-def buyHint(user: User , challenge_id: int = 0):
+def buyHint(user: User, challenge_id: int = 0):
     # this is to abstract away some of the issues with populating test data
     # see around line 400 in buy_hint in byoctf_discord.py
 
@@ -411,15 +411,15 @@ def buyHint(user: User , challenge_id: int = 0):
     purchasable_hints = list()
 
     teammates = getTeammates(user)
-    
+
     for hint in hints_for_this_chall:
         hint_transaction = select(
             t for t in Transaction if t.sender in teammates and t.hint == hint
         ).first()
         # print(hint_transaction)
 
-        if hint_transaction != None:  
-            print('already bough hint in transaction', hint_transaction)
+        if hint_transaction != None:
+            print("already bough hint in transaction", hint_transaction)
             # a purchase exists (not None); no need to buy it again
             continue  # so try the next hint in the list of challenge hints
         else:
@@ -432,13 +432,12 @@ def buyHint(user: User , challenge_id: int = 0):
             )
         return "There are no more hints available to purchase for this challenge.", None
 
-    
     sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
-    
+
     # print(f'hints available to purchase: {purchasable_hints}')
     cheapest_hint = purchasable_hints[0]
     print(cheapest_hint.to_dict())
-    
+
     # does user have enough funds
     funds = getScore(user)
     if funds >= cheapest_hint.cost:
@@ -811,7 +810,7 @@ def validateChallenge(challenge_object):
     if len(challenge_object.get("tags", list())) < 1:
         result["fail_reason"] += "; failed tags exist (mispelled?)"
         return result
-    for tag in challenge_object.get("tags",list()):
+    for tag in challenge_object.get("tags", list()):
         if type(tag) == str and len(tag) < 1:
             result["fail_reason"] += "; failed tag name length"
             return result
@@ -822,7 +821,7 @@ def validateChallenge(challenge_object):
         if hint.get("hint_cost", -1) < 0:
             result["fail_reason"] += "; failed hint cost value (less than 0)"
             return result
-        if len(hint.get("hint_text", '')) < 1:
+        if len(hint.get("hint_text", "")) < 1:
             result["fail_reason"] += "; failed hint text length"
             return result
 
@@ -849,7 +848,7 @@ def validateChallenge(challenge_object):
 
     else:  # it's not externally validated so...
         # check the flags
-        for flag in challenge_object.get("flags",list()):
+        for flag in challenge_object.get("flags", list()):
             # Are the flags unique? not likely to occur, but needs to be checked. this has the potential to leak info about flags that exist. Just make sure they are decent flags. Might just have to accept this risk
             try:
                 res = Flag.get(flag=flag.get("flag_flag"))

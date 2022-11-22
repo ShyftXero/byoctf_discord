@@ -31,6 +31,7 @@ import toml
 
 FIRST_PLACE_TEAM = ""
 
+
 def banner():
     ret = _spray(msg="byoctf")
     msg = f"""
@@ -54,9 +55,12 @@ async def newLeader() -> bool:
     leader = db.getTopTeams(num=1)[0]
     if leader[0] != FIRST_PLACE_TEAM:
         FIRST_PLACE_TEAM = leader[0]
-        await ctf_chan.send(f"There's a new Leader!!! `{leader[0]}` with `{leader[1]}` points")
+        await ctf_chan.send(
+            f"There's a new Leader!!! `{leader[0]}` with `{leader[1]}` points"
+        )
         return True
     return False
+
 
 @db.db_session
 def getDecayChallengeValue(chall_id: id) -> tuple[int, int, float]:
@@ -186,17 +190,20 @@ async def isRegistered(
     return True
 
 
-def renderChallenge(result:dict, preview=False):
+def renderChallenge(result: dict, preview=False):
     """returns the string to be sent to the user via discord. preview is mostly for BYOC challenges to validate that flags came through correctly."""
     msg = ""
-    if preview == True: # preview is for the rendering of the validator for byoc challenges
+
+    # preview is for the rendering of the validator for byoc challenges
+    if preview == True:
+
         if result.get("valid"):
             msg = f"Challenge **valid**.  😎😎😎 \n\n"
         else:
             msg = f"Challenge ***INVALID***. ❌❌❌ \n\n **failed because**: {result['fail_reason']}\n\n"
 
-        byoc_rate = SETTINGS.get('_byoc_reward_rate',0)
-        break_even_solves = (result['cost'] / byoc_rate) // 100 
+        byoc_rate = SETTINGS.get("_byoc_reward_rate", 0)
+        break_even_solves = (result["cost"] / byoc_rate) // 100
 
         msg += f"{'-'*25}\n\n"
         msg += "Here's a preview:\n\n"
@@ -207,30 +214,29 @@ def renderChallenge(result:dict, preview=False):
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
     msg += f"**Total Challenge Value**: `{result['value']}` points\n\n"
-    
-    #byoc validation rendering 
+
+    # byoc validation rendering
     if preview == True:
         msg += f"Reward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even.\n\n"
-    
-    # normal rendering 
-    msg += f"**Description**: \n`{result['challenge_description']}`\n\n"
-    msg += f"**Tags**: `{', '.join(result.get('tags',[]))}`\n\n"
-    parents = result.get("parent_ids", [])
-    msg += f"**Unlocked By Challenges**:  `{parents}`\n\n"
+
+    # normal rendering
+    msg += f"**Description**:\n`{result['challenge_description']}` \n\n"
+    msg += f"**Tags**: ` {', '.join(result.get('tags',list()))} `  \n\n"
+    msg += f"**Unlocked By Challenges**:  `{result.get('parent_ids', list())}`\n\n"
     msg += "-" * 40 + "\n\n"
-    
+
     msg += f'**Number of Flags**: {result.get("num_flags",0)}\n\n'
-    msg += f"**Total Hints**: {len(result.get('hints',[]))}\n\n"
-    for idx, hint in enumerate(result.get("hints_purchased", []), 1):
+    msg += f"**Total Hints**: {len(result.get('hints',list()))}\n\n"
+    for idx, hint in enumerate(result.get("hints_purchased", list()), 1):
         msg += f"**Hint** {idx}: {hint.text}\n"
     msg += "-" * 40 + "\n\n"
     if result.get("byoc_ext_url") != None:
         msg += f"**This is an externally validated flag:** Players must submit it with `!byoc_ext <chall_id> <flag>` "
 
-    # more byoc validation rendering 
+    # more byoc validation rendering
     if preview == True:
         msg += f"\n**Hints**\n\n"
-        for idx, hint in enumerate(result.get("hints", []), 1):
+        for idx, hint in enumerate(result.get("hints", list()), 1):
             msg += (
                 f"   - Hint {idx}: `{hint['hint_text']}` Cost: `{hint['hint_cost']}` \n"
             )
@@ -242,7 +248,7 @@ def renderChallenge(result:dict, preview=False):
         for idx, flag in enumerate(result["flags"], 1):
             msg += f"   - Flag {idx}: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}` \n"
 
-    #finally send it back. 
+    # finally send it back.
     return msg
 
 
@@ -463,11 +469,10 @@ async def scores(ctx):
     if ctfRunning() == False:
         await ctx.send("CTF isn't running yet")
         return
-    
-    if newLeader() == True:
-        # hook for doing intersting stuff with lights and sound when there is a new score leader 
-        pass    
 
+    if newLeader() == True:
+        # hook for doing intersting stuff with lights and sound when there is a new score leader
+        pass
 
     # individual score
     msg = ""
@@ -587,7 +592,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
 
         # has a teammate submitted this flag?
         teammates = db.getTeammates(user)
-        solved = []
+        solved = list()
         for teammate in teammates:
             res = list(
                 db.select(  # type: ignore
@@ -688,7 +693,6 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         # logger.debug(msg)
         await ctx.send(msg)
 
-        
 
 @bot.command(
     name="tip",
@@ -776,12 +780,14 @@ async def list_unsolved(ctx):
 
         # logger.debug(challs)
 
-        res = []
+        res = list()
         for c in challs:
             if c.author not in db.getTeammates(
                 user
             ):  # you can't solve your teammates challenges, so don't show them.
-                res.append([c.id, c.author.name, c.title, ', '.join([t.name for t in c.tags])])
+                res.append(
+                    [c.id, c.author.name, c.title, ", ".join([t.name for t in c.tags])]
+                )
 
     res.insert(0, ["ID", "Author", "Title", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
@@ -824,7 +830,7 @@ async def list_all(ctx, *, tags=None):
         # It'd be nice to show a percentage complete as well...
         #
         # don't show teammates challenges or your own challenges. !bstat to see yours. helps prevent a teammate working on your challenges when they couldn't submit it anyway.
-        res = []
+        res = list()
         if tags == None:
             res = [
                 (
@@ -947,9 +953,9 @@ async def view_challenge(ctx, chall_id: int):
             msg += renderChallenge(res)
         else:
             msg = "challenge doesn't exist or isn't unlocked yet"
-        
+
     # should we consider using a sendBigMessage?
-    await sendBigMessage(ctx,msg, wrap=False)
+    await sendBigMessage(ctx, msg, wrap=False)
     # await ctx.send(msg)
 
 
@@ -1004,7 +1010,7 @@ async def show_hints(ctx):
 
         msg = f"Team {user.team.name}'s hints:\n"
 
-        data = []
+        data = list()
         teammates = db.getTeammates(user)  # throws an error about db session is over
 
         for tm in teammates:
@@ -1074,7 +1080,7 @@ async def solves(ctx):
         msg = f"`{user.team.name}`'s solves "
 
         teammates = db.getTeammates(user)
-        solved = []
+        solved = list()
         for teammate in teammates:
             solved += list(
                 db.select(  # type: ignore
@@ -1082,7 +1088,7 @@ async def solves(ctx):
                 )
             )
 
-        res = []
+        res = list()
         for solve in solved:
             line = (
                 solve.flag_text,
@@ -1160,7 +1166,7 @@ async def byoc_stats(ctx):
         )
 
         # num solves per challenge
-        stats = []
+        stats = list()
         for chall in team_challs:
             num_solves = list(db.select(s for s in db.Solve if s.challenge == chall))  # type: ignore
 
