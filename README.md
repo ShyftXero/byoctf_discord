@@ -247,7 +247,7 @@ Most of the following are considerations regarding building your challenge.
   - What skills are required to accomplish the challenge?
     - how much customization/tailoring of existing exploit code is required?
     - How much code
-  - How impactful is the challenge
+  - How impactful is the challenge?
     - "gee whiz" factor for the uninitated
   - How much attention do you want your challenge to get?
     - It's just a reality that high value flags get looked at more.
@@ -263,6 +263,11 @@ Most of the following are considerations regarding building your challenge.
   - Docker is a fair middle-ground regarding hosting a suite of challenges on a single server while minimizing exposure/risk of compromising other challenges if exploited. 
     - We have some dockerfiles and control scripts to talk about that if the time comes. 
   - The external validation server (or one like it) if you choose to not share your flags with the bot.
+- ***what infrastructure will the players need to solve your challenge?***
+  - I would try to avoid "pay to win" challenges. ex: Being able to buy more GPU instances for a password cracking challenge. Don't price people out.  
+  - Does a required SaaS have a free tier? 
+  - Do solvers need a publicly routable IP to solve? 
+  - Do they need some sort of VPN? see section above `A few notes about BYOC challenges`
   
 ---
 ## Submitting a challenge 
