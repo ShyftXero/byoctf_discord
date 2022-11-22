@@ -110,7 +110,7 @@ def ctfRunning():
 async def getDiscordUser(ctx, target_user: str):
     # this is only for the gui representation of the recipient
     # https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.UserConverter
-    logger.debug(f"looking up user {target_user}")
+    # logger.debug(f"looking up user {target_user}")
     uc = discord.ext.commands.UserConverter()
     # try:
     res = await uc.convert(ctx, target_user)
@@ -186,32 +186,34 @@ async def isRegistered(
     return True
 
 
-def renderChallenge(result, preview=False):
+def renderChallenge(result:dict, preview=False):
     """returns the string to be sent to the user via discord. preview is mostly for BYOC challenges to validate that flags came through correctly."""
     msg = ""
-    if preview == True:
+    if preview == True: # preview is for the rendering of the validator for byoc challenges
         if result.get("valid"):
             msg = f"Challenge **valid**.  😎😎😎 \n\n"
         else:
             msg = f"Challenge ***INVALID***. ❌❌❌ \n\n **failed because**: {result['fail_reason']}\n\n"
-    else:
-        return msg
 
-    byoc_rate = SETTINGS.get('_byoc_reward_rate',0)
-    break_even_solves = (result['cost'] / byoc_rate) // 100 
+        byoc_rate = SETTINGS.get('_byoc_reward_rate',0)
+        break_even_solves = (result['cost'] / byoc_rate) // 100 
 
-    msg += f"{'-'*25}\n\n"
+        msg += f"{'-'*25}\n\n"
+        msg += "Here's a preview:\n\n"
+        msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
 
-    msg += "Here's a preview:\n\n"
-    
-    msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
-    
+    # normal challenge rendering
     
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
-    msg += f"**Total Challenge Value**: `{result['value']}` points; "
-    msg += f"Reward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even.\n\n"
-    msg += f"**Description**: `{result['challenge_description']}`\n\n"
+    msg += f"**Total Challenge Value**: `{result['value']}` points\n\n"
+    
+    #byoc validation rendering 
+    if preview == True:
+        msg += f"Reward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even.\n\n"
+    
+    # normal rendering 
+    msg += f"**Description**: \n`{result['challenge_description']}`\n\n"
     msg += f"**Tags**: `{', '.join(result.get('tags',[]))}`\n\n"
     parents = result.get("parent_ids", [])
     msg += f"**Unlocked By Challenges**:  `{parents}`\n\n"
@@ -225,6 +227,7 @@ def renderChallenge(result, preview=False):
     if result.get("byoc_ext_url") != None:
         msg += f"**This is an externally validated flag:** Players must submit it with `!byoc_ext <chall_id> <flag>` "
 
+    # more byoc validation rendering 
     if preview == True:
         msg += f"\n**Hints**\n\n"
         for idx, hint in enumerate(result.get("hints", []), 1):
@@ -239,6 +242,7 @@ def renderChallenge(result, preview=False):
         for idx, flag in enumerate(result["flags"], 1):
             msg += f"   - Flag {idx}: `{flag['flag_flag']}` value: `{flag['flag_value']}` title: `{flag['flag_title']}` \n"
 
+    #finally send it back. 
     return msg
 
 
@@ -681,7 +685,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
 
         msg += f"Challenge is {db.percentComplete(challenge, user)}% complete.\n"
         msg += f"Your score is now `{db.getScore(user)}`"
-        logger.debug(msg)
+        # logger.debug(msg)
         await ctx.send(msg)
 
         
@@ -777,9 +781,9 @@ async def list_unsolved(ctx):
             if c.author not in db.getTeammates(
                 user
             ):  # you can't solve your teammates challenges, so don't show them.
-                res.append([c.id, c.author.name, c.title])
+                res.append([c.id, c.author.name, c.title, ', '.join([t.name for t in c.tags])])
 
-    res.insert(0, ["ID", "Author", "Title"])
+    res.insert(0, ["ID", "Author", "Title", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
 
     # logger.debug("discord",challs)\
@@ -933,9 +937,9 @@ async def view_challenge(ctx, chall_id: int):
             res["value"] = db.challValue(chall)
             res["hints"] = [h for h in chall.hints]
             res["hints_purchased"] = [
-                t.hint
-                for t in db.getHintTransactions(user)
-                if t.hint.challenge == chall
+                hint_trans.hint
+                for hint_trans in db.getHintTransactions(user)
+                if hint_trans.hint.challenge == chall
             ]
             res["byoc_ext_url"] = chall.byoc_ext_url
             res["tags"] = [tag.name for tag in chall.tags]
@@ -943,8 +947,10 @@ async def view_challenge(ctx, chall_id: int):
             msg += renderChallenge(res)
         else:
             msg = "challenge doesn't exist or isn't unlocked yet"
-
-    await ctx.send(msg)
+        
+    # should we consider using a sendBigMessage?
+    await sendBigMessage(ctx,msg, wrap=False)
+    # await ctx.send(msg)
 
 
 @bot.command(

@@ -25,17 +25,17 @@ db = Database()
 
 class Flag(db.Entity):
     id = PrimaryKey(int, auto=True)
-    challenges = Set("Challenge")
+    challenges = Set('Challenge')
     description = Optional(str)
-    solves = Set("Solve")
+    solves = Set('Solve')
     flag = Required(str)
     value = Required(float)
     unsolved = Optional(bool, default=True)
     bonus = Optional(bool, default=False)
-    tags = Set("Tag")
-    author = Required("User")
+    tags = Set('Tag')
+    author = Required('User')
     byoc = Optional(bool)
-    transaction = Optional("Transaction")
+    transaction = Optional('Transaction')
     reward_capped = Optional(bool, default=False)
 
 
@@ -43,33 +43,33 @@ class Challenge(db.Entity):
     id = PrimaryKey(int, auto=True)
     title = Required(str)
     flags = Set(Flag)
-    author = Required("User")
+    author = Required('User')
     description = Optional(str)
-    parent = Set("Challenge", reverse="children")
-    children = Set("Challenge", reverse="parent")
-    tags = Set("Tag")
+    parent = Set('Challenge', reverse='children')
+    children = Set('Challenge', reverse='parent')
+    tags = Set('Tag')
     release_time = Optional(datetime, default=lambda: datetime.now())
     visible = Optional(bool, default=True)
-    hints = Set("Hint")
+    hints = Set('Hint')
     byoc = Optional(bool, default=False)
     byoc_ext_url = Optional(str, nullable=True, default=None)
     unsolved = Optional(bool, default=True)
     byoc_ext_value = Optional(float)
-    solve = Set("Solve")
-    transaction = Set("Transaction")
-    ratings = Set("Rating")
+    solve = Set('Solve')
+    transaction = Set('Transaction')
+    ratings = Set('Rating')
 
 
 class User(db.Entity):
     id = PrimaryKey(int, auto=True)
     name = Required(str, unique=True)
     challenges = Set(Challenge)
-    solves = Set("Solve")
-    team = Optional("Team")
-    sent_transactions = Set("Transaction", reverse="sender")
-    recipient_transactions = Set("Transaction", reverse="recipient")
+    solves = Set('Solve')
+    team = Optional('Team')
+    sent_transactions = Set('Transaction', reverse='sender')
+    recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
-    ratings = Set("Rating")
+    ratings = Set('Rating')
 
 
 class Solve(db.Entity):
@@ -78,7 +78,7 @@ class Solve(db.Entity):
     flag = Optional(Flag)
     user = Required(User)
     value = Required(float)
-    transaction = Optional("Transaction")
+    transaction = Optional('Transaction')
     challenge = Optional(Challenge)
     flag_text = Optional(str)
 
@@ -100,15 +100,15 @@ class Tag(db.Entity):
 class Transaction(db.Entity):
     id = PrimaryKey(int, auto=True)
     value = Optional(float)
-    sender = Required(User, reverse="sent_transactions")
-    recipient = Required(User, reverse="recipient_transactions")
+    sender = Required(User, reverse='sent_transactions')
+    recipient = Required(User, reverse='recipient_transactions')
     type = Required(str)
     message = Optional(str)
     time = Optional(datetime, default=lambda: datetime.now())
     solve = Optional(Solve)
-    hint = Optional("Hint")
     flag = Optional(Flag)
     challenge = Optional(Challenge)
+    hint = Optional('Hint')
 
 
 class Hint(db.Entity):
@@ -116,7 +116,7 @@ class Hint(db.Entity):
     text = Required(str)
     cost = Optional(float)
     challenge = Required(Challenge)
-    transaction = Optional(Transaction)
+    transactions = Set(Transaction)
 
 
 class Rating(db.Entity):
@@ -383,7 +383,7 @@ def getMostCommonFlagSolves(num=3):
 
 
 @db_session
-def getHintTransactions(user: User):
+def getHintTransactions(user: User) -> list[Transaction]:
     res = select(
         t for t in Transaction if t.sender.name == user.name and t.type == "hint buy"
     )[:]
@@ -391,7 +391,7 @@ def getHintTransactions(user: User):
 
 
 @db_session
-def buyHint(user: User = None, challenge_id: int = 0):
+def buyHint(user: User , challenge_id: int = 0):
     # this is to abstract away some of the issues with populating test data
     # see around line 400 in buy_hint in byoctf_discord.py
 
@@ -400,53 +400,58 @@ def buyHint(user: User = None, challenge_id: int = 0):
     if chall.author in getTeammates(user):
         return "You shouldn't have to buy your own hints...", None
 
-    chall_hints = list(chall.hints)
     if SETTINGS["_debug"]:
         logger.debug(
             f"Trying to buy hint for challenge_id {challenge_id} and user {user.name}"
         )
     # has user purchased these hints
-    hint_transactions = list()
-    hints_to_buy = list()
+    # hint_transactions = list()
+
+    hints_for_this_chall = list(chall.hints)
+    purchasable_hints = list()
+
     teammates = getTeammates(user)
-    for hint in chall_hints:
+    
+    for hint in hints_for_this_chall:
         hint_transaction = select(
             t for t in Transaction if t.sender in teammates and t.hint == hint
         ).first()
         # print(hint_transaction)
 
-        if (
-            hint_transaction != None
-        ):  # a purchase exists (not None); no need to buy it again
+        if hint_transaction != None:  
+            print('already bough hint in transaction', hint_transaction)
+            # a purchase exists (not None); no need to buy it again
             continue  # so try the next hint in the list of challenge hints
         else:
-            hints_to_buy.append(hint)
+            purchasable_hints.append(hint)
 
-    if len(hints_to_buy) < 1:
+    if len(purchasable_hints) < 1:
         if SETTINGS["_debug"] == True and SETTINGS["_debug_level"] > 0:
             logger.debug(
                 f"{user.name} has no more hints for challenge id {challenge_id}"
             )
         return "There are no more hints available to purchase for this challenge.", None
 
-    # print(f'hint transactions: {hint_transactions}')
-    # print(f'hints available to purchase {hints_to_buy}')
-    sorted_hints = sorted(hints_to_buy, key=lambda x: x.cost, reverse=False)
-
+    
+    sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
+    
+    # print(f'hints available to purchase: {purchasable_hints}')
+    cheapest_hint = purchasable_hints[0]
+    print(cheapest_hint.to_dict())
+    
     # does user have enough funds
     funds = getScore(user)
-    if funds >= sorted_hints[0].cost:
+    if funds >= cheapest_hint.cost:
         botuser = User.get(name=SETTINGS["_botusername"])
-        cheapest_hint = sorted_hints[0]
         hint_buy = Transaction(
             sender=user,
             recipient=botuser,
-            hint=cheapest_hint,
             value=cheapest_hint.cost,
+            challenge=chall,
+            hint=cheapest_hint,
             type="hint buy",
-            message=f"bought hint for challengeID {challenge_id}",
+            message=f"bought hint ID {cheapest_hint.id} for challenge ID {chall.id}",
         )
-
         if (
             "byoc" in [t.name for t in chall.tags]
             and SETTINGS["_byoc_hint_reward_rate"] > 0
@@ -457,10 +462,10 @@ def buyHint(user: User = None, challenge_id: int = 0):
                 sender=botuser,
                 recipient=chall.author,
                 value=reward,
-                type="byoc hint reward",
-                message=f"hint buy from {user.name}",
                 challenge=chall,
                 hint=cheapest_hint,
+                type="byoc hint reward",
+                message=f"hint buy from {user.name}",
             )
         return "ok", cheapest_hint
     return "insufficient funds", None

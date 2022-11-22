@@ -155,6 +155,8 @@ with db_session:
     shyft_hb_c1 = buyHint(user=shyft, challenge_id=c1.id)
     # shyft_hb_c5 = buyHint(user=shyft, challenge_id=c5.id)
 
+    r3d_hb_c1 = buyHint(user=r3d, challenge_id=c1.id)
+
     fie_hb_c5 = buyHint(user=fie, challenge_id=c5.id)
 
     r3d_hb_c2 = buyHint(user=r3d, challenge_id=c2.id)
