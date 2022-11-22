@@ -217,6 +217,11 @@ Key commands
   - As mentioned we can cap/stop the rewards for a challenge or disable it altogether. We can also take points away for bad behavior. 
   - If everyone's a loser, no one's a loser. 
   - There's also a task management component to this. Don't let one of the high value easy flags slip by. 
+- ***Otherwise legitimate but over or under-valued challenges***
+  - This is the hardest one to address.
+  - Remember, GM's have access to tools and can adjust the base value of a flag to bring them in line. 
+    - don't rely on this. existing solves won't account for the new flag's value.   
+    - see the next section. -> `Notes or guidance for developing challenges.`
 - If you don't want to risk it and avoid BYOC, use `!all !byoc` 
   - `!` like _not_ or a logical inversion. 
 ---
@@ -244,6 +249,8 @@ Most of the following are considerations regarding building your challenge.
     - How much code
   - How impactful is the challenge
     - "gee whiz" factor for the uninitated
+  - How much attention do you want your challenge to get?
+    - It's just a reality that high value flags get looked at more.
   - ? 
 - ***What infrastructure do I(the author of the challenge) need to have in place?***
   - This doesn't/shouldn't have much bearing on the score. 
