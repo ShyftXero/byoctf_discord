@@ -203,7 +203,7 @@ def renderChallenge(result:dict, preview=False):
         msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
 
     # normal challenge rendering
-    
+    # print(result)
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
     msg += f"**Total Challenge Value**: `{result['value']}` points\n\n"
@@ -218,9 +218,9 @@ def renderChallenge(result:dict, preview=False):
     parents = result.get("parent_ids", [])
     msg += f"**Unlocked By Challenges**:  `{parents}`\n\n"
     msg += "-" * 40 + "\n\n"
-    # TODO num_flags is returning zero because that key likely doesn't exist
-    msg += f'**Number of Flags**: {len(result.get("flags",[]))}\n\n'
-    msg += f"**Unseen Hints**: {len(result.get('hints',[]))}\n\n"
+    
+    msg += f'**Number of Flags**: {result.get("num_flags",0)}\n\n'
+    msg += f"**Total Hints**: {len(result.get('hints',[]))}\n\n"
     for idx, hint in enumerate(result.get("hints_purchased", []), 1):
         msg += f"**Hint** {idx}: {hint.text}\n"
     msg += "-" * 40 + "\n\n"
