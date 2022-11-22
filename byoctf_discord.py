@@ -881,7 +881,7 @@ async def list_all(ctx, *, tags=None):
                     ]
                 ]
 
-    res.insert(0, ["ID", "Author", "Title", "Value", "Done", "Rating", "Tags"])
+    res.insert(0, ["ID", "Author", "Title", "Total Value", "Done", "Rating", "Tags"])
     table = GithubFlavoredMarkdownTable(res)
     # logger.debug("discord",challs)
     msg = f"Showing all unlocked challenges```{table.table}```"
