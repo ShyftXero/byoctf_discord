@@ -1,0 +1,17 @@
+author = "Combaticus#8292"
+challenge_title = "r3d's multi-flag challenge"
+challenge_description = "good luck finding my flags at 3.43.54.28"
+tags = [ "pentest", "forensics",]
+[[flags]]
+flag_title = "flag 1 "
+flag_value = 100
+flag_flag = "FLAG{this_is_flag_1_for_multiflag}"
+
+[[flags]]
+flag_title = "flag 2"
+flag_value = 300
+flag_flag = "FLAG{this_is_flag_2_for_multiflag}"
+
+[[hints]]
+hint_cost = 25
+hint_text = "Both of the the flags are easy"
