@@ -14,7 +14,7 @@ app = Flask(__name__)
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=["1 per second"],
+    default_limits=["3 per second"],
     storage_uri="memory://",
 )
 CORS(app)
@@ -22,7 +22,7 @@ app.secret_key = "thisisasecret"
 
 
 @app.post("/validate")
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("2/second", override_defaults=False)
 def validate():
 
     try:
