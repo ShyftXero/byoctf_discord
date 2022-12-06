@@ -7,6 +7,7 @@ import json
 import toml
 
 import requests
+from requests.exceptions import ConnectTimeout
 
 from loguru import logger
 
@@ -833,7 +834,10 @@ def validateChallenge(challenge_object):
         try:
             resp = requests.get(challenge_object.get("external_validation_url"), timeout=3)
             data = json.loads(resp.text)
-
+        
+        except ConnectTimeout as e:
+            result["fail_reason"] += f"; http request timeout to ext url ({e}) need a lower latency server?"
+            return result
         except BaseException as e:
             result["fail_reason"] += f"; failed validate http request to ext url ({e})"
             return result
