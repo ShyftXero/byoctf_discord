@@ -418,7 +418,7 @@ class Commands:
 
         table = mdTable(stats)
 
-        # team total byoc rewards sum
+        # total byoc rewards sum
         total_byoc_rewards = sum(
             db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward")
         )
