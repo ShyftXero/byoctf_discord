@@ -1,7 +1,7 @@
 author = "Combaticus#8292"
-uuid='2e9e73a9-3e02-4db9-871e-fe5ffde1deb0'
 challenge_title = "r3d's externally validated challenge"
 challenge_description = "good luck finding my flag. At http://1.2.3.4/hackme "
+uuid='2e9e73a9-3e02-4db9-871e-fe5ffde1deb0'
 tags = [ "coding",]
 external_challenge_value = 250
 external_validation = true

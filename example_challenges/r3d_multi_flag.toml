@@ -2,6 +2,7 @@ author = "Combaticus#8292"
 challenge_title = "r3d's multi-flag challenge"
 challenge_description = "good luck finding my flags at 3.43.54.28"
 tags = [ "pentest", "forensics",]
+uuid = "e66622ea-ac8e-4bcd-a873-a485f4a3724b"
 [[flags]]
 flag_title = "flag 1 "
 flag_value = 100

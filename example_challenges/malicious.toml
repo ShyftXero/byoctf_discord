@@ -1,6 +1,7 @@
 author = "shyft#0760"
 challenge_title = "shyft's malicious test challenge"
 challenge_description = "is this description legal? notepad\u202efdp.exe " # 
+uuid = "f6e0b5a9-f74a-4c1d-aeef-7720e5d17be2"
 tags = [ "pentest",]
 depends_on = [ 4, 5]
 [[flags]]
