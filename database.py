@@ -5,6 +5,7 @@ from requests.sessions import session
 from settings import SETTINGS
 import json
 import toml
+import uuid
 
 import requests
 from requests.exceptions import ConnectTimeout
@@ -59,6 +60,7 @@ class Challenge(db.Entity):
     solve = Set("Solve")
     transaction = Set("Transaction")
     ratings = Set("Rating")
+    uuid = Optional(str, default="str(uuid.uuid4())")
 
 
 class User(db.Entity):
@@ -767,6 +769,7 @@ def validateChallenge(challenge_object):
     result = {
         "valid": False,
         "author": challenge_object.get("author"),
+        "uuid":"",
         "tags": list(),
         "challenge_title": "",
         "challenge_description": "",
@@ -782,6 +785,23 @@ def validateChallenge(challenge_object):
 
     # does the challenge_object have all of the fields we need?
     # title, description, tags, flags with at least one flag, hints
+
+    # unique uuid
+    
+    if (
+        type(challenge_object.get("uuid")) == None
+        or len(challenge_object.get("uuid", "")) < 1
+    ):
+        result["fail_reason"] += "; uuid not present"
+        return result
+
+    c = Challenge.get(uuid=challenge_object.get("uuid"))
+    if c:
+        result["fail_reason"] += "; failed uuid uniqueness (what are the odds?)"
+        return result
+
+    result["uuid"] = challenge_object.get("uuid", "")
+
 
     # title
     if (
@@ -879,22 +899,22 @@ def validateChallenge(challenge_object):
         result["flags"] = challenge_object["flags"]
 
     # parent challenges
-    parents = challenge_object.get("depends_on", list())
+    parents = challenge_object.get("depends_on", list()) # these should be uuid strings
     for parent_id in parents:
-        try:
-            parent_id = int(parent_id)
-        except:
-            result[
-                "fail_reason"
-            ] += f"; invalid parent challenge ID {parent_id}; should be an integer "
-            if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
-                logger.debug(result["fail_reason"])
-            return result
-        parent = Challenge.get(id=parent_id)
+        # try:
+        #     parent_id = int(parent_id)
+        # except:
+        #     result[
+        #         "fail_reason"
+        #     ] += f"; invalid parent challenge ID {parent_id}; should be an integer "
+        #     if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
+        #         logger.debug(result["fail_reason"])
+        #     return result
+        parent = Challenge.get(uuid=parent_id)
         if parent == None:
             result[
                 "fail_reason"
-            ] += f"; parent challenge ID {parent_id} does not exist (it must already exist before you can link them)"
+            ] += f"; parent challenge uuid {parent_id} does not exist (it must already exist before you can link them)"
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
                 logger.debug(result["fail_reason"])
             return result
@@ -933,6 +953,8 @@ def buildChallenge(challenge_object, byoc=False):
         logger.debug(result)
         logger.debug(result["fail_reason"])
         return -1
+
+    chall_uuid = result.get('uuid','')
 
     chall_obj_tags = set(
         [t.lower().strip() for t in result["tags"]]
@@ -976,6 +998,7 @@ def buildChallenge(challenge_object, byoc=False):
         byoc=result.get("byoc", result.get("byoc", False)),
         byoc_ext_url=result.get("external_validation_url"),
         byoc_ext_value=result.get("value", 0),
+        uuid=result.get("uuid","")
     )
 
     # need to do this so I can get an ID from the chall
