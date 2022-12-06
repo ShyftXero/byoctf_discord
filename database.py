@@ -834,6 +834,7 @@ def validateChallenge(challenge_object):
         try:
             resp = requests.get(challenge_object.get("external_validation_url"), timeout=3)
             data = json.loads(resp.text)
+            result["tags"].append("ext_validation")
         
         except ConnectTimeout as e:
             result["fail_reason"] += f"; http request timeout to ext url ({e}) need a lower latency server?"
