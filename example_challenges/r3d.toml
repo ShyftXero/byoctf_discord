@@ -1,6 +1,7 @@
 author = "Combaticus#8292"
 challenge_title = "r3d's challenge"
 challenge_description = "good luck finding my flag at validator.byoctf.com"
+uuid = "1f495409-a84b-43a2-bf8e-90fd979024f4"
 tags = [ "pentest",]
 [[flags]]
 flag_title = "r3d flag"
