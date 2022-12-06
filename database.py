@@ -831,7 +831,7 @@ def validateChallenge(challenge_object):
     if challenge_object.get("external_validation") == True:
         # can we reach the endpoint via requests?
         try:
-            resp = requests.get(challenge_object.get("external_validation_url"))
+            resp = requests.get(challenge_object.get("external_validation_url"), timeout=3)
             data = json.loads(resp.text)
 
         except BaseException as e:
