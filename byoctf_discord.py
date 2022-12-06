@@ -214,6 +214,7 @@ def renderChallenge(result: dict, preview=False):
     msg += "-" * 40 + "\n"
     msg += f"**Title**: `{result['challenge_title']}`\n\n"
     msg += f"**Total Challenge Value**: `{result['value']}` points\n\n"
+    msg += f'**challenge_uuid**: `{result.get("uuid")}`\n\n'
 
     # byoc validation rendering
     if preview == True:
