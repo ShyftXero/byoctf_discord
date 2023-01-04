@@ -264,40 +264,43 @@ def renderChallenge(result: dict, preview=False):
 # user2 leaves team B
 # user2 joins team A
 
-# @db.db_session()
-# @bot.command(
-#     name="unregister",
-#     help="Leave a team... you still exist as a player but without a team... no fun.",
-#     aliases=["unreg", "leave"],
-# )
-# @commands.dm_only()
-# async def unregister(ctx: discord.ext.commands.Context):
-#     if await isRegistered(ctx) == False:
-#         return
+@db.db_session()
+@bot.command(
+    name="unregister",
+    help="Leave a team... you still exist as a player but without a team... no fun.",
+    aliases=["unreg", "leave"],
+)
+@commands.dm_only()
+async def unregister(ctx: discord.ext.commands.Context):
 
-#     if await inPublicChannel(
-#         ctx, msg=f"Hey, <@{ctx.author.id}>, don't leave a team in public channels..."
-#     ):
-#         return
+    if await isRegistered(ctx) == False:
+        return
 
-#     if SETTINGS["registration"] == "disabled":
-#         await ctx.send("registration is disabled")
-#         return
-#     with db.db_session:
-#         user = db.User.get(name=username(ctx))
+    if await inPublicChannel(
+        ctx, msg=f"Hey, <@{ctx.author.id}>, don't leave a team in public channels..."
+    ):
+        return
 
-#         if user == None:
-#             logger.debug(f"user {username(ctx)} not registered to play.")
-#             await ctx.send("You weren't registered")
-#             return
+    await ctx.send("registration is disabled... you pesky hackers ruined it..")
+    return # this may be deprecated or removed in the future...
+    if SETTINGS["registration"] == "disabled":
+        await ctx.send("registration is disabled")
+        return
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
 
-#         if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 0:
-#             logger.debug(f"{user.name} left team {user.team.name}")
+        if user == None:
+            logger.debug(f"user {username(ctx)} not registered to play.")
+            await ctx.send("You weren't registered")
+            return
 
-#         await ctx.send(f"Leaving team {user.team.name}... bye.")
-#         unaffiliated = db.Team.get(name="__unaffiliated__")
-#         user.team = unaffiliated
-#         db.commit()
+        if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 0:
+            logger.debug(f"{user.name} left team {user.team.name}")
+
+        await ctx.send(f"Leaving team {user.team.name}... bye.")
+        unaffiliated = db.Team.get(name="__unaffiliated__")
+        user.team = unaffiliated
+        db.commit()
 
 
 def _spray(msg: str = "BYOCTF \nby fs2600 ") -> str:
