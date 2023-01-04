@@ -1,4 +1,4 @@
-# byoctf_discord - Bring Your Own [Challenge && Capture] The Flag
+# byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
 
 ## TL;DR
 A CTF framework that allows players to submit and complete challenges from other players. They are rewarded when players solve their challenges. 
@@ -14,6 +14,8 @@ Players can trade points amongst themselves for favors, info, etc.
 I'm not a great dev so code is a hodge-podge, but 90% of the time it works 100% of the time.
 
 People kept asking if fs2600 was going to host Shell On The Border again. My answer internally was 'not until the byoc framework is done.' Here we are... 
+
+presentation -> https://byoctf.com/slides
 
 ---
 
