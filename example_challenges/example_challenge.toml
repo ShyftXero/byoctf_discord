@@ -4,6 +4,7 @@ challenge_title = "byoc challenge asdfasf"
 challenge_description = """this is some markdown for the challenge description... 1500 character limit. use a link to a pastebin if you need more space.
 go to this ** EXTERANLLY HOSTED ** link to download the files or access resources -> [http://yoursite.com/1337_challenge] WE DON'T / CAN'T HOST FILES.
 That is up to you to figure out (google drive, mega, torrent, etc.). 100 point minimum cumulative value for the challenge. If you deviate from the `FLAG{xxx}` format you have to tell the user what it will be. e.g. **flags look like** `SOTB{xxx}` . Currently, we don't have dynamic or regex flags enabled. just static, case-sensitive flags. First-blood bonus of 10% for first team to solve a challenge. you get a 25% reward; [https://github.com/Bios-Marcel/cordless]. depends means this challenge isn't available until at least one flag from each of the challenges is found."""
+uuid = 'd9babc57-0999-489f-badb-6e3207438172'
 tags = [ "forensics", "osint",]
 depends = [ 2, 3,] 
 [[flags]]
