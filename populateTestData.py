@@ -43,9 +43,9 @@ with db_session:
     # print(bot)
     # exit()
     shyft = db.User(name="shyft#0760", team=bestteam)
-    fie = db.User(name="notfie#4785", team=bestteam)
+    fie = db.User(name="fie#4785", team=bestteam)
     r3d = db.User(name="Combaticus#8292", team=secondteam)
-    malloc = db.User(name="0xDrMalloc#4492", team=thirdteam)
+    malloc = db.User(name="BlackCatt#4492", team=thirdteam)
     aykay = db.User(name="AyKay#3420", team=fourthteam)
 
     # flags
