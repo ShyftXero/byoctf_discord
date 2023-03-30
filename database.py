@@ -394,6 +394,48 @@ def getHintTransactions(user: User) -> list[Transaction]:
 
 
 @db_session
+def getHintCost(user: User, challenge_id: int = 0) -> int|float:
+    # this is to abstract away some of the issues with populating test data
+    # see around line 400 in buy_hint in byoctf_discord.py
+
+    # does challenge have hints
+    chall = Challenge.get(id=challenge_id)
+    
+    hints_for_this_chall = list(chall.hints)
+    purchasable_hints = list()
+
+    teammates = getTeammates(user)
+
+    for hint in hints_for_this_chall:
+        hint_transaction = select(
+            t for t in Transaction if t.sender in teammates and t.hint == hint
+        ).first()
+        # print(hint_transaction)
+
+        if hint_transaction != None:
+            if SETTINGS["_debug"] == True and SETTINGS["_debug_level"] > 0:
+                logger.debug("already bough hint in transaction", hint_transaction)
+            # a purchase exists (not None); no need to buy it again
+            continue  # so try the next hint in the list of challenge hints
+        else:
+            purchasable_hints.append(hint)
+
+    if len(purchasable_hints) < 1:
+        if SETTINGS["_debug"] == True and SETTINGS["_debug_level"] > 0:
+            logger.debug(
+                f"{user.name} has no more hints for challenge id {challenge_id}"
+            )
+        #return "There are no more hints available to purchase for this challenge.", None
+        return -1
+    
+    sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
+
+    # print(f'hints available to purchase: {purchasable_hints}')
+    cheapest_hint = purchasable_hints[0]
+    # print(cheapest_hint.to_dict())
+    return cheapest_hint.cost
+
+@db_session
 def buyHint(user: User, challenge_id: int = 0):
     # this is to abstract away some of the issues with populating test data
     # see around line 400 in buy_hint in byoctf_discord.py
