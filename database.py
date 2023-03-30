@@ -444,8 +444,10 @@ def buyHint(user: User, challenge_id: int = 0):
 
     # does challenge have hints
     chall = Challenge.get(id=challenge_id)
+    
     if chall == None: 
-        return f"invalid challenge id: {challenge_id}"
+        return f"invalid challenge id: {challenge_id}", None
+
     if chall.author in getTeammates(user):
         return "You shouldn't have to buy your own hints...", None
 
