@@ -474,7 +474,7 @@ async def scores(ctx):
         await ctx.send("CTF isn't running yet")
         return
 
-    if newLeader() == True:
+    if await newLeader() == True:
         # hook for doing intersting stuff with lights and sound when there is a new score leader
         pass
 
