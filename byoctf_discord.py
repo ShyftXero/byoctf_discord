@@ -58,6 +58,7 @@ async def newLeader() -> bool:
         await ctf_chan.send(
             f"There's a new Leader!!! `{leader[0]}` with `{leader[1]}` points"
         )
+        # this is a hook point for calling the lights api to do something on leader change... 
         return True
     return False
 
@@ -475,7 +476,7 @@ async def scores(ctx):
         return
 
     if await newLeader() == True:
-        # hook for doing intersting stuff with lights and sound when there is a new score leader
+        # another hook for doing intersting stuff with lights and sound when there is a new score leader
         pass
 
     # individual score
