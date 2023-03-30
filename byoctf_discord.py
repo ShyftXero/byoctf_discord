@@ -981,17 +981,48 @@ async def buy_hint(ctx, challenge_id: int):
         await ctx.send("CTF isn't running yet")
         return
 
+    user = db.User.get(name=username(ctx))
+    hint_cost  = db.getHintCost(user, challenge_id)
+    if hint_cost < 0: 
+        await ctx.send(f"there are no more hints to purchase for challenge id {challenge_id}")
+        return 
+    
+    await ctx.send(
+        f"\n\nA hint will cost you ***{hint_cost} points***\n\n***Reply with `confirm` in the next 20 seconds to purchase this hint.***"
+    )
+
+    def check(msg):
+        return msg.content.lower().strip() == "confirm" and msg.channel == ctx.channel
+        # TODO  https://discordpy.readthedocs.io/en/latest/api.html#discord.Client.wait_for
+
+    resp = None
+    try:
+        resp = await ctx.bot.wait_for("message", check=check, timeout=20)
+    except asyncio.exceptions.TimeoutError as e:
+        await ctx.send("**Cancelling due to timeout...**")
+        return
+    except BaseException as e:
+        logger.debug(e)
+        return
+    if resp.content != "confirm":
+        await ctx.send("**Cancelling due to invalid response...**")
+
+
     with db.db_session:
         user = db.User.get(name=username(ctx))
         chall = db.Challenge.get(id=challenge_id)
+        # chall.hints
         res, hint = db.buyHint(user=user, challenge_id=challenge_id)
-        if res == "ok":
-            # await ctx.send('check your hints with `!hints`' )
-            await ctx.send(
-                f"Here's a hint for Challenge ID {challenge_id} `{chall.title}`\n`{hint.text}`"
-            )
-            return
-        await ctx.send(res)
+        if res != "ok":
+            await ctx.send(res)
+            return 
+        
+        hint_message = f"Here's a hint for Challenge ID {challenge_id} `{chall.title}`\n`{hint.text}`"
+        await sendBigMessage(ctx, hint_message,wrap=False)
+        await ctx.send('You can view your purchased hints with `!hints`' )
+
+        
+        
 
 
 @bot.command(name="hints", help="show your purchased hints")
@@ -1378,11 +1409,11 @@ async def byoc_commit(ctx):
 
     await sendBigMessage(ctx, chall_preview, wrap=False)
     await ctx.send(
-        "\n\n\n***Reply with `confirm` in the next 10 seconds to pay for and publish your challenge.***"
+        "\n\n\n***Reply with `confirm` in the next 20 seconds to pay for and publish your challenge.***"
     )
     resp = None
     try:
-        resp = await ctx.bot.wait_for("message", check=check, timeout=10)
+        resp = await ctx.bot.wait_for("message", check=check, timeout=20)
     except asyncio.exceptions.TimeoutError as e:
         await ctx.send("**Cancelling...**")
         return
