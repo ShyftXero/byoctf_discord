@@ -980,12 +980,12 @@ async def buy_hint(ctx, challenge_id: int):
     if ctfRunning() == False:
         await ctx.send("CTF isn't running yet")
         return
-
-    user = db.User.get(name=username(ctx))
-    hint_cost  = db.getHintCost(user, challenge_id)
-    if hint_cost < 0: 
-        await ctx.send(f"there are no more hints to purchase for challenge id {challenge_id}")
-        return 
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+        hint_cost  = db.getHintCost(user, challenge_id)
+        if hint_cost < 0: 
+            await ctx.send(f"there are no more hints to purchase for challenge id {challenge_id}")
+            return 
     
     await ctx.send(
         f"\n\nA hint will cost you ***{hint_cost} points***\n\n***Reply with `confirm` in the next 20 seconds to purchase this hint.***"
