@@ -400,6 +400,8 @@ def getHintCost(user: User, challenge_id: int = 0) -> int|float:
 
     # does challenge have hints
     chall = Challenge.get(id=challenge_id)
+    if chall == None:
+        return -1
     
     hints_for_this_chall = list(chall.hints)
     purchasable_hints = list()
@@ -442,6 +444,8 @@ def buyHint(user: User, challenge_id: int = 0):
 
     # does challenge have hints
     chall = Challenge.get(id=challenge_id)
+    if chall == None: 
+        return f"invalid challenge id: {challenge_id}"
     if chall.author in getTeammates(user):
         return "You shouldn't have to buy your own hints...", None
 
