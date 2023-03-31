@@ -1395,7 +1395,7 @@ async def byoc_commit(ctx):
     # print(dir(ctx.bot))
     # exit()
     challenge_object = await loadBYOCFile(ctx)
-    challenge_object["author"] = username(ctx)
+    challenge_object["author"] = username(ctx) # this should prevent someone from submitting a challenge as someone else... sneaky... lol 
     result = db.validateChallenge(challenge_object)
     channel = ctx.channel
 
