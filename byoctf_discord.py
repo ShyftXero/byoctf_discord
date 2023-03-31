@@ -926,7 +926,7 @@ async def view_challenge(ctx, chall_id: int):
             raise ValueError
     except ValueError as e:
         msg = f"invalid challenge id: `{chall_id}`"
-        logger.debug(e, msg)
+        logger.debug(str(e), msg)
         await ctx.send(msg)
         return
     except BaseException as e:
