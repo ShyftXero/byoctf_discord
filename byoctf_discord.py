@@ -924,11 +924,14 @@ async def view_challenge(ctx, chall_id: int):
         chall_id = int(chall_id)
         if chall_id < 0:
             raise ValueError
-    except (ValueError, BaseException) as e:
+    except ValueError as e:
         msg = f"invalid challenge id: `{chall_id}`"
         logger.debug(e, msg)
         await ctx.send(msg)
         return
+    except BaseException as e:
+        logger.debug(e)
+        return 
 
     with db.db_session:
         user = db.User.get(name=username(ctx))
