@@ -988,7 +988,7 @@ async def buy_hint(ctx, challenge_id: int):
         user = db.User.get(name=username(ctx))
         hint_cost  = db.getHintCost(user, challenge_id)
         if hint_cost < 0: 
-            await ctx.send(f"there are no more hints to purchase for challenge id {challenge_id}")
+            await ctx.send(f"there are no available hints to purchase for challenge id {challenge_id}")
             return 
     
     await ctx.send(
