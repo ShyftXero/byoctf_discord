@@ -20,6 +20,9 @@ limiter = Limiter(
 CORS(app)
 app.secret_key = "thisisasecret"
 
+@app.get("/create")
+def create():
+    return render_template('creator/creator.html')
 
 @app.post("/validate")
 @limiter.limit("2/second", override_defaults=False)
