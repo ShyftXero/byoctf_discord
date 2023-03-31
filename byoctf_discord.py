@@ -992,7 +992,7 @@ async def buy_hint(ctx, challenge_id: int):
             return 
     
     await ctx.send(
-        f"\n\nA hint will cost you ***{hint_cost} points***\n\n***Reply with `confirm` in the next 20 seconds to purchase this hint.***"
+        f"\n\nA hint for challenge {challenge_id} will cost you ***{hint_cost}***points\n\n***Reply with `confirm` in the next 20 seconds to purchase this hint.***"
     )
 
     def check(msg):
