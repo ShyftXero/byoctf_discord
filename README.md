@@ -380,7 +380,7 @@ author = "Combaticus#8292"
 challenge_title = "r3d's child challenge"
 challenge_description = "good luck finding my flag"
 tags = [ "pentest",]
-depends_on = [ 6, 7,]
+depends_on = [ 6, 7,] # these are uuids now...
 [[flags]]
 flag_title = "r3d dependent flag "
 flag_value = 200
@@ -391,30 +391,6 @@ hint_cost = 10
 hint_text = "the flag depends on solving chall 6 and 7"
 ```
 
-A challenge that depends on other challenges (by challenge ID) in JSON
-```json
-{
-    "author": "Combaticus#8292",
-    "challenge_title": "r3d's child challenge",
-    "challenge_description": "good luck finding my flag",
-    "tags": ["pentest"], 
-    "depends_on": [6,7],
-    "flags": [
-        {
-            "flag_title": "r3d dependent flag ", 
-            "flag_value": 200,
-            "flag_flag": "FLAG{solved_6_7}"
-
-        }
-    ], 
-    "hints": [
-        {
-            "hint_cost": 10,
-            "hint_text": "the flag depends on solving chall 6 and 7"
-        }
-    ]
-}
-```
 An externally validated challenge in TOML.
 ```toml
 author = "Combaticus#8292"
