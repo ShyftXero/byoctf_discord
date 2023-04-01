@@ -99,8 +99,9 @@ def add_flag():
 	# this_flag_div = document.createElement("div")
 	
 	flag_div = document.querySelector(f'#flag_div')
-	existing_flag_divs = flag_div.innerHTML
-	flag_div.innerHTML = existing_flag_divs + this_flag_html
+	display(this_flag_html, target=flag_div, append=True)
+	# existing_flag_divs = flag_div.innerHTML
+	# flag_div.innerHTML = existing_flag_divs + this_flag_html
 	num_flags += 1
 	
 	
