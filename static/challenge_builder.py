@@ -44,9 +44,14 @@ def collect_flags():
 		#print('flag values', title.value, value.value, flag.value)
 		if title.value == None or value.value == None or flag.value == None: 
 			break
+		try:
+			flag_points = int(value.value.strip())
+		except ValueError as e:
+			flag_points = 0
+
 		tmp = {
 			'flag_title': title.value.strip(),
-			'flag_value': int(value.value.strip()),
+			'flag_value': flag_points,
 			'flag_flag' : flag.value.strip()
 		}
 		flags.append(tmp)
@@ -63,8 +68,14 @@ def collect_hints():
 		#print('hint values', cost.value, text.value)
 		if cost.value == None or text.value == None :
 			break
+		
+		try:
+			cost = int(cost.value.strip())
+		except ValueError as e:
+			cost = 0
+		
 		tmp = {
-			'hint_cost': int(cost.value.strip()),
+			'hint_cost': cost ,
 			'hint_text': text.value.strip()
 		}
 		hints.append(tmp)
