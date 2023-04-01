@@ -98,13 +98,8 @@ def add_flag():
 	this_flag_html = flag_html_template.replace("XXX", str(num_flags))
 	this_flag_div = document.createElement("div")
 	this_flag_div.innerHTML = this_flag_html
-	# flag_div = document.querySelector('flag_div')
 	flag_div = document.getElementById('flag_div')
 	flag_div.appendChild(this_flag_div)
-	
-	# display(this_flag_html, target='flag_div', append=True)
-	# existing_flag_divs = flag_div.innerHTML
-	# flag_div.innerHTML = existing_flag_divs + this_flag_html
 	num_flags += 1
 	
 	
@@ -114,11 +109,10 @@ def add_hint():
 	# print(f'adding a hint, {num_hints} total' )
 	
 	this_hint_html = hint_html_template.replace("XXX", str(num_hints))
-	# this_hint_div = document.createElement("div")
-	
-	hint_div = document.querySelector(f'#hint_div')
-	existing_hint_divs = hint_div.innerHTML
-	hint_div.innerHTML = existing_hint_divs + this_hint_html
+	this_hint_div = document.createElement("div")
+	this_hint_div.innerHTML = this_hint_html
+	flag_div = document.getElementById('hint_div')
+	flag_div.appendChild(this_hint_div)
 	num_hints += 1
 
 def build_challenge():
