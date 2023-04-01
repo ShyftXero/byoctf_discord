@@ -26,7 +26,7 @@ hint_html_template = """
 	Hint: XXX
 	<p>
 		Hint Cost:<input type="text" class="form-control hint" name="hint_XXX_cost" id="hint_XXX_cost" placeholder="How much will a player have to pay to view this hint?">
-		Hint text:<textarea class="form-control hint" name="hint_XXX_text" id="hint_XXX_text" rows="2" width="100%" placeholder="How many points is THIS hint worth?"></textarea>
+		Hint text:<textarea class="form-control hint" name="hint_XXX_text" id="hint_XXX_text" rows="2" width="100%" placeholder="This is the actual hint you are providing..."></textarea>
 	</p>
 </div>
 """
@@ -46,7 +46,7 @@ def collect_flags():
 			break
 		tmp = {
 			'flag_title': title.value.strip(),
-			'flag_value': value.value.strip(),
+			'flag_value': int(value.value.strip()),
 			'flag_flag' : flag.value.strip()
 		}
 		flags.append(tmp)
@@ -64,7 +64,7 @@ def collect_hints():
 		if cost.value == None or text.value == None :
 			break
 		tmp = {
-			'hint_cost': cost.value.strip(),
+			'hint_cost': int(cost.value.strip()),
 			'hint_text': text.value.strip()
 		}
 		hints.append(tmp)
