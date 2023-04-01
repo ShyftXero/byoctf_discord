@@ -101,14 +101,16 @@ def add_hint():
 	num_hints += 1
 
 def build_challenge():
+	tags = [x for x in Element('tags').value.replace(' ','').lower().split(',') if x != '']
+	depends_on = [x for x in Element('depends_on').value.replace(' ','').lower().split(',') if x != '']
 
 	challenge_object = {
 		'author': Element("author").value.strip(),
 		'title': Element("title").value.strip(),
 		'uuid': str(uuid.uuid4()),
 		'description': Element("description").value.strip(),
-		'tags': [x for x in Element('tags').value.replace(' ','').lower().split(',') if x != ''],
-		'depends_on': [x for x in Element('depends_on').value.replace(' ','').lower().split(',') if x != ''],
+		'tags': tags,
+		'depends_on': depends_on,
 		'flags': collect_flags(),
 		'hints': collect_hints()
 	}
