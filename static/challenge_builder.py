@@ -107,8 +107,8 @@ def build_challenge():
 		'title': Element("title").value.strip(),
 		'uuid': str(uuid.uuid4()),
 		'description': Element("description").value.strip(),
-		'tags': Element('tags').value.replace(' ','').lower().split(','),
-		'depends_on': Element('depends_on').value.replace(' ','').lower().split(','),
+		'tags': [x for x in Element('tags').value.replace(' ','').lower().split(',') if x != ''],
+		'depends_on': [x for x in Element('depends_on').value.replace(' ','').lower().split(',') if x != ''],
 		'flags': collect_flags(),
 		'hints': collect_hints()
 	}
