@@ -31,7 +31,9 @@ hint_html_template = """
 </div>
 """
 
-
+class hashabledict(dict):
+    def __hash__(self):
+        return hash(tuple(sorted(self.items())))
 
 def collect_flags():
 	flags = list()
@@ -49,15 +51,15 @@ def collect_flags():
 		except ValueError as e:
 			flag_points = 0
 
-		tmp = {
+		tmp = hashabledict({
 			'flag_title': title.value.strip(),
 			'flag_value': flag_points,
 			'flag_flag' : flag.value.strip()
-		}
+		})
 		flags.append(tmp)
 		#print(flags)
 
-	return flags	
+	return list(set(flags))
 
 def collect_hints():
 	hints = list()
@@ -74,14 +76,14 @@ def collect_hints():
 		except ValueError as e:
 			cost = 0
 		
-		tmp = {
+		tmp = hashabledict({
 			'hint_cost': cost ,
 			'hint_text': text.value.strip()
-		}
+		})
 		hints.append(tmp)
 		#print(hints)
 
-	return hints	
+	return list(set(hints))	
 
 
 
