@@ -17,6 +17,14 @@ People kept asking if fs2600 was going to host Shell On The Border again. My ans
 
 presentation -> https://byoctf.com/slides
 
+***Online challenge CREATOR***
+https://validator.byoctf.com/create
+
+***Online challenge validator***
+https://validator.byoctf.com
+
+
+
 ---
 
 ## Features
