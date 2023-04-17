@@ -121,9 +121,9 @@ def build_challenge():
 
 	challenge_object = {
 		'author': Element("author").value.strip(),
-		'title': Element("title").value.strip(),
+		'challenge_title': Element("challenge_title").value.strip(),
 		'uuid': str(uuid.uuid4()),
-		'description': Element("description").value.strip(),
+		'challenge_description': Element("challenge_description").value.strip(),
 		'tags': tags,
 		'depends_on': depends_on,
 		'flags': collect_flags(),
