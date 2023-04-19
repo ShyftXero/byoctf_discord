@@ -946,6 +946,7 @@ async def view_challenge(ctx, chall_id: int):
             # msg += f'\nTitle`{chall.title}`\nDescription```{chall.description} ```'
             res = {}
             res["challenge_title"] = chall.title
+            res['uuid'] = chall.uuid
             res["challenge_description"] = chall.description
             res["parent"] = [c.id for c in list(chall.parent)]
             res["value"] = db.challValue(chall)
