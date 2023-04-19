@@ -76,10 +76,13 @@ class User(db.Entity):
     recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
     ratings = Set('Rating')
-    api_key = Required(str, unique=True, default=gen_api_key())
 
     def gen_api_key(self):
         self.api_key = hashlib.sha256(f'{self.name}{random.random()}'.encode()).hexdigest()
+
+
+    api_key = Required(str, unique=True, default=gen_api_key())
+
 
 
 
