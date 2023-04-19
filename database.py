@@ -419,10 +419,10 @@ def get_purchased_hints(user:User):
     # msg = f"Team {user.team.name}'s hints:\n"
 
     data = list()
-    teammates = db.getTeammates(user)  # throws an error about db session is over
+    teammates = getTeammates(user)  # throws an error about db session is over
 
     for tm in teammates:
-        tm_hints = db.getHintTransactions(tm)
+        tm_hints = getHintTransactions(tm)
         data += [
             (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
             for ht in tm_hints
