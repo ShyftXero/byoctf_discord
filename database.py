@@ -186,7 +186,7 @@ generateMapping()
 
 @db_session
 def get_user_by_api_key(target:str|uuid.UUID) -> User:
-    if isinstance(str, target):
+    if isinstance(target, str):
         try:
             target = uuid.UUID(target)
         except ValueError:
