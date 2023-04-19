@@ -63,7 +63,7 @@ class Challenge(db.Entity):
     solve = Set("Solve")
     transaction = Set("Transaction")
     ratings = Set("Rating")
-    uuid = Optional(str, default="str(uuid.uuid4())")
+    uuid = Required(uuid.UUID, default=uuid.uuid4)
 
 
 class User(db.Entity):
