@@ -23,6 +23,11 @@ from pony.orm import *
 # this is because I was learning the relationships and how they worked in pony.
 # things also changed in the project and I left some things in order to not break stuff.
 
+def _gen_user_api_key(user:str=''):
+    return hashlib.sha256(f'{user}'+str(random.random()).encode()).hexdigest()
+
+
+
 db = Database()
 
 
@@ -181,13 +186,11 @@ def generateMapping():
 
 generateMapping()
 
-def _gen_user_api_key(user:str=''):
-    return hashlib.sha256(f'{user}'+str(random.random()).encode()).hexdigest()
 
 @db_session
 def update_user_api_key():
     pass
-    
+
 
 @db_session
 def showTeams():
