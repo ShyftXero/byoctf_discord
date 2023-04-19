@@ -24,7 +24,7 @@ from pony.orm import *
 # things also changed in the project and I left some things in order to not break stuff.
 
 def _gen_user_api_key(user:str=''):
-    return hashlib.sha256(f'{user}{random.random()}'.encode()).hexdigest())
+    return hashlib.sha256(f'{user}{random.random()}'.encode()).hexdigest()
 
 
 
