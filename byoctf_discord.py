@@ -527,7 +527,7 @@ async def scores(ctx):
 
 
 @bot.command(
-    name="whoami", help="Show username and teamname", aliases=["w"]
+    name="whoami", help="Show username,api_key, and teamname", aliases=["w"]
 )  # shows authorid, name, teamname
 async def byoc_stats(ctx):
     if await isRegistered(ctx) == False:
@@ -542,7 +542,7 @@ async def byoc_stats(ctx):
         teammates = db.getTeammates(user)
 
     await ctx.send(
-        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name},\nTeamName: {user.team.name}\n"
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nTeamName: {user.team.name}\n"
     )
 
 
