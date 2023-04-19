@@ -7,7 +7,6 @@ from settings import SETTINGS
 import json
 import toml
 import uuid
-from uuid import UUID
 
 import requests
 from requests.exceptions import ConnectTimeout
@@ -77,7 +76,7 @@ class User(db.Entity):
     recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
     ratings = Set('Rating')
-    api_key = Required(str, unique=True, default="str(uuid.uuid4())")
+    api_key = Required(uuid.UUID, default=uuid.uuid4)
 
 
 
