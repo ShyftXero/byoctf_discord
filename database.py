@@ -1,5 +1,6 @@
 from collections import Counter
 import hashlib
+import random
 
 from requests.sessions import session
 from settings import SETTINGS
@@ -67,12 +68,13 @@ class User(db.Entity):
     id = PrimaryKey(int, auto=True)
     name = Required(str, unique=True)
     challenges = Set(Challenge)
-    solves = Set("Solve")
-    team = Optional("Team")
-    sent_transactions = Set("Transaction", reverse="sender")
-    recipient_transactions = Set("Transaction", reverse="recipient")
+    solves = Set('Solve')
+    team = Optional('Team')
+    sent_transactions = Set('Transaction', reverse='sender')
+    recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
-    ratings = Set("Rating")
+    ratings = Set('Rating')
+    api_key = Required(str, unique=True, default=_gen_user_api_key())
 
 
 class Solve(db.Entity):
@@ -179,6 +181,13 @@ def generateMapping():
 
 generateMapping()
 
+def _gen_user_api_key(user:str=''):
+    return hashlib.sha256(f'{user}'+str(random.random()).encode()).hexdigest()
+
+@db_session
+def update_user_api_key():
+    pass
+    
 
 @db_session
 def showTeams():
@@ -186,14 +195,14 @@ def showTeams():
 
 
 @db_session
-def getTeammates(user):
+def getTeammates(user:User):
     """this includes the user in the list of teammates..."""
     res = list(select(member for member in User if member.team.name == user.team.name))
     return res
 
 
 @db_session
-def getScore(user):
+def getScore(user:User):
     if type(user) == str:  # for use via cmdline in ctrl_ctf.py
         # logger.debug(f'looking for user {user}')
         user = User.get(name=user)
@@ -216,7 +225,7 @@ def getScore(user):
 
 
 @db_session
-def getTeammateScores(user):
+def getTeammateScores(user:User):
     teammates = list(
         select(member for member in User if member.team.name == user.team.name)
     )
@@ -242,7 +251,7 @@ def challValue(challenge: Challenge):
 
 
 @db_session()
-def topPlayers(num=10):
+def topPlayers(num:int=10):
     all_users = select(u for u in User if u.name != SETTINGS["_botusername"])
 
     topN = [(u, getScore(u)) for u in all_users]
@@ -256,7 +265,7 @@ def topPlayers(num=10):
 
 
 @db_session()
-def getTopTeams(num=3):
+def getTopTeams(num:int=3):
     all_users = select(u for u in User if u.name != SETTINGS["_botusername"])
 
     all_scores = [(u, getScore(u)) for u in all_users]
@@ -277,7 +286,7 @@ def getTopTeams(num=3):
 
 
 @db_session()
-def challegeUnlocked(user, chall):
+def challegeUnlocked(user:User, chall):
     """returns true if all the dependencies for a given challenge have been met by the specified user"""
     # logger.debug(f'{user.name} wants to access {chall.title}')
 

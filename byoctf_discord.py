@@ -1363,7 +1363,7 @@ async def byoc_check(ctx):
 
     if result["valid"] == True:
         msg = renderChallenge(result, preview=True)
-        await ctx.send(msg)
+        await sendBigMessage(ctx, msg, wrap=False)
     else:
         await ctx.send(
             f"challenge invalid. Ensure that all required fields are present. see `example_challenge.toml` \n\nfail_reason:{result['fail_reason']}"
