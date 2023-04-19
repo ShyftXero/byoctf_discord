@@ -184,10 +184,20 @@ def generateMapping():
 
 generateMapping()
 
+@db_session
+def get_user_by_api_key(target:str|uuid) -> User:
+    try:
+        if isinstance(str, target):
+            target = uuid.UUID(target)
+    except ValueError:
+        return None
+        
+    return select(u for u in db.User if u.api_key == target ).first()
+
 
 @db_session
-def update_user_api_key():
-    pass
+def update_user_api_key(user:User):
+    user.api_key = uuid.uuid4()
 
 
 @db_session
