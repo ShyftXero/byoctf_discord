@@ -185,7 +185,7 @@ def generateMapping():
 generateMapping()
 
 @db_session
-def get_user_by_api_key(target:str|uuid) -> User:
+def get_user_by_api_key(target:str|uuid.UUID) -> User:
     try:
         if isinstance(str, target):
             target = uuid.UUID(target)
