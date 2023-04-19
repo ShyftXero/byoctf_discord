@@ -186,14 +186,14 @@ generateMapping()
 
 @db_session
 def get_user_by_api_key(target:str|uuid.UUID) -> User:
-    try:
-        if isinstance(str, target):
+    if isinstance(str, target):
+        try:
             target = uuid.UUID(target)
-    except ValueError:
-        return None
+        except ValueError:
+            return None
         
     return select(u for u in db.User if u.api_key == target ).first()
-
+    
 
 @db_session
 def update_user_api_key(user:User):
@@ -412,11 +412,28 @@ def getHintTransactions(user: User) -> list[Transaction]:
     )[:]
     return res
 
+@db_session
+def get_purchased_hints(user:User):
+    hint_transactions = db.getHintTransactions(user)
+
+    # msg = f"Team {user.team.name}'s hints:\n"
+
+    data = list()
+    teammates = db.getTeammates(user)  # throws an error about db session is over
+
+    for tm in teammates:
+        tm_hints = db.getHintTransactions(tm)
+        data += [
+            (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
+            for ht in tm_hints
+        ]
+
+    return data
 
 @db_session
 def getHintCost(user: User, challenge_id: int = 0) -> int|float:
     # this is to abstract away some of the issues with populating test data
-    # see around line 400 in buy_hint in byoctf_discord.py
+    # see around line 970 in buy_hint in byoctf_discord.py
 
     # does challenge have hints
     chall = Challenge.get(id=challenge_id)
