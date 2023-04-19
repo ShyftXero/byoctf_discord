@@ -23,9 +23,6 @@ from pony.orm import *
 # this is because I was learning the relationships and how they worked in pony.
 # things also changed in the project and I left some things in order to not break stuff.
 
-def _gen_user_api_key(user:str=''):
-    return hashlib.sha256(f'{user}{random.random()}'.encode()).hexdigest()
-
 
 
 db = Database()
@@ -79,7 +76,11 @@ class User(db.Entity):
     recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
     ratings = Set('Rating')
-    api_key = Required(str, unique=True, default=_gen_user_api_key())
+    api_key = Required(str, unique=True, default=self.get_api_key)
+
+    def gen_api_key(self):
+        self.api_key = hashlib.sha256(f'{self.name}{random.random()}'.encode()).hexdigest()
+
 
 
 class Solve(db.Entity):
