@@ -414,7 +414,7 @@ def getHintTransactions(user: User) -> list[Transaction]:
 
 @db_session
 def get_purchased_hints(user:User):
-    hint_transactions = db.getHintTransactions(user)
+    hint_transactions = getHintTransactions(user)
 
     # msg = f"Team {user.team.name}'s hints:\n"
 
