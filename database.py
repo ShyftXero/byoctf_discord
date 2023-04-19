@@ -81,7 +81,7 @@ class User(db.Entity):
         self.api_key = hashlib.sha256(f'{self.name}{random.random()}'.encode()).hexdigest()
 
 
-    api_key = Required(str, unique=True, default=gen_api_key())
+    api_key = Required(str, unique=True, default=gen_api_key(self))
 
 
 
