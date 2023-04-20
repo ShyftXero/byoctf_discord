@@ -317,8 +317,12 @@ def challegeUnlocked(user:User, chall):
 
     parent_flags = list(chall.parent.flags)
 
+
+    # consider making this a tunable setting? 
+    # if flag_percent >= SETTINGS["percent_solved_to_unlock"]:
+    #     return True
     got_all_flags = all(flag in team_solves for flag in parent_flags)
-    if SETTINGS["_debug"] and SETTINGS["_debug_level"] == 2:
+    if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 2:
         logger.debug(f"team_solves: {team_solves}")
         logger.debug(f"parent_flags: {parent_flags}")
         logger.debug(f"got_all_flags { got_all_flags}")
