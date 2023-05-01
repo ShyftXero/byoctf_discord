@@ -1,7 +1,7 @@
 discord.py==2.1.0
 diskcache==5.4.0
 fire==0.4.0
-Flask==2.1.2
+Flask==2.3.2
 flask_cors==3.0.10
 Flask_Limiter==2.6.3
 loguru==0.6.0
