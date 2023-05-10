@@ -488,8 +488,10 @@ def buyHint(user: User, challenge_id: int = 0):
     
     if chall == None: 
         return f"invalid challenge id: {challenge_id}", None
+    
+    teammates = getTeammates(user)
 
-    if chall.author in getTeammates(user):
+    if chall.author in teammates:
         return "You shouldn't have to buy your own hints...", None
 
     if SETTINGS["_debug"]:
@@ -502,7 +504,7 @@ def buyHint(user: User, challenge_id: int = 0):
     hints_for_this_chall = list(chall.hints)
     purchasable_hints = list()
 
-    teammates = getTeammates(user)
+    # teammates collected above
 
     for hint in hints_for_this_chall:
         hint_transaction = select(
