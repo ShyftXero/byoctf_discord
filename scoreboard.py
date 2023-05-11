@@ -63,19 +63,21 @@ def scoreboard():
     return markdown2.markdown(msg)
 
 @app.get('/hud/<api_key>')
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("5/second", override_defaults=False)
 @db.db_session
 def hud(api_key):
     user = db.get_user_by_api_key(api_key)
     if user == None:
         return "invalid key"
     
-    solved_challs = db.get_all_challenges(user)
+    solved_challs:list[db.Challenge] = db.get_all_challenges(user)
     unsolved_challs = db.get_unsolved_challenges(user)
     purchased_hints = db.get_purchased_hints(user)
 
-    ret = f'{solved_challs}<br>{unsolved_challs}<br>{purchased_hints}'
-    return ret
+    # ret = f'{solved_challs}<br>{unsolved_challs}<br>{purchased_hints}'
+    scores = db.getTeammateScores(user)
+    total = sum([x[1] for x in scores])
+    return render_template('scoreboard/hud.html', team_scores=scores, total=total, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key)
 
 @app.get("/")
 def index():
