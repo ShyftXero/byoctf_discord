@@ -175,10 +175,10 @@ class Commands:
     def users(self):
         """Dump all users, which team they're on and their individual score."""
         data = db.select(u for u in db.User)[:]
+        u:db.User
+        data = [(u.id, u.name, u.team.name, db.getScore(u), u.api_key ) for u in data]
 
-        data = [(u.id, u.name, u.team.name, db.getScore(u)) for u in data]
-
-        data.insert(0, ["ID", "Name", "Team", "Score"])  # type: ignore
+        data.insert(0, ["ID", "Name", "Team", "Score", 'API key'])  # type: ignore
         table = mdTable(data)
         print(table.table)
 
