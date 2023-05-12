@@ -330,7 +330,7 @@ def challegeUnlocked(user:User, chall):
         team_solves.append(
             select(solve.flag for solve in Solve if tm == solve.user)[:]
         )
-    print(chall, team_solves)
+    # print(chall, team_solves)
     # logger.debug(f'team_solves {team_solves}')
 
     # logger.debug(f'"{chall.title}" has a parent "{chall.parent.name}" challenge dependencies {chall.children}')
