@@ -117,11 +117,11 @@ async def getDiscordUser(ctx, target_user: str):
     # https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.UserConverter
     # logger.debug(f"looking up user {target_user}")
     uc = discord.ext.commands.UserConverter()
-    # try:
-    res = await uc.convert(ctx, target_user)
-    # except BaseException as e:
-    #     logger.debug(e)
-    #     res = target_user
+    try:
+        res = await uc.convert(ctx, target_user)
+    except BaseException as e:
+        logger.debug(e)
+        res = target_user
     logger.debug(f"{res=}, {type(res)}")
     return res
 
