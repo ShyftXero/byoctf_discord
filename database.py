@@ -379,24 +379,24 @@ def rate(user: User, chall: Challenge, user_rating: float):
 def get_all_challenges(user: User):
     # show only challenges which are not hidden (dependencies resolved and released)
 
-    raw = list(select(c for c in Challenge if c.visible == True))
+    raw = list(select(c for c in Challenge if c.visible == True)) # visible means GMs want it to be solved... 
 
-    challs = [c for c in raw if challegeUnlocked(user, c)]
-    # logger.debug(f'indb: {[(x.title, [y for y in x.flags]) for x in challs]}')
-
+    challs = [c for c in raw if challegeUnlocked(user, c)] # means the user has met the prereqs for the challenge
+    
     return challs
+@db_session
+def issolved(chall:Challenge, user:User):
+    teammates = getTeammates(user)
+    sol = select(sol for sol in Solve if sol.challenge == chall and sol.user in teammates).first()
+    if sol != None:
+        return True
+    return False
+
 
 
 @db_session()
 def get_unsolved_challenges(user: User):
-    # show only challenges which are not hidden AND unsolved by a user
-
-    # raw = list(select(c for c in Challenge if c.visible == True ) )
-
-    # challs = [c for c in raw if challegeAvailable(user, c) ]
-    # logger.debug(challs)
-
-    # all_challs = list(select(c for c in Challenge if c.visible == True))
+    """show only challenges which are not hidden AND unsolved by a user"""
     
     challs = get_all_challenges(user) # this is all unlocked challs / visible challs
 

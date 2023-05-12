@@ -26,14 +26,6 @@
                 </table>
                 <h2>Total Points <code>{{total}}</code> (including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges)</h2>
                 <!-- <h1>User Challenges and Hints</h1> -->
-                <h2>Solved Challenges:</h2>
-				<h5>There may still be some flags in the challenge if it's marked as incomplete.</h5>
-                <ul>
-                        {% for chall in solved_challs %}
-                                <li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
-                        {% endfor %}
-                </ul>
-
                 <h2>Incomplete Challenges:</h2>
                 <ul>
                         {% for chall in unsolved_challs %}
@@ -48,6 +40,16 @@
                                 <tr><td>{{hint[0]}}</td><td>{{hint[1]}}</td><td>{{hint[2]}}</td><td>{{hint[3]}}</td></tr>        
                         {% endfor %}
                 </table>
+				
+				<h2>Solved Challenges:</h2>
+				<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
+                <ul>
+                        {% for chall in solved_challs %}
+                                <li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
+                        {% endfor %}
+                </ul>
+
+                
         </div>
     
 </body>
