@@ -18,20 +18,12 @@
 <body>
         <div class='main container' hx-get="/hud/{{api_key}}" hx-trigger="every 3s" hx-swap="outerHTML">
                 <h1>SOTB User HUD</h1>
-                <table class="main table">
-                        <thead><td>Team Member</td><td>Score</td></thead>
-                        {% for tm in team_scores %}
-                                <tr><td>{{tm[0]}}</td><td>{{tm[1]}}</td></tr>        
-                        {% endfor %}
-                </table>
-                <h2>Total {{total}}</h2>
-                <h1>User Challenges and Hints</h1>
-                <h2>Solved Challenges:</h2>
-                <ul>
-                        {% for chall in solved_challs %}
-                                <li>{{ chall.title }}</li>
-                        {% endfor %}
-                </ul>
+                <h2>Challenge {{chall_uuid}}</h2>
+                <table class="table">
+					<tr><td>Title</td><td>{{chall.title}}</td></tr>
+					<tr><td>Description</td><td>{{chall.description}}</td></tr>
+					<tr><td>Number of Flags</td><td>{{len(chall.flags)}}</td></tr>
+				</table>
 
                 <h2>Incomplete Challenges:</h2>
                 <ul>

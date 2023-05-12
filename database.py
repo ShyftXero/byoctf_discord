@@ -417,7 +417,7 @@ def getHintTransactions(user: User) -> list[Transaction]:
     return res
 
 @db_session
-def get_purchased_hints(user:User):
+def get_purchased_hints(user:User, chall_id=-1):
     hint_transactions = getHintTransactions(user)
 
     # msg = f"Team {user.team.name}'s hints:\n"
@@ -427,11 +427,16 @@ def get_purchased_hints(user:User):
 
     for tm in teammates:
         tm_hints = getHintTransactions(tm)
-        data += [
-            (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
-            for ht in tm_hints
-        ]
-
+        if chall_id == -1:
+            data += [
+                (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
+                for ht in tm_hints
+            ]
+        else:
+            data += [
+                (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
+                for ht in tm_hints if ht.hint.challenge.id == chall_id
+            ]
     return data
 
 @db_session

@@ -1,7 +1,7 @@
 from rich import print
 import database as db
 from settings import SETTINGS
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -68,7 +68,7 @@ def scoreboard():
 def hud(api_key):
     user = db.get_user_by_api_key(api_key)
     if user == None:
-        return "invalid key"
+        return "invalid api key"
     
     solved_challs:list[db.Challenge] = db.get_all_challenges(user)
     unsolved_challs = db.get_unsolved_challenges(user)
@@ -77,7 +77,28 @@ def hud(api_key):
     # ret = f'{solved_challs}<br>{unsolved_challs}<br>{purchased_hints}'
     scores = db.getTeammateScores(user)
     total = sum([x[1] for x in scores])
-    return render_template('scoreboard/hud.html', team_scores=scores, total=total, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key)
+    resp = make_response(render_template('scoreboard/hud.html', team_scores=scores, total=total, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key))
+    resp.set_cookie('api_key', api_key)
+    return resp
+
+@app.get('/hud/<uuid>')
+@limiter.limit("5/second", override_defaults=False)
+@db.db_session
+def chall(chall_uuid):
+    chall = db.Challenge.get(uuid=chall_uuid)
+    if chall == None:
+        return "invalid challenge uuid"
+    
+    api_key = request.cookies.get('api_key')
+    # user = db.get_user_by_api_key(api_key)
+    user = db.User.get(api_key=api_key)
+    if user == None:
+        return "invalid api key"
+    
+    purchased_hints = db.get_purchased_hints(user, chall_id=chall.id)
+
+    return render_template('chall.html', chall_uuid=chall_uuid, purchased_hints=purchased_hints)
+
 
 @app.get("/")
 def index():
