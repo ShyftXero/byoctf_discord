@@ -102,7 +102,7 @@ def chall(chall_uuid):
     captured_flags = db.getSubmittedChallFlags(chall, user)
     total_byoc_rewards = db.get_byoc_reward(user)
 
-    return render_template('scoreboard/chall.html', chall=chall, chall_value=chall_value, captured_flags=captured_flags, total_byoc_rewards=total_byoc_rewards purchased_hints=purchased_hints)
+    return render_template('scoreboard/chall.html', chall=chall, chall_value=chall_value, captured_flags=captured_flags, total_byoc_rewards=total_byoc_rewards, purchased_hints=purchased_hints)
 
 
 @app.get("/")
