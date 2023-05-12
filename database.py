@@ -348,9 +348,9 @@ def challegeUnlocked(user:User, chall):
         logger.debug(f"got_all_flags { got_all_flags}")
 
     if got_all_flags == True:
-        print('got all flags', user.name, chall.title)
+        
         return True
-    print('didnt get all flags', user.name, chall.title)
+    
     return False
 
 
