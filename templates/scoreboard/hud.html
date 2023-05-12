@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
 
-    <title>Hud</title>
+    <title>SOTB HUD</title>
         <script src="https://unpkg.com/htmx.org@1.8.0"
         integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
         crossorigin="anonymous"></script>
@@ -25,18 +25,19 @@
                         {% endfor %}
                 </table>
                 <h2>Total {{total}}</h2>
-                <h1>User Challenges and Hints</h1>
+                <!-- <h1>User Challenges and Hints</h1> -->
                 <h2>Solved Challenges:</h2>
+				<h5>There may still be some flags in the challenge if it's marked as incomplete.</h5>
                 <ul>
                         {% for chall in solved_challs %}
-                                <li>{{ chall.title }}</li>
+                                <li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
                         {% endfor %}
                 </ul>
 
                 <h2>Incomplete Challenges:</h2>
                 <ul>
                         {% for chall in unsolved_challs %}
-                                <li>{{ chall.title }}</li>
+                                <li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
                         {% endfor %}
                 </ul>
 

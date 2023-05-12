@@ -196,13 +196,20 @@ def get_user_by_api_key(target:str|uuid.UUID) -> User:
     
 
 @db_session
-def update_user_api_key(user:User):
-    user.api_key = uuid.uuid4()
+def update_user_api_key(user:User,new_uuid:str=None):
+    """create or set an new api_key for a user. Must be a uuid in str form"""
+    if new_uuid != None:
+        if isinstance(new_uuid, str):
+            try:
+                user.api_key = uuid.UUID(new_uuid)
+            except ValueError:
+                print(f'invalid uuid {new_uuid}')
+                return
+    else: # generate a new random one
+        user.api_key = uuid.uuid4()
+    
+    print(user.api_key)
 
-
-@db_session
-def showTeams():
-    pass
 
 
 @db_session
@@ -210,6 +217,16 @@ def getTeammates(user:User):
     """this includes the user in the list of teammates..."""
     res = list(select(member for member in User if member.team.name == user.team.name))
     return res
+
+@db_session
+def getSubmittedChallFlags(chall:Challenge, user:User):
+    teammates = getTeammates(user)
+    flags = list()
+    for tm in teammates:
+        for solve in tm.solves:
+            if solve.challenge == chall:
+                flags.append(solve.flag)
+    return flags
 
 
 @db_session
@@ -304,13 +321,16 @@ def challegeUnlocked(user:User, chall):
     # get all solves for this user and their teammates.
 
     teammates = getTeammates(user)  # including self
+    
+
     # logger.debug(f'players {[x.name for x in teammates]}')
     # logger.debug(user.team.name)
     team_solves = list()
-    for teammate in teammates:
-        team_solves += list(
-            select(solve.flag for solve in Solve if teammate.name == solve.user.name)
+    for tm in teammates:
+        team_solves.append(
+            select(solve.flag for solve in Solve if tm == solve.user)[:]
         )
+    print(chall, team_solves)
     # logger.debug(f'team_solves {team_solves}')
 
     # logger.debug(f'"{chall.title}" has a parent "{chall.parent.name}" challenge dependencies {chall.children}')
@@ -321,14 +341,16 @@ def challegeUnlocked(user:User, chall):
     # consider making this a tunable setting? 
     # if flag_percent >= SETTINGS["percent_solved_to_unlock"]:
     #     return True
-    got_all_flags = all(flag in team_solves for flag in parent_flags)
+    got_all_flags = all([flag in team_solves for flag in parent_flags])
     if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 2:
         logger.debug(f"team_solves: {team_solves}")
         logger.debug(f"parent_flags: {parent_flags}")
         logger.debug(f"got_all_flags { got_all_flags}")
 
     if got_all_flags == True:
+        print('got all flags', user.name, chall.title)
         return True
+    print('didnt get all flags', user.name, chall.title)
     return False
 
 
@@ -374,9 +396,11 @@ def get_unsolved_challenges(user: User):
     # challs = [c for c in raw if challegeAvailable(user, c) ]
     # logger.debug(challs)
 
-    raw = list(select(c for c in Challenge if c.visible == True))
+    # all_challs = list(select(c for c in Challenge if c.visible == True))
+    
+    challs = get_all_challenges(user) # this is all unlocked challs / visible challs
 
-    challs = [c for c in raw if challegeUnlocked(user, c)]
+    teammates = getTeammates(user)
 
     ret = list()
     for chall in challs:
@@ -388,7 +412,7 @@ def get_unsolved_challenges(user: User):
                 select(
                     s
                     for s in Solve
-                    if s.user.id == user.id and s.flag.flag == flag.flag
+                    if s.user in teammates and s.flag.flag == flag.flag 
                 )  # type: ignore
             )
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:

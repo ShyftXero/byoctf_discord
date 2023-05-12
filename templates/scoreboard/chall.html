@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
 
-    <title>Hud</title>
+    <title>SOTB Challenge HUD </title>
         <script src="https://unpkg.com/htmx.org@1.8.0"
         integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
         crossorigin="anonymous"></script>
@@ -16,21 +16,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/solar/bootstrap.min.css" integrity="sha384-NCwXci5f5ZqlDw+m7FwZSAwboa0svoPPylIW3Nf+GBDsyVum+yArYnaFLE9UDzLd" crossorigin="anonymous">
 </head>
 <body>
-        <div class='main container' hx-get="/hud/{{api_key}}" hx-trigger="every 3s" hx-swap="outerHTML">
-                <h1>SOTB User HUD</h1>
-                <h2>Challenge {{chall_uuid}}</h2>
+        <div class='main container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 3s" hx-swap="outerHTML">
+                <h1>SOTB Challenge HUD</h1>
+                <h2>Challenge "{{chall.title}}"</h2>
                 <table class="table">
-					<tr><td>Title</td><td>{{chall.title}}</td></tr>
+					<tr><td>UUID</td><td>{{chall.uuid}}</td></tr>
 					<tr><td>Description</td><td>{{chall.description}}</td></tr>
-					<tr><td>Number of Flags</td><td>{{len(chall.flags)}}</td></tr>
+					<tr><td>Number of Flags</td><td>{{chall.flags|length}}</td></tr>
+					<tr><td>Sum of Flag values</td><td>{{chall_value}}</td></tr>
 				</table>
 
-                <h2>Incomplete Challenges:</h2>
-                <ul>
-                        {% for chall in unsolved_challs %}
-                                <li>{{ chall.title }}</li>
+				<h2>Captured Flags</h2>
+				<table class="table">
+					{% for flag in captured_flags %}
+                                <tr><td>{{flag.description}}</td><td>{{flag.flag}}</td><td>{{flag.value}}</td></tr>        
                         {% endfor %}
-                </ul>
+				</table>
+            
 
                 <h2>Purchased Hints:</h2>
                 <table class="main table">

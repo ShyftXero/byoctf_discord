@@ -317,6 +317,14 @@ class Commands:
         print("Populating test data")
         os.system("python populateTestData.py")
 
+    def top_flags(self):
+        solves = db.getMostCommonFlagSolves()
+        data = [ ["Number of solves", "Description", "Flag", 'Value']]
+        for s in solves:
+            data.append((s[1], s[0].description, s[0].flag, s[0].value))
+        table = mdTable(data)
+        print(table.table)
+
     def toggle_chall(self, chall_id: int):
         """Makes a challenge visible or invisible by the !all command"""
         try:
