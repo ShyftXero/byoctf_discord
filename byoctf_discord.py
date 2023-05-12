@@ -127,13 +127,13 @@ async def getDiscordUser(ctx, target_user: str):
 
 
 async def sendBigMessage(ctx, content, wrap=True):
-    """this should split a long message across multiple sends if it exceeds the 4000 char limit of discord. requires newlines in the message. Set wrap=False to omit the code blocks for your message"""
+    """this should split a long message across multiple sends if it exceeds the 2000 char limit of discord. requires newlines in the message. Set wrap=False to omit the code blocks for your message"""
     lines = content.splitlines(keepends=True)
     if SETTINGS["_debug"] == True and SETTINGS["_debug_level"] > 1:
         logger.debug(content)
     chunk = ""
     for line in lines:
-        if len(chunk) + len(line) < 3600:
+        if len(chunk) + len(line) < 1800:
             chunk = chunk + line
         else:
             if wrap:
