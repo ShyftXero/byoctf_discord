@@ -12,7 +12,7 @@ db.drop_all_tables(with_all_data=True)
 
 db.create_tables()
 
-seedDB()
+ensure_bot_acct()
 
 AMOUNT_OF_DATA = 10
 

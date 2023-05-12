@@ -18,7 +18,11 @@ with db_session:
 	# Get list of all possible tags
 	tags = [Tag(name=name) for name in tag_names]
 
+	ensure_bot_acct()
+	commit()
+
 	# Generate teams
+	print(f'creating {AMOUNT_OF_TEAMS} teams')
 	team_names = set()
 	teams = []
 	for _ in range(AMOUNT_OF_TEAMS):
@@ -29,6 +33,7 @@ with db_session:
 		teams.append(db.Team(name=name, password=fake.password()))
 
 	# Generate users for each team
+	print(f'creating users')
 	user_names = set()
 	users = []
 	for user in db.User.select(): # get exising db objects
@@ -43,6 +48,7 @@ with db_session:
 
 	
 	# Generate flags
+	print(f'creating {AMOUNT_OF_FLAGS} flags')
 	flag_values = set()
 	flags = []
 	for flag in db.Flag.select(): # get exising db objects
@@ -55,11 +61,14 @@ with db_session:
 		flags.append(db.Flag(flag=flag, value=random.randint(50, 1000), author=random.choice(users)))
 
 	# Generate challenges
+	print(f'creating {AMOUNT_OF_CHALLENGES} challenges')
 	challenges = [db.Challenge(
 		title=fake.sentence(),
 		description=fake.text(),
 		flags=random.choices(flags, k=random.randint(1, 3)),
 		author=random.choice(users),
+		parent=db.Challenge.select().random(1),
+		children=db.Challenge.select().random(1),
 		byoc=random.choice([True, False]),
 		tags=random.choices(tags, k=random.randint(1, 3)),
 	) for _ in range(AMOUNT_OF_CHALLENGES)]
@@ -68,21 +77,21 @@ with db_session:
 		challenges.append(chall)
 
 	# Generate hints for each challenge
+	print(f'creating {AMOUNT_OF_HINTS_PER_CHALLENGE * AMOUNT_OF_CHALLENGES} hints for challenges')
 	hints = [db.Hint(text=fake.sentence(), cost=random.randint(10, 50), challenge=challenge) for challenge in challenges for _ in range(AMOUNT_OF_HINTS_PER_CHALLENGE)]
 
 	# Seed funds
-	seed_funds = [db.Transaction(sender=random.choice(users), recipient=random.choice(users), value=1000, type="seed") for _ in range(len(users))]
+	print('seeding all players 1000 points')
+	seed_funds = [db.Transaction(sender=users[0], recipient=random.choice(users), value=1000, type="seed") for _ in range(len(users))]
 
-	# Commit these to the database
-	# db.drop_all_tables(with_all_data=True)
-	# db.create_tables()
-	seedDB()
-	commit()
-
+	
+	
 	# Generate hint buys
+	print(f'creating random hint purchases for users')
 	hint_buys = [buyHint(user=random.choice(users), challenge_id=random.choice(challenges).id) for _ in range(AMOUNT_OF_USERS_PER_TEAM * AMOUNT_OF_TEAMS)]
 
 	# Generate solves
+	print(f'creating {AMOUNT_OF_SOLVES} solve attempts; valid and invalid')
 	solved_flags = set()
 	for _ in range(AMOUNT_OF_SOLVES):
 		user = random.choice(users)
