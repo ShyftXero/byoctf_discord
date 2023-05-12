@@ -106,7 +106,7 @@ def chall(chall_uuid):
     captured_flags = db.getSubmittedChallFlags(chall, user)
     
 
-    return render_template('scoreboard/chall.html', chall=chall, chall_value=chall_value, captured_flags=captured_flags, purchased_hints=purchased_hints)
+    return render_template('scoreboard/chall.html', api_key=api_key, chall=chall, chall_value=chall_value, captured_flags=captured_flags, purchased_hints=purchased_hints)
 
 
 @app.get("/")
