@@ -17,7 +17,8 @@
 </head>
 <body>
         <div class='container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 3s" hx-swap="outerHTML">
-                <h1>SOTB Challenge HUD</h1>
+                <h1>SOTB Challenge HUD</h1> 
+				<a href="/hud/{{api_key}}" class="href">Back to HUD</a>
                 <div class="chall_info card card-body">
 					<h2>Challenge: {{chall.title}}</h2>
 					<table class="table">
