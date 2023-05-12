@@ -81,7 +81,7 @@ def hud(api_key):
     resp.set_cookie('api_key', api_key)
     return resp
 
-@app.get('/chall/<uuid>')
+@app.get('/chall/<chall_uuid>')
 @limiter.limit("5/second", override_defaults=False)
 @db.db_session
 def chall(chall_uuid):
@@ -90,14 +90,18 @@ def chall(chall_uuid):
         return "invalid challenge uuid"
     
     api_key = request.cookies.get('api_key')
+    if api_key == None:
+        return "api_key not set; visit HUD first..."
     # user = db.get_user_by_api_key(api_key)
     user = db.User.get(api_key=api_key)
     if user == None:
         return "invalid api key"
     
     purchased_hints = db.get_purchased_hints(user, chall_id=chall.id)
+    chall_value= db.challValue(chall)
+    captured_flags = db.getSubmittedChallFlags(chall, user)
 
-    return render_template('chall.html', chall_uuid=chall_uuid, purchased_hints=purchased_hints)
+    return render_template('scoreboard/chall.html', chall=chall, chall_value=chall_value, captured_flags=captured_flags, purchased_hints=purchased_hints)
 
 
 @app.get("/")
