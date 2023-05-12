@@ -81,7 +81,7 @@ def hud(api_key):
     resp.set_cookie('api_key', api_key)
     return resp
 
-@app.get('/hud/<uuid>')
+@app.get('/chall/<uuid>')
 @limiter.limit("5/second", override_defaults=False)
 @db.db_session
 def chall(chall_uuid):
