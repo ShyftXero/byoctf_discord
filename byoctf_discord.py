@@ -900,7 +900,8 @@ async def list_all(ctx, *, tags=None):
     table = GithubFlavoredMarkdownTable(res)
     # logger.debug("discord",challs)
     msg = f"Showing all unlocked challenges```{table.table}```"
-    await ctx.send(msg)
+    await sendBigMessage(ctx,msg)
+    # await ctx.send(msg)
 
 
 @bot.command(
