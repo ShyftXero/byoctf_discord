@@ -8,6 +8,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Press Start 2P', cursive;
+	color:crimson;
     background: black;
     overflow: hidden;
     position: relative;
@@ -27,15 +28,18 @@ body {
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    /* align-items: center; */
     height: 100vh;
-    mix-blend-mode: difference;
+	color:crimson;
+    mix-blend-mode:exclusion;
     color: white;
     position: relative;
     z-index: 2;
 }
-
+table{
+	color:crimson;
+	mix-blend-mode: exclusion;
+}
 header {
     padding: 50px;
 }
@@ -63,5 +67,5 @@ body::after {
     background: linear-gradient(to bottom, red, orange, yellow, green, blue, indigo, violet);
     z-index: 1;
     animation: gradient 5s ease infinite;
-    opacity: .95;
+    opacity: .40;
 }
