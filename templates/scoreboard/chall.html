@@ -16,32 +16,39 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/solar/bootstrap.min.css" integrity="sha384-NCwXci5f5ZqlDw+m7FwZSAwboa0svoPPylIW3Nf+GBDsyVum+yArYnaFLE9UDzLd" crossorigin="anonymous">
 </head>
 <body>
-        <div class='main container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 3s" hx-swap="outerHTML">
+        <div class='container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 3s" hx-swap="outerHTML">
                 <h1>SOTB Challenge HUD</h1>
-                <h2>Challenge "{{chall.title}}"</h2>
-                <table class="table">
-					<tr><td>UUID</td><td>{{chall.uuid}}</td></tr>
-					<tr><td>Description</td><td>{{chall.description}}</td></tr>
-					<tr><td>Number of Flags</td><td>{{chall.flags|length}}</td></tr>
-					<tr><td>Sum of Flag values</td><td>{{chall_value}}</td></tr>
-				</table>
+                <div class="chall_info card card-body">
+					<h2>Challenge: {{chall.title}}</h2>
+					<table class="table">
+										<tr><td>UUID</td><td>{{chall.uuid}}</td></tr>
+										<tr><td>Description</td><td>{{chall.description}}</td></tr>
+										<tr><td>Number of Flags</td><td>{{chall.flags|length}}</td></tr>
+										<tr><td>Sum of Flag values</td><td>{{chall_value}}</td></tr>
+									</table>
+				</div>
 
-				<h2>Captured Flags</h2>
-				<table class="table">
-					{% for flag in captured_flags %}
-                                <tr><td>{{flag.description}}</td><td>{{flag.flag}}</td><td>{{flag.value}}</td></tr>        
-                        {% endfor %}
-				</table>
+				<div class="captured_flags card card-body">
+					<h2>Captured Flags</h2>
+					<table class="table">
+						<thead><td>Description</td><td>Flag</td><td>Value</td></thead>
+						{% for flag in captured_flags %}
+								<tr><td>{{flag.description}}</td><td>{{flag.flag}}</td><td>{{flag.value}}</td></tr>        
+						{% endfor %}
+					</table>
+				</div>
             
 
-                <h2>Purchased Hints:</h2>
-                <table class="main table">
-                        <thead><td>Challenge ID</td><td>Hint</td><td>Cost</td><td>Hint Purchaser</td></thead>
-                        {% for hint in purchased_hints %}
-                                <tr><td>{{hint[0]}}</td><td>{{hint[1]}}</td><td>{{hint[2]}}</td><td>{{hint[3]}}</td></tr>        
-                        {% endfor %}
-                </table>
+                <div class="purchased_hints card card-body">
+					<h2>Purchased Hints:</h2>
+					<table class="table">
+							<thead><td>Challenge ID</td><td>Hint</td><td>Cost</td><td>Hint Purchaser</td></thead>
+							{% for hint in purchased_hints %}
+									<tr><td>{{hint[0]}}</td><td>{{hint[1]}}</td><td>{{hint[2]}}</td><td>{{hint[3]}}</td></tr>
+							{% endfor %}
+					</table>
+				</div>
         </div>
-    
+		<div class="footer"></div>
 </body>
 </html>

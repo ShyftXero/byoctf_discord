@@ -18,39 +18,47 @@
 <body>
         <div class='main container' hx-get="/hud/{{api_key}}" hx-trigger="every 3s" hx-swap="outerHTML">
                 <h1>SOTB User HUD</h1>
-                <table class="main table">
-                        <thead><td>Team Member</td><td>Score</td></thead>
-                        {% for tm in team_scores %}
-                                <tr><td>{{tm[0]}}</td><td>{{tm[1]}}</td></tr>        
-                        {% endfor %}
-                </table>
-                <h2>Total Points <code>{{total}}</code> (including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges)</h2>
+                <div class="team_info">
+					<table class="main table">
+							<thead><td>Team Member</td><td>Score</td></thead>
+							{% for tm in team_scores %}
+									<tr><td>{{tm[0]}}</td><td>{{tm[1]}}</td></tr>
+							{% endfor %}
+					</table>
+					<h2>Total Points <code>{{total}}</code> (including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges)</h2>
+				</div>
                 <!-- <h1>User Challenges and Hints</h1> -->
-                <h2>Incomplete Challenges:</h2>
-                <ul>
-                        {% for chall in unsolved_challs %}
-                                <li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
-                        {% endfor %}
-                </ul>
+                <div class="incomplete">
+					<h2>Incomplete Challenges:</h2>
+					<ul>
+							{% for chall in unsolved_challs %}
+									<li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
+							{% endfor %}
+					</ul>
+				</div>
 
-                <h2>Purchased Hints:</h2>
-                <table class="main table">
-                        <thead><td>Challenge ID</td><td>Hint</td><td>Cost</td><td>Hint Purchaser</td></thead>
-                        {% for hint in purchased_hints %}
-                                <tr><td>{{hint[0]}}</td><td>{{hint[1]}}</td><td>{{hint[2]}}</td><td>{{hint[3]}}</td></tr>        
-                        {% endfor %}
-                </table>
+                <div class="purchased_hints">
+					<h2>Purchased Hints:</h2>
+					<table class="main table">
+							<thead><td>Challenge ID</td><td>Hint</td><td>Cost</td><td>Hint Purchaser</td></thead>
+							{% for hint in purchased_hints %}
+									<tr><td>{{hint[0]}}</td><td>{{hint[1]}}</td><td>{{hint[2]}}</td><td>{{hint[3]}}</td></tr>
+							{% endfor %}
+					</table>
+				</div>
 				
-				<h2>Solved Challenges:</h2>
-				<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
-                <ul>
-                        {% for chall in solved_challs %}
-                                <li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
-                        {% endfor %}
-                </ul>
+				<div class="solved">
+					<h2>Solved Challenges:</h2>
+					<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
+									<ul>
+											{% for chall in solved_challs %}
+													<li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
+											{% endfor %}
+									</ul>
+				</div>
 
                 
         </div>
-    
+		<div class="footer"></div>
 </body>
 </html>

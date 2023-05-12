@@ -226,6 +226,7 @@ def getSubmittedChallFlags(chall:Challenge, user:User):
         for solve in tm.solves:
             if solve.challenge == chall:
                 flags.append(solve.flag)
+    print(flags)
     return flags
 
 
@@ -418,7 +419,8 @@ def get_unsolved_challenges(user: User):
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
                 logger.debug(solves)
             if len(solves) == 0:
-                ret.append(chall)
+                if chall not in ret:
+                    ret.append(chall)
     return ret
 
 
