@@ -74,13 +74,14 @@ def hud(api_key):
     
     unsolved_challs = db.get_unsolved_challenges(user)
     purchased_hints = db.get_purchased_hints(user)
+    total_byoc_rewards = db.get_byoc_rewards(user)
 
     # ret = f'{solved_challs}<br>{unsolved_challs}<br>{purchased_hints}'
     scores = db.getTeammateScores(user)
     total = sum([x[1] for x in scores])
 
 
-    resp = make_response(render_template('scoreboard/hud.html', team_scores=scores, total=total, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key))
+    resp = make_response(render_template('scoreboard/hud.html', team_scores=scores, total=total,  total_byoc_rewards=total_byoc_rewards, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key))
     resp.set_cookie('api_key', api_key)
     return resp
 
@@ -103,9 +104,9 @@ def chall(chall_uuid):
     purchased_hints = db.get_purchased_hints(user, chall_id=chall.id)
     chall_value= db.challValue(chall)
     captured_flags = db.getSubmittedChallFlags(chall, user)
-    total_byoc_rewards = db.get_byoc_rewards(user)
+    
 
-    return render_template('scoreboard/chall.html', chall=chall, chall_value=chall_value, captured_flags=captured_flags, total_byoc_rewards=total_byoc_rewards, purchased_hints=purchased_hints)
+    return render_template('scoreboard/chall.html', chall=chall, chall_value=chall_value, captured_flags=captured_flags, purchased_hints=purchased_hints)
 
 
 @app.get("/")

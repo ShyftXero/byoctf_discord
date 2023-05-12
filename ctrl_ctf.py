@@ -333,7 +333,8 @@ class Commands:
         os.remove(SETTINGS["_logfile"])
 
         print("Deleting and recreating database")
-        os.remove(SETTINGS["_db_database"])
+        if SETTINGS['_db_type'] == 'sqlite':
+            os.remove(SETTINGS["_db_database"])
         from database import db
 
         self.reinit_config()
@@ -393,6 +394,7 @@ class Commands:
                         ",".join([t.name for t in chall.tags]),
                         chall.visible,
                         chall.byoc,
+                        chall.byoc_ext_url,
                         chall.uuid
                     ]
                 )
@@ -407,6 +409,7 @@ class Commands:
                         ",".join([t.name for t in chall.tags]),
                         chall.visible,
                         chall.byoc,
+                        chall.byoc_ext_url,
                         chall.uuid
                     ]
                 )

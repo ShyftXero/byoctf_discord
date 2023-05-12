@@ -137,7 +137,7 @@ class Rating(db.Entity):
 #########
 
 
-def seedDB():
+def ensure_bot_acct():
     # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
     with db_session:
         unaffiliated = db.Team.get(name="__unaffiliated__")

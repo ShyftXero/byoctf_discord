@@ -21,11 +21,15 @@ def default_config():
         "_debug_level": 1,  # allow for some degree of verbosity. 2 is highest so far.
         "status": "Operational",  # a generic message; can be updated during the game with ctrl_ctf.py,
         "_logfile": "byoctf.log",  # logfile for debugging/tail -f or whatever
-        "_db_type": "sqlite",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
-        "_db_host": "servername",  # database host
-        "_db_user": "username1",  # db username
-        "_db_pass": "password1",  # db password
-        "_db_database": "byoctf.db",  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
+        # "_db_type": "sqlite",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
+        "_db_type": "postgres",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
+        "_db_host": "drona.db.elephantsql.com",  # database host
+        # "_db_user": "username1",  # db username
+        "_db_user": "acmmdipm",  # db username
+        # "_db_pass": "password1",  # db password
+        "_db_pass": "DP7wvxE8NQHfNJDckr23DXDr0rChq02m",  # db password
+        # "_db_database": "byoctf.db",  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
+        "_db_database": "acmmdipm",  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
         "_ctf_guild_id": 618912342385885198,  # your discord server. user right-click copy ID to get these
         "_ctf_channel_id": 735581872259727435,  # channel ID to give to users once they register.
         "_ctf_channel_role_id": 735582054485328004,  # the ID of the role which will be given to players as they register; makes the channel visible to them.
