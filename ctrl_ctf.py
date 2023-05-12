@@ -87,6 +87,17 @@ class Commands:
         # print("Re initialized diskcache in ", CACHE_PATH)
         print("re-initialized diskcache.")
 
+    @db_session
+    def hide_chall(self, chall_id:int):
+        chall = db.Challenge[chall_id]
+        if chall == None:
+            print("no such challenge")
+            return
+        chall.visible = not chall.visible
+        commit()
+        self.challs(chall_id=chall_id)
+
+
     def shell(self):
         """drop into an ipython shell with five users loaded (user1-5); mainly for development or answering questions by interrogating the db. You should be able to prototype your db code here."""
         import os
@@ -320,39 +331,54 @@ class Commands:
             print(
                 f'Challenge id {chall.id} "{chall.title}" visible set to {chall.visible}'
             )
-
-    def challs(self):
+    @db_session
+    def challs(self, chall_id:int=-1337):
         """This dumps the all the challenges"""
-        with db_session:
 
-            data = list()
-            chal: db.Challenge
-            for chal in db.Challenge.select():
+        data = list()
+        data.append(
+            [
+                "ID",
+                "Title",
+                "Description",
+                "Flags",
+                "Tags",
+                "Visible",
+                "BYOC",
+                "BYOC_External",
+                "UUID"
+            ],
+        )
+        if chall_id == -1337:
+            chall: db.Challenge
+            for chall in db.Challenge.select():
                 data.append(
                     [
-                        chal.id,
-                        chal.title,
-                        chal.description,
-                        "; ".join([f.flag for f in chal.flags]),
-                        ",".join([t.name for t in chal.tags]),
-                        chal.visible,
-                        chal.byoc,
+                        chall.id,
+                        chall.title,
+                        chall.description,
+                        "; ".join([f.flag for f in chall.flags]),
+                        ",".join([t.name for t in chall.tags]),
+                        chall.visible,
+                        chall.byoc,
+                        chall.uuid
                     ]
                 )
-            data.insert(
-                0,
-                [
-                    "ID",
-                    "Title",
-                    "Description",
-                    "Flags",
-                    "Tags",
-                    "Visible",
-                    "BYOC",
-                    "BYOC_External",
-                ],
-            )
-
+        else:
+            for chall in db.select(c for c in db.Challenge if c.id == chall_id)[:]:
+                data.append(
+                    [
+                        chall.id,
+                        chall.title,
+                        chall.description,
+                        "; ".join([f.flag for f in chall.flags]),
+                        ",".join([t.name for t in chall.tags]),
+                        chall.visible,
+                        chall.byoc,
+                        chall.uuid
+                    ]
+                )
+        
         table = mdTable(data)
         print(table.table)
         # for chal in data:
