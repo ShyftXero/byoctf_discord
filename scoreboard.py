@@ -71,12 +71,15 @@ def hud(api_key):
         return "invalid api key"
     
     solved_challs:list[db.Challenge] = db.get_all_challenges(user)
+    
     unsolved_challs = db.get_unsolved_challenges(user)
     purchased_hints = db.get_purchased_hints(user)
 
     # ret = f'{solved_challs}<br>{unsolved_challs}<br>{purchased_hints}'
     scores = db.getTeammateScores(user)
     total = sum([x[1] for x in scores])
+
+
     resp = make_response(render_template('scoreboard/hud.html', team_scores=scores, total=total, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key))
     resp.set_cookie('api_key', api_key)
     return resp

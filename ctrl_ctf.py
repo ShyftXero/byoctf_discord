@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 og_print = print
+import time
 from rich import print
 import fire
 from pony.orm.core import commit, db_session
@@ -193,6 +194,29 @@ class Commands:
         table = mdTable(data)
         print(table.table)
 
+    @db.db_session
+    def tail_trans(self, size:int=10):
+        ts = list(
+            db.select(
+                (
+                    t.id,
+                    t.value,
+                    t.type,
+                    t.sender.name,
+                    t.recipient.name,
+                    t.message,
+                    t.time,
+                )
+                for t in db.Transaction  # type: ignore
+            ).order_by(-7).limit(size)
+        )
+
+        ts.insert(
+            0, ["Trans ID", "Value", "Type", "Sender", "Recipient", "Message", "Time"]
+        )
+        table = mdTable(ts)
+        print(table.table)
+        
     @db.db_session
     def trans(self):
         """Dumps a list of all transactions from all users. This will allow you to reconstitute a score if needed or analyze if something doesn't work as expected."""
@@ -454,7 +478,7 @@ class Commands:
 
         # total byoc rewards sum
         total_byoc_rewards = sum(
-            db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward")
+            db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward" or t.type == "byoc hint reward")
         )
 
         print(table.table)
