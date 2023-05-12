@@ -434,6 +434,19 @@ def getMostCommonFlagSolves(num=3):
 
 
 @db_session
+def get_byoc_rewards(user:User):
+    if isinstance(user, str):
+        user = User.get(name=user)
+        if user == None:
+            return 0 
+
+    teammates = getTeammates(user)
+    total = sum(
+        select(sum(t.value) for t in db.Transaction if (t.type == "byoc reward" or t.type == "byoc hint reward") and t.recipient in teammates)
+    )
+    return total
+
+@db_session
 def getHintTransactions(user: User) -> list[Transaction]:
     res = select(
         t for t in Transaction if t.sender.name == user.name and t.type == "hint buy"
