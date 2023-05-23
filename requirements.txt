@@ -9,7 +9,7 @@ markdown2==2.4.5
 pony==0.7.16
 pyfiglet==0.8.post1
 PyYAML==6.0
-requests==2.28.1
+requests==2.31.0
 rich==12.6.0
 terminaltables==3.1.10
 toml==0.10.2
