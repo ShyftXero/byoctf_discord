@@ -222,7 +222,7 @@ def renderChallenge(result: dict, preview=False):
         msg += f"Reward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even.\n\n"
 
     # normal rendering
-    msg += f"**Description**:\n`{result['challenge_description']}` \n\n"
+    msg += f"**Description**:\n{result['challenge_description']}\n\n"
     msg += f"**Tags**: ` {', '.join(result.get('tags',list()))} `  \n\n"
     msg += f"**Unlocked By Challenges**:  `{result.get('parent_ids', list())}`\n\n"
     msg += "-" * 40 + "\n\n"
