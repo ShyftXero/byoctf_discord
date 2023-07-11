@@ -303,8 +303,6 @@ flag_flag = "FLAG{this_is_a_flag_from_r3d}"
 [[hints]]
 hint_cost = 10
 hint_text = "the flag is easy"
-
-}
 ```
 A multi-flag challenge in TOML
 ```toml
