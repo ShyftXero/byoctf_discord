@@ -292,10 +292,8 @@ A basic single flag challenge in toml
 ```toml
 author = "Combaticus#8292"
 challenge_title = "r3d's challenge"
-# We can have comments and multiline strings with TOML...
-challenge_description = """
-good luck finding my flag -> https://pastebin.com/tiRMg9dR
-"""
+challenge_description = "good luck finding my flag at validator.byoctf.com"
+uuid = "1f495409-a84b-43a2-bf8e-90fd979024f4" # a uuid4 string
 tags = [ "pentest",]
 [[flags]]
 flag_title = "r3d flag"
@@ -305,29 +303,7 @@ flag_flag = "FLAG{this_is_a_flag_from_r3d}"
 [[hints]]
 hint_cost = 10
 hint_text = "the flag is easy"
-```
-MOVED AWAY FROM JSON... USE TOML
-The same basic single flag challenge in JSON.
-```json
-{
-    "author": "Combaticus#8292",
-    "challenge_title": "r3d's challenge",
-    "challenge_description": "good luck finding my flag -> https://pastebin.com/tiRMg9dR",
-    "tags": ["pentest"], 
-    "flags": [
-        {
-            "flag_title": "r3d flag", 
-            "flag_value": 200,
-            "flag_flag": "FLAG{this_is_a_flag_from_r3d}"
 
-        }
-    ], 
-    "hints": [
-        {
-            "hint_cost": 10,
-            "hint_text": "the flag is easy"
-        }
-    ]
 }
 ```
 A multi-flag challenge in TOML
@@ -336,6 +312,7 @@ author = "Combaticus#8292"
 challenge_title = "r3d's multi-flag challenge"
 challenge_description = "good luck finding my flags at 3.43.54.28"
 tags = [ "pentest", "forensics",]
+uuid = "e66622ea-ac8e-4bcd-a873-a485f4a3724b"
 [[flags]]
 flag_title = "flag 1 "
 flag_value = 100
@@ -351,43 +328,13 @@ hint_cost = 25
 hint_text = "Both of the the flags are easy"
 ```
 
-The same challenge with multiple flags in JSON.
-```json
-{
-    "author": "Combaticus#8292",
-    "challenge_title": "r3d's multi-flag challenge",
-    "challenge_description": "good luck finding my flags at 3.43.54.28",
-    "tags": ["pentest", "forensics"], 
-    "flags": [
-        {
-            "flag_title": "flag 1 ", 
-            "flag_value": 100,
-            "flag_flag": "FLAG{this_is_flag_1_for_multiflag}"
-
-        },
-        {
-            "flag_title": "flag 2", 
-            "flag_value": 300,
-            "flag_flag": "FLAG{this_is_flag_2_for_multiflag}"
-
-        }
-    ], 
-    "hints": [
-        {
-            "hint_cost": 25,
-            "hint_text": "Both of the the flags are easy"
-        }
-    ]
-}
-```
-
 A challenge that depends on other challenges (by challenge ID) in TOML
 ```toml
 author = "Combaticus#8292"
 challenge_title = "r3d's child challenge"
 challenge_description = "good luck finding my flag"
 tags = [ "pentest",]
-depends_on = [ 6, 7,] # these are uuids now...
+depends_on = [ 6, 7,] # these are uuid strings now...
 [[flags]]
 flag_title = "r3d dependent flag "
 flag_value = 200
@@ -401,36 +348,27 @@ hint_text = "the flag depends on solving chall 6 and 7"
 An externally validated challenge in TOML.
 ```toml
 author = "Combaticus#8292"
-challenge_title = "r3d's external challenge"
-challenge_description = "good luck finding my flag. "
+challenge_title = "r3d's externally validated challenge"
+challenge_description = "good luck finding my flag. At http://1.2.3.4/hackme "
+uuid='2e9e73a9-3e02-4db9-871e-fe5ffde1deb0'
 tags = [ "coding",]
 external_challenge_value = 250
 external_validation = true
-external_validation_url = "http://mydomain.com:5000/validate"
+external_validation_url = "http://localhost:5000/validate"
+# If you don't trust us to not look at the flags you submit, you can host a validation server on some public server and the bot can validate against that.
+# I'd use a domain rather than IP because there's no public mechanism to update challenges... These are limited to one flag per challenge. sorry... It will send a post to your endpoint similar to {'challenge_id':<some_id>, 'flag':<some_flag>} . It will expect a response of {'flag':'correct'} or {'flag':'incorrect'} a basic implementation of that functionality will be provided.
+# YOU WILL HAVE TO MENTION IN THE CHALLENGE WHETHER OR NOT THIS IS AN EXTERNALLY VALIDATED CHALLENGE.
+# There's a different command to validate those flags. !byoc_ext <chall_id> <flag>; we use the validation url (must end in /validate with no trailing slash).
+# feel free to extend the server we provide... You can host all of the flags for all of your challenges in the single flags.json file.
+# you won't know a challenge ID to serve as the key until you commit your challenge. Currently, there is no first blood reward for externally validated challenges.
+
 [[hints]]
 hint_cost = 25
 hint_text = "the flag is also easy"
 
+
 ```
 
-The same externally validated challenge in JSON.
-```json
-{
-    "author": "Combaticus#8292",
-    "challenge_title": "r3d's external challenge",
-    "challenge_description": "good luck finding my flag. ",
-    "tags": ["coding"], 
-    "hints": [
-        {
-            "hint_cost": 25,
-            "hint_text": "the flag is also easy"
-        }
-    ],
-    "external_challenge_value": 250, 
-    "external_validation": true, 
-    "external_validation_url": "http://mydomain.com:5000/validate"
-}
-```
 - Clone the server code -> https://github.com/ShyftXero/byoctf_ext_validation
 - Start the external validation server prior to checking your challenge. part of the check is to see if it's able to validate. 
 - You won't know your challenge ID to update the `flags.json` on your validation server until you actually commit your challenge and pay the fee. 
