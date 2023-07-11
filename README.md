@@ -136,8 +136,27 @@ Key commands
 ---
 
 # BYOC Challenges
-
-## A few notes about BYOC challenges
+## Common criticisms of the BYOC concept
+- ***Creating an impossible challenge in an effort distract players.*** 
+  - This is a possibility and always has been.
+  - Part of developing your CTF skillset is to be able to recognize this and manage your time effectively. 
+  - There is also the fact that it costs points to post a challenge. that might be enough of a deterent for most. Others, maybe not. 
+  - I don't think the issue will be rampant enough to warrant scrapping the idea.
+- ***Creating a trivial challenge worth a lot of points***
+  - I believe that this issue will self-regulate. 
+  - If it's just a simple challenge and everyone can solve it, then it doesn't have much bearing on the final outcome as everyone can/will solve it.
+  - As mentioned we can cap/stop the rewards for a challenge or disable it altogether. We can also take points away for bad behavior. 
+  - If everyone's a loser, no one's a loser. 
+  - There's also a task management component to this. Don't let one of the high value easy flags slip by. 
+- ***Otherwise legitimate but over or under-valued challenges***
+  - This is the hardest one to address.
+  - Remember, GM's have access to tools and can adjust the base value of a flag to bring them in line. 
+    - don't rely on this. existing solves won't account for the new flag's value.   
+    - see the next section. -> `Notes or guidance for developing challenges.`
+- If you don't want to risk it and avoid BYOC, use `!all !byoc` 
+  - `!` like _not_ or a logical inversion. 
+---
+## A few notes about creating BYOC challenges
 - ### ***There is no way to edit your challenge once you commit it***
   - Make sure you don't have typos 
   - use DNS names rather than hardcoded IPs for links
@@ -214,26 +233,6 @@ Key commands
   - ~~open to arguments against this or a PR to avoid it.~~ 
   - We kind of worked around this by storing a hash of the flag in the solve text rather than the flag itself. As the author you will see the hash in the solve and can hash your own flags to see which one matches. 
   - Keep in mind that we still touch the unhashed flag from a legitimate solve so you have to trust that we're not logging... 😉 good luck... 
----
-## Common criticisms of the BYOC concept
-- ***Creating an impossible challenge in an effort distract players.*** 
-  - This is a possibility and always has been.
-  - Part of developing your CTF skillset is to be able to recognize this and manage your time effectively. 
-  - There is also the fact that it costs points to post a challenge. that might be enough of a deterent for most. Others, maybe not. 
-  - I don't think the issue will be rampant enough to warrant scrapping the idea.
-- ***Creating a trivial challenge worth a lot of points***
-  - I believe that this issue will self-regulate. 
-  - If it's just a simple challenge and everyone can solve it, then it doesn't have much bearing on the final outcome as everyone can/will solve it.
-  - As mentioned we can cap/stop the rewards for a challenge or disable it altogether. We can also take points away for bad behavior. 
-  - If everyone's a loser, no one's a loser. 
-  - There's also a task management component to this. Don't let one of the high value easy flags slip by. 
-- ***Otherwise legitimate but over or under-valued challenges***
-  - This is the hardest one to address.
-  - Remember, GM's have access to tools and can adjust the base value of a flag to bring them in line. 
-    - don't rely on this. existing solves won't account for the new flag's value.   
-    - see the next section. -> `Notes or guidance for developing challenges.`
-- If you don't want to risk it and avoid BYOC, use `!all !byoc` 
-  - `!` like _not_ or a logical inversion. 
 ---
 ## Notes or guidance for developing challenges.
 Most of the following are considerations regarding building your challenge. 
