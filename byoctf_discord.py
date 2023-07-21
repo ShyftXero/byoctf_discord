@@ -92,9 +92,9 @@ async def on_ready():
 
 def username(obj):
     if hasattr(obj, "author"):
-        return f"{obj.author.name}#{obj.author.discriminator}"
+        return f"{obj.author.name}"
     elif type(obj) == discord.User or type(obj) == discord.user.ClientUser:
-        return f"{obj.name}#{obj.discriminator}"
+        return f"{obj.name}"
 
     return "__NONE__"
 
@@ -115,7 +115,7 @@ def ctfRunning():
 async def getDiscordUser(ctx, target_user: str):
     # this is only for the gui representation of the recipient
     # https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.UserConverter
-    # logger.debug(f"looking up user {target_user}")
+    logger.debug(f"looking up user {target_user}")
     uc = discord.ext.commands.UserConverter()
     try:
         res = await uc.convert(ctx, target_user)
