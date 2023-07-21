@@ -42,11 +42,12 @@ with db_session:
     bot = db.User.get(id=0)
     # print(bot)
     # exit()
-    shyft = db.User(name="shyft#0760", team=bestteam)
-    fie = db.User(name="fie#4785", team=bestteam)
-    r3d = db.User(name="Combaticus#8292", team=secondteam)
-    malloc = db.User(name="BlackCatt#4492", team=thirdteam)
-    aykay = db.User(name="AyKay#3420", team=fourthteam)
+    shyft = db.User(name="shyft_xero", team=bestteam)
+    fie = db.User(name="fie311", team=bestteam)
+    r3d = db.User(name="combaticus", team=secondteam)
+    malloc = db.User(name="blackcatt", team=thirdteam)
+    aykay = db.User(name="aykay", team=fourthteam)
+    jsm = db.User(name='jsm2191', team=bestteam)
 
     # flags
     flag_seed = db.Flag(
@@ -148,6 +149,7 @@ with db_session:
     fie_seed = db.Transaction(sender=bot, recipient=fie, value=1000, type="seed")
     r3d_seed = db.Transaction(sender=bot, recipient=r3d, value=1000, type="seed")
     malloc_seed = db.Transaction(sender=bot, recipient=malloc, value=1000, type="seed")
+    jsm_seed = malloc_seed = db.Transaction(sender=bot, recipient=jsm, value=1337, type="seed")
 
     commit()
 

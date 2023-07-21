@@ -36,7 +36,7 @@ def default_config():
         "_firstblood_rate": 0.1,  # the percentage reward for firstblood solves
         "_decay_solves": False,  # when decay is invoked. future solves are reduced based on the number of previous solves; best to keep public scoreboard
         "_decay_minimum": 0.10,  # minimum percent award.
-        "_botusername": "BYOCTF_Automaton#7840",  # this is the discordbot's username+discriminator
+        "_botusername": "BYOCTF_Automaton#7840",  # this is the discordbot's username+discriminator; leaving as of 20230721 because it seems to be working... 
         "_byoc_reward_rate": 0.25,  # percentage of a solve that is given back to the author for making the challenge.
         "_byoc_commit_fee": 0.5,  # percentage of challenge value to charge author to post a BYOC challenge
         "_byoc_max_reward": 2.0,  # maximux return for creating a challenge. # 08OCT22 I still want to leverage other tools than this one as I believe the challenge market can behave itself.

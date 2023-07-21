@@ -266,9 +266,10 @@ Most of the following are considerations regarding building your challenge.
   - **REALLY** depends on the challenge
     - You should have one server per team if:
       - attempting to solve the challenge (attacking/exploiting the server) has a high probability of reducing other teams ability to solve.
-      - this is like having someone reset your box on hackthebox just after you get a shell. (realistic-ish but frustrating) 
+        - this is like having someone reset your box on hackthebox just after you get a shell. (realistic-ish but frustrating) 
     - You could use a shared server if:
-      - if attacking the server has a high probability of reducing other teams ability to solve. 
+      - if attacking the server has a low probability of reducing other teams ability to solve.
+      - the server is simply hosting files for download.  
   - Docker is a fair middle-ground regarding hosting a suite of challenges on a single server while minimizing exposure/risk of compromising other challenges if exploited. 
     - We have some dockerfiles and control scripts to talk about that if the time comes. 
   - The external validation server (or one like it) if you choose to not share your flags with the bot.
