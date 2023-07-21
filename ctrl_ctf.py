@@ -109,7 +109,7 @@ class Commands:
         )
 
     def set_team(self, username, team):
-        """username is the discord name and discriminator "user#1234"
+        """username is the discord username without the @
         team is the string of the team name "bestteam"
         """
         with db.db_session:
@@ -124,7 +124,7 @@ class Commands:
 
     @db.db_session
     def grant_points(self, user: str, amount: int):
-        """give points to a user from the byoctf_automaton. remember to use '"user#1234"' as the cmdline parameter for user; Can also "grant" negative points to take points away..."""
+        """give points to a user from the byoctf_automaton. username should be discord username without the @ ; Can also "grant" negative points to take points away..."""
 
         botuser = db.User.get(name=SETTINGS["_botusername"])
         user = db.User.get(name=user)
@@ -142,7 +142,7 @@ class Commands:
             print("invalid user")
 
     def get_score(self, user: str):
-        """dumps score for a user by name. remember to use '"user#1234"' as the cmdline parameter for user"""
+        """dumps score for a user by name. username should be discord username without the @"""
         # print(f'User {user} has {db.getScore(user)} points')
 
     @db.db_session
