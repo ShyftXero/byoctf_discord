@@ -62,6 +62,57 @@ def scoreboard():
 
     return markdown2.markdown(msg)
 
+@app.post('/api/grant_points')
+@
+def grant_points():
+    
+    """
+    {
+        "target_user": "shyft_xero",
+        "points": 1337.0,
+        "message": "for solving xyz",
+        "admin_api_key": "your_api_key"
+    }
+"""
+    # authed_user = db.get_user_by_api_key("bot")
+    payload = request.form
+    
+    target_user = payload.get('target_user')
+    if target_user == None:
+        return "target_user missing from payload"
+    points = float(payload.get('points'))
+    if points == None:
+        return "points missing from payload"
+    message = payload.get('message')
+    if message == None:
+        return "message missing from payload"
+    # did they present one? 
+    admin_api_key = payload.get('admin_api_key')
+    if admin_api_key == None:
+        return "admin_api_key missing from payload"
+    # did they present the correct one?
+    admin_user = db.get_user_by_api_key(admin_api_key)
+    if admin_user == None:
+        return "invalid admin api key"
+    
+    # seems legit...
+    res = db.grant_points(user=target_user, amount=points, msg=message)
+    if res:
+        return {'status':"sucess", "orig_request":payload}
+    
+    else:
+        return {"status":"db error", "orig_request":payload}
+
+@app.get('/api/get_username/<uid:int>')
+@limiter.limit("1/second")
+@db.db_session
+def get_user(uid):
+    user:db.User = db.get_user_by_id(uid)
+    if user == None:
+        return "invalid user id"
+    return {"username":user.name}
+
+
 @app.get('/hud/<api_key>')
 @limiter.limit("5/second", override_defaults=False)
 @db.db_session
