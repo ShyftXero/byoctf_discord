@@ -102,7 +102,7 @@ def grant_points():
     else:
         return {"status":"db error", "orig_request":payload}
 
-@app.get('/api/get_username/<uid:int>')
+@app.get('/api/get_username/<int:uid>')
 @limiter.limit("1/second")
 @db.db_session
 def get_user(uid):
