@@ -64,13 +64,12 @@ def scoreboard():
 
 @app.post('/api/grant_points')
 def grant_points():
-    
-    """
+    docs = """
     {
         "target_user": "shyft_xero",
         "points": 1337.0,
         "message": "for solving xyz",
-        "admin_api_key": "your_api_key"
+        "api_key": "your_api_key"
     }
 """
     # authed_user = db.get_user_by_api_key("bot")
@@ -86,16 +85,17 @@ def grant_points():
     if message == None:
         return "message missing from payload"
     # did they present one? 
-    admin_api_key = payload.get('admin_api_key')
-    if admin_api_key == None:
+    api_key = payload.get('admin_api_key')
+    if api_key == None:
         return "admin_api_key missing from payload"
     # did they present the correct one?
-    admin_user = db.get_user_by_api_key(admin_api_key)
+    admin_user = db.get_user_by_api_key(api_key)
     if admin_user == None:
         return "invalid admin api key"
     
     # seems legit...
-    res = db.grant_points(user=target_user, amount=points, msg=message)
+    res = db.grant_points(user=target_user,admin_user=admin_user.name, amount=points, msg=message)
+
     if res:
         return {'status':"sucess", "orig_request":payload}
     

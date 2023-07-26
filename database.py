@@ -200,8 +200,11 @@ def get_user_by_id(target:str|int|uuid.UUID) -> User:
         return select(u for u in db.User if u.id == target ).first()
     return None
 
-def grant_points(user:str, amount:float, msg:str="admin granted points"):
+@db_session
+def grant_points(user:str, admin_user:db.User=None, amount:float=0, msg:str="admin granted points"):
     botuser = db.User.get(name=SETTINGS["_botusername"])
+    if admin_user == None:
+        admin_user = botuser
     user = db.User.get(name=user)
     if user:
         t = db.Transaction(
@@ -209,7 +212,7 @@ def grant_points(user:str, amount:float, msg:str="admin granted points"):
             recipient=user,
             value=amount,
             type="admin grant",
-            message=msg,
+            message=f"{admin_user.name}: {msg}",
         )
         db.commit()
         print(f"granted {amount} points to {user.name}")
