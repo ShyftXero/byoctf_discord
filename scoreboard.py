@@ -63,7 +63,6 @@ def scoreboard():
     return markdown2.markdown(msg)
 
 @app.post('/api/grant_points')
-@
 def grant_points():
     
     """

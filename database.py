@@ -196,7 +196,7 @@ def get_user_by_id(target:str|int|uuid.UUID) -> User:
         try:
             target = int(target)
         except ValueError:
-            return None``
+            return None
         return select(u for u in db.User if u.id == target ).first()
     return None
 
