@@ -94,7 +94,7 @@ def grant_points():
         return "invalid admin api key"
     
     # seems legit...
-    res = db.grant_points(user=target_user,admin_user=admin_user.name, amount=points, msg=message)
+    res = db.grant_points(user=target_user,admin_user=admin_user, amount=points, msg=message)
 
     if res:
         return {'status':"sucess", "orig_request":payload}
