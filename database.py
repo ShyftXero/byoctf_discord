@@ -185,6 +185,40 @@ def generateMapping():
 generateMapping()
 
 @db_session
+def get_user_by_id(target:str|int|uuid.UUID) -> User:
+    if isinstance(target, str):
+        try:
+            target = uuid.UUID(target)
+        except ValueError:
+            return None
+        return select(u for u in db.User if u.api_key == target ).first()
+    if isinstance(target, int):
+        try:
+            target = int(target)
+        except ValueError:
+            return None``
+        return select(u for u in db.User if u.id == target ).first()
+    return None
+
+def grant_points(user:str, amount:float, msg:str="admin granted points"):
+    botuser = db.User.get(name=SETTINGS["_botusername"])
+    user = db.User.get(name=user)
+    if user:
+        t = db.Transaction(
+            sender=botuser,
+            recipient=user,
+            value=amount,
+            type="admin grant",
+            message=msg,
+        )
+        db.commit()
+        print(f"granted {amount} points to {user.name}")
+        return True
+    else:
+        print("invalid user")
+        return False
+
+@db_session
 def get_user_by_api_key(target:str|uuid.UUID) -> User:
     if isinstance(target, str):
         try:
