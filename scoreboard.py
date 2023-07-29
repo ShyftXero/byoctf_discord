@@ -109,7 +109,13 @@ def get_user(uid):
     user:db.User = db.get_user_by_id(uid)
     if user == None:
         return "invalid user id"
-    return {"username":user.name}
+    ret = {
+        "username": user.name,
+        'teammates': [ tm.name for tm in db.getTeammates(user)],
+        'teamname': user.team.name
+    }
+    return ret
+
 
 
 @app.get('/hud/<api_key>')
