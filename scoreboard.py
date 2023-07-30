@@ -97,15 +97,15 @@ def create_solve():
     target_user = payload.get('target_user', "__invalid username here__") # you can't have a user name with spaces on discord, thus you couldn't have registered one. 
     target_user = db.User.get(name=target_user)
     if target_user == None:
-        return "Invalid target_user in payload" 
+        return f"Invalid target_user in payload; {payload.get('target_user')}" 
     flag = payload.get('flag', "__not a flag__")
     flag = db.Flag.get(flag=flag)
     if flag == None: 
-        return "Invalid flag in payload"
+        return f"Invalid flag in payload; {payload.get('flag')}"
 
     points = payload.get('points')
     if points == None:
-        return "points missing from payload"
+        return f"points missing from payload"
     points = float(points)
     message = payload.get('message')
     if message == None:
@@ -113,11 +113,11 @@ def create_solve():
     # did they present anything for the api key? 
     api_key = payload.get('admin_api_key')
     if api_key == None:
-        return "admin_api_key missing from payload"
+        return f"admin_api_key missing from payload: {api_key}"
     # does the api key belong to a user?
     admin_user:db.User = db.get_user_by_api_key(api_key)
     if admin_user == None:
-        return "invalid admin api key"
+        return f"invalid admin api key: {api_key} ;did it change?"
 
     follow_points_rules = payload.get('follow_points_rules', True)
 
