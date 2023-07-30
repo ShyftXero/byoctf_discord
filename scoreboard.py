@@ -23,7 +23,7 @@ app.secret_key = "thisisasecret"
 
 
 @app.get("/scores")
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 @db.db_session
 def scoreboard():
     
