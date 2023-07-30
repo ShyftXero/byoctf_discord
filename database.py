@@ -728,8 +728,11 @@ def createExtSolve(user: User, chall: Challenge, submitted_flag: str):
 
 @db_session
 def createSolve(
-    user: User = None, flag: Flag = None, msg: str = "", challenge: Challenge = None
-):
+    user: User = None, flag: Flag = None, msg: str = "", challenge: Challenge = None, points_override:float|None=None, follow_points_rules:bool=True):
+    """The createSolve function attempts to create the transaction that awards points and fails if certain criteria aren't met. Its core purpose was to prevent players from submitting their own flags, their teammates flags, or flags they've already captured. It's also how the decaying points and first blood bonus and BYOC payouts are awarded (if applicable). 
+
+    points_override is to allow admins to manually specify points when creating the solve. 
+    """
     botuser = User.get(name=SETTINGS["_botusername"])
 
     if challenge == None:
@@ -755,19 +758,17 @@ def createSolve(
         ).first()
 
         if previousSolve != None:
+            msg = f"{flag.flag} already submitted by {previousSolve.user.name}"
             if SETTINGS["_debug"] == True:
-                logger.debug(
-                    f"{flag.flag} already submitted by {previousSolve.user.name}"
-                )
-            return
+                logger.debug(msg)
+            return msg
 
         team = getTeammates(user)
         if flag.author in team or challenge.author in team:
+            msg = f"{user.name} is trying to submit their own flag or a flag authored teammate. (flag by {flag.author.name}) OR is a part of a challenge authored by someone on the team. (chall by {challenge.author.name})"
             if SETTINGS["_debug"] == True:
-                logger.debug(
-                    f"{user.name} is trying to submit their own flag or a flag authored teammate. (flag by {flag.author.name}) OR is a part of a challenge authored by someone on the team. (chall by {challenge.author.name})"
-                )
-            return
+                logger.debug(msg)
+            return msg
 
     value = 0
     if flag != None:
@@ -776,11 +777,14 @@ def createSolve(
         value = challenge.byoc_ext_value
 
     if value == 0:
-        logger.debug(
-            "neither challenge or flag have a value other than None... investigate via breakpoint() "
-        )
+        msg = "neither challenge or flag have a value other than None... investigate via breakpoint() "
+        logger.debug(msg)
         # breakpoint()
-        return
+        return msg
+
+    # this is to allow admins to override the points awarded. Should it follow the firstblood/decay/etc rules? right now the settings below will modify the points specified by the admin according to those rules
+    if points_override != None:
+        value = float(points_override)
 
     reward = value
 
@@ -805,7 +809,7 @@ def createSolve(
     #     challenge.visible = False # disable the challenge so noone else can see it?
 
     # this becomes part of a big elif chain
-    if flag.unsolved == True:
+    if flag.unsolved == True and follow_points_rules == True: # this will 
         reward += value * (SETTINGS["_firstblood_rate"])
         flag.unsolved = False
 
@@ -813,7 +817,7 @@ def createSolve(
             logmsg = f"First blood solve for {user.name} {flag.flag} base_value={value} reward={reward}"
 
     # this is hard to think about with the external validation...
-    if SETTINGS["_decay_solves"] == True:
+    if SETTINGS["_decay_solves"] == True and follow_points_rules == True:
         solve_count = count(
             select(
                 t for t in Transaction if t.solve.flag_text == flag.flag
@@ -857,10 +861,9 @@ def createSolve(
     commit()
 
     if flag.reward_capped == True:
-        logger.debug(
-            f"reward capped (possibly for abuse) for flag {flag.flag} by {flag.author.name}. No BYOC points will be awarded to challenge author for this solve"
-        )
-        return
+        msg = f"reward capped (possibly for abuse) for flag {flag.flag} by {flag.author.name}. No BYOC points will be awarded to challenge author for this solve"
+        logger.debug(msg)
+        return msg
 
     if flag.byoc == True:
         reward = value * SETTINGS["_byoc_reward_rate"]
@@ -895,9 +898,10 @@ def createSolve(
             )
 
     commit()
-
+    msg = f"{solve.user.name} solved {solve.flag_text}"
     if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
-        logger.debug(f"{solve.user.name} solved {solve.flag_text}")
+        logger.debug(msg)
+    return msg
 
 
 # @db_session

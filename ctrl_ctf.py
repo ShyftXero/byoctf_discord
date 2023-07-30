@@ -123,7 +123,7 @@ class Commands:
                     db.commit()
 
     @db.db_session
-    def grant_points(self, user: str, amount: int):
+    def grant_points(self, user: str, amount: float):
         """give points to a user from the byoctf_automaton. username should be discord username without the @ ; Can also "grant" negative points to take points away..."""
 
         botuser = db.User.get(name=SETTINGS["_botusername"])
@@ -157,21 +157,21 @@ class Commands:
         self.flags()
 
     @db.db_session
-    def sub_as(self, user: str, flag: str):
+    def sub_as(self, struser: str, strflag: str):
         """submit a flag on behalf of a user. useful in case a user can't submit (but you know they should be able to) or for testing and development."""
         # print(f'{user}, {flag}')
-        dbuser = db.User.get(name=user)
-        dbflag = db.Flag.get(flag=flag)
+        dbuser = db.User.get(name=struser)
+        dbflag = db.Flag.get(flag=strflag)
 
         # prevent double solve is now handled in createSolve()
         print(f"{dbuser}, {dbflag} <- Neither of these should be None")
         if dbuser and dbflag:
             # print(f"submiting {dbflag.flag} as {dbuser.name}")
 
-            db.createSolve(user=dbuser, flag=dbflag)
+            db.createSolve(user=dbuser, flag=dbflag, points_override=None)
             return
 
-        print(f"Error submitting {flag} as {user}")
+        print(f"Error submitting {strflag} as {struser}")
 
     @db.db_session
     def subs(self):
