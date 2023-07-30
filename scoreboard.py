@@ -91,7 +91,8 @@ def create_solve():
         "follow_points_rules": true
     }
 """
-    payload = request.form
+    payload = request.get_json()
+    # print([x for x in payload.items()])
     
     
     target_user = payload.get('target_user', "__invalid username here__") # you can't have a user name with spaces on discord, thus you couldn't have registered one. 
