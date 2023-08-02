@@ -531,9 +531,9 @@ class Commands:
                 print("cancelled")
 
     @db.db_session
-    def add_flag(self, submitted_flag: str, value: float):
+    def add_flag(self, submitted_flag: str, value: float, author:str|None=None):
         """Useful for adhoc or bonus flag creation. not associated with a challenge."""
-        print(f"Got flag '{submitted_flag}' for {value} points'")
+        print(f"Got flag '{submitted_flag}' for {value} points")
 
         # is the flag unique?
         flag = db.Flag.get(flag=submitted_flag)
@@ -546,10 +546,22 @@ class Commands:
         except BaseException as e:
             print("invalid value...", e)
             return
-        botuser = db.User.get(name=SETTINGS["_botusername"])
-        flag = db.Flag(flag=submitted_flag, value=value, author=botuser, byoc=False)
+        
+        if author != None:
+            db_author = db.User.get(name=author)
+            if db_author == None:
+                print(f"{author} not found")
+                return 
+        
+        if db_author == None:
+            db_author = db.User.get(name=SETTINGS["_botusername"])
+
+
+        flag = db.Flag(flag=submitted_flag, value=value, author=db_author, byoc=False)
         db.commit()
-        print(f"Flag {flag.id} created: {flag.flag}")
+        print(f"Flag {flag.id} created: '{flag.flag}' by author '{db_author.name}'")
+        
+
 
     @db.db_session
     def del_flag(self, flag_id: int):
