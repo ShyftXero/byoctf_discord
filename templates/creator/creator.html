@@ -99,7 +99,7 @@
         <div id="validateDiv" class="toml"></div>
 
 
-        Challenge TOML :<br>
+        <h2>Challenge TOML</h2><button onclick="myFunction()">Copy text</button><br>
         <code id="tomlDiv" class="language-toml">challenge here</code>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" integrity="sha512-UOoJElONeUNzQbbKQbjldDf9MwOHqxNz49NNJJ1d90yp+X9edsHyJoAs6O4K19CZGaIdjI5ohK+O2y5lBTW6uQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism-funky.min.css" integrity="sha512-KaCkQvJ0dQIhdJ0Am5LM3sgXA+Y0LWpbxkfKACZnlOqDvk54lZaWYk/sQiJGNRuSyFpe24jpjwJ4q+u3Rbez5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -110,5 +110,21 @@
         add_flag()
         add_hint()
     </py-script>
+    <script>
+    function myFunction() {
+        // Get the text field
+        var copyText = document.getElementById("tomlDiv");
+      
+        // Select the text field
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+      
+         // Copy the text inside the text field
+        navigator.clipboard.writeText(copyText.value);
+      
+        // Alert the copied text
+        alert("Copied the text: " + copyText.value);
+      }
+    </script>
 </body>
 </html>
