@@ -6,6 +6,11 @@ import toml
 import uuid
 from pyscript import Element
 from js import document
+# import base64
+
+import pyodide_http
+pyodide_http.patch_all()
+import requests
 
 num_flags = 1
 num_hints = 1
@@ -115,6 +120,22 @@ def add_hint():
 	flag_div.appendChild(this_hint_div)
 	num_hints += 1
 
+def validate_challenge():
+	chall_toml = build_challenge()
+
+	payload = {
+		"toml": chall_toml
+	}
+	
+	# print(chall_toml)
+	# resp = requests.post('http://localhost:5000/validate', data=payload) # dev
+	resp = requests.post('https://validator.byoctf.com/validate', data=payload) # prod
+	# print('sent post')
+	output = Element('validateDiv')
+	output.element.innerHTML = resp.text
+	# print(resp.text)
+	return
+
 def build_challenge():
 	tags = list(set([x for x in Element('tags').value.replace(' ','').lower().split(',') if x != '']))
 	depends_on = list(set([x for x in Element('depends_on').value.replace(' ','').lower().split(',') if x != '']))
@@ -131,8 +152,9 @@ def build_challenge():
 	}
 
 	ret = toml.dumps(challenge_object)
+	# print('successfully dumped')
 
-	output = Element('outputDiv')
-	output.write(ret)
+	output = Element('tomlDiv')
+	output.element.innerHTML = ret
 
-	return challenge_object
+	return ret

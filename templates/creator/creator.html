@@ -8,7 +8,8 @@
     <title>BYOCTF Challenge Builder</title>
 
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css"/>
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script> 
+   
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.2.3/vapor/bootstrap.min.css" integrity="sha512-f3fDhRxPxRct3q1hRKC9qEOkqNtlrNCktLDRAOpGFuQLezKoBDUCXPJrEa2VwQilrUj5f7SPx6asfwfKNNwkvw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
@@ -19,7 +20,7 @@
 </head>
 <body>
     <py-config>
-        packages = ["toml"]
+        packages = ["toml","requests","pyodide-http"]
     </py-config>
     
     <py-script src="./static/challenge_builder.py"></py-script>
@@ -83,18 +84,26 @@
                     <p></p>
                 </div>
 
-                <P>
-                    <button id='add_flag_btn' py-click="add_flag()" class="py-button">Add a flag</button>
-                    <button id='add_hint_btn' py-click="add_hint()" class="py-button">Add a hint</button>
-                    <button id='build_btn' py-click="build_challenge()" class="py-button">Build</button>
-                </P>
+                <p>
+                    <button id='add_flag_btn'  py-click="add_flag()" class="py-button">Add a flag</button>
+                    <button id='add_hint_btn'  py-click="add_hint()" class="py-button">Add a hint</button>
+                    <button id='build_btn'  py-click="build_challenge()" class="py-button">Build</button>
+                    <button id='validate_btn'  py-click="validate_challenge()" class="py-button">Validate</button>
+                </p>
                 
             
             </form>
         </div>
         
-        Output:
-        <pre><code id="outputDiv" class="toml"></code></pre>
+        Validation Status :
+        <div id="validateDiv" class="toml"></div>
+
+
+        Challenge TOML :<br>
+        <code id="tomlDiv" class="language-toml">challenge here</code>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" integrity="sha512-UOoJElONeUNzQbbKQbjldDf9MwOHqxNz49NNJJ1d90yp+X9edsHyJoAs6O4K19CZGaIdjI5ohK+O2y5lBTW6uQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism-funky.min.css" integrity="sha512-KaCkQvJ0dQIhdJ0Am5LM3sgXA+Y0LWpbxkfKACZnlOqDvk54lZaWYk/sQiJGNRuSyFpe24jpjwJ4q+u3Rbez5g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        
 
     </div>
     <py-script>
