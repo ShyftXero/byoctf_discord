@@ -29,10 +29,14 @@ def create():
 def validate():
 
     try:
-        challenge_object = toml.loads(request.form.get("challenge"))
+        # print(f'{request.form}')
+        challenge_object = toml.loads(request.form.get("toml"))
     except toml.TomlDecodeError as e:
         print(e)
-        return f"{e}"
+        return f"error decoding toml: {e}"
+    except TypeError as e:
+        print(e)
+        return f'error parsing toml: {e}'
 
     result = database.validateChallenge(challenge_object)
     logger.debug(challenge_object)
