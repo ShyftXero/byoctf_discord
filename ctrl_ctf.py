@@ -645,4 +645,7 @@ if __name__ == "__main__":
     core.Display = Display
     ###
     commands = Commands()
-    fire.Fire(commands)
+    try:
+        fire.Fire(commands)
+    except BrokenPipeError as e:
+        pass
