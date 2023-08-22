@@ -100,7 +100,7 @@ class Team(db.Entity):
 
 class Tag(db.Entity):
     id = PrimaryKey(int, auto=True)
-    name = Optional(str)
+    name = Required(str, unique=True)
     challenges = Set(Challenge)
     flags = Set(Flag)
 
@@ -1104,6 +1104,14 @@ def validateChallenge(challenge_object):
 
     return result
 
+@db_session()
+def upsertTag(name:str):
+    t = Tag.get(name=name)
+    if t == None:  # meaning a tag like this does not exists
+        t = Tag(name=name)
+        commit()
+    return t  
+
 
 @db_session()
 def buildChallenge(challenge_object, byoc=False):
@@ -1137,17 +1145,14 @@ def buildChallenge(challenge_object, byoc=False):
     )  # remove duplicates like ['forensics', 'Forensics', 'FoReNsIcS']
     tags = list()
     for tag in chall_obj_tags:
-        t = Tag.get(name=tag)
-        if t == None:  # meaning a tag like this does not exists
-            tags.append(Tag(name=tag))
-        else:
-            tags.append(t)
+        t = upsertTag(tag)
+        
+        tags.append(t)
 
     # add a tag for byoc
     if byoc:
-        byoc_tag = Tag.get(name="byoc")
-        if byoc_tag == None:
-            byoc_tag = Tag(name="byoc")
+        byoc_tag = upsertTag('byoc')
+                    
         tags.append(byoc_tag)
     tags = list(set(tags))  # incase someone added byoc tag manually
 

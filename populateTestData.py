@@ -64,12 +64,13 @@ with db_session:
     flag_fgh = db.Flag(flag="FLAG{fgh}", value=150, author=aykay)
 
     # tags
-    byoc_tag = Tag(name="byoc")
-    pentest_tag = Tag(name="pentest")
-    forensics_tag = Tag(name="forensics")
-    reversing_tag = Tag(name="reversing")
-    puzzle_tag = Tag(name="puzzle")
-    crypto_tag = Tag(name="crypto")
+    byoc_tag = upsertTag(name="byoc")
+    pentest_tag = upsertTag(name="pentest")
+    forensics_tag = upsertTag(name="forensics")
+    reversing_tag = upsertTag(name="reversing")
+    puzzle_tag = upsertTag(name="puzzle")
+    crypto_tag = upsertTag(name="crypto")
+    commit()
 
     # challenges
     bonus_challenge = db.Challenge(

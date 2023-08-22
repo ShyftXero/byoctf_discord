@@ -2,24 +2,29 @@ import random
 import uuid
 from database import *
 import faker
+import pony
 
 fake = faker.Faker()
 with db_session:
-	AMOUNT_OF_TEAMS = 5
+	AMOUNT_OF_TEAMS = 25
 	AMOUNT_OF_USERS_PER_TEAM = 4  # Only four players per team
-	AMOUNT_OF_FLAGS = 20
-	AMOUNT_OF_CHALLENGES = 10
+	AMOUNT_OF_FLAGS = 40
+	AMOUNT_OF_CHALLENGES = 50
 	AMOUNT_OF_HINTS_PER_CHALLENGE = 3
-	AMOUNT_OF_SOLVES = 1000 # this high number will help ensure that there are duplicate attempts from users to submit the same flag or a flag of a teammate or a flag they 
+	AMOUNT_OF_SOLVES = 2000 # this high number will help ensure that there are duplicate attempts from users to submit the same flag or a flag of a teammate or a flag they 
 
 	# Define some tag names
 	tag_names = ["byoc", "pentest", "forensics", "reversing", "puzzle", "crypto"]
+	tag_names += [fake.word() for i in range(AMOUNT_OF_CHALLENGES)]
 
 	# Get list of all possible tags
-	tags = [Tag(name=name) for name in tag_names]
-
-	ensure_bot_acct()
-	commit()
+	try:
+		tags = [upsertTag(name=name) for name in tag_names]
+		ensure_bot_acct()
+		commit()
+	except pony.orm.core.TransactionIntegrityError as e:
+		pass
+	
 
 	# Generate teams
 	print(f'creating {AMOUNT_OF_TEAMS} teams')
