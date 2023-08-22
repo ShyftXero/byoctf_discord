@@ -185,11 +185,14 @@ def get_user(uid):
     return ret
 
 
-
+@app.get('/hud/', defaults={'api_key':None})
 @app.get('/hud/<api_key>')
 @limiter.limit("5/second", override_defaults=False)
 @db.db_session
 def hud(api_key):
+    if api_key == None:
+        api_key = request.cookies.get('api_key')
+        
     user = db.get_user_by_api_key(api_key)
     if user == None:
         return "invalid api key"
