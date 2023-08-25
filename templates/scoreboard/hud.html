@@ -13,7 +13,7 @@
 </head>
 <body>
         <div class='container' hx-get="/hud/{{api_key}}" hx-trigger="every 2m" hx-swap="outerHTML">
-                <h1>SOTB PLAYER HUD</h1> <h2 id="transactions_link"><a href="/hud/transactions">Team Transactions</a></h2>
+                <h1>SOTB PLAYER HUD</h1> <h2><a href="/">Scoreboard</a></h2><h2 id="transactions_link"><a href="/hud/transactions">Team Transactions</a></h2>
                 <div class="team_info card card-body">
 					<h2>Team <code>{{teamname}}</code> Total Points <code>{{total}}</code> <h3>(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)</h3></h2>
 					<table class="table">
