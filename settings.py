@@ -4,6 +4,7 @@ CACHE_PATH = "./byoctf_diskcache"
 
 SETTINGS = dc.Cache(directory=CACHE_PATH)
 
+import custom_secrets
 
 def default_config():
     config = {  # KEYS THAT START WITH _ ARE CONSIDERED PRIVATE AND DON'T SHOW UP IN THE !status COMMAND
@@ -31,11 +32,10 @@ def default_config():
         
         #postgres config
         "_db_type": "postgres",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
-        "_db_host": "drona.db.elephantsql.com",  # database host
-        "_db_user": "acmmdipm",  # db username
-        "_db_pass": "DP7wvxE8NQHfNJDckr23DXDr0rChq02m",  # db password
-        
-        "_db_database": "acmmdipm",  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
+        "_db_host": custom_secrets.postgres_db_host,  # database host
+        "_db_user": custom_secrets.postgres_db_user,  # db username
+        "_db_pass": custom_secrets.postgres_db_pass,  # db password ; the old password will be a flag... just remind me and show where you got it. --shyft
+        "_db_database": custom_secrets.postgres_db_database,  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
         
         
         "_ctf_guild_id": 618912342385885198,  # your discord server. user right-click copy ID to get these
