@@ -20,6 +20,7 @@ def default_config():
         "_debug": True,  # interactively enable/disable certain debugging messages
         "_debug_level": 1,  # allow for some degree of verbosity. 2 is highest so far.
         "status": "Operational",  # a generic message; can be updated during the game with ctrl_ctf.py,
+        "percent_solved_to_unlock": .5, # this is the minimum percentage of parent chall flags must be captured to determine if a challenge is unlocked. 
         "_logfile": "byoctf.log",  # logfile for debugging/tail -f or whatever
         "_db_type": "sqlite",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
         # "_db_type": "postgres",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...

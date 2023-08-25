@@ -1,57 +1,96 @@
 @import url('https://fonts.googleapis.com/css2?family=Libre+Barcode+39+Text&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-* {
-    box-sizing: border-box;
-}
 
 body {
     margin: 0;
     padding: 0;
-
-	color:crimson;
-    background: white;
     position: relative;
+    background-color: #8e44ad;
+    color: #414141;
+    font-family: 'Roboto', sans-serif;
+}
+@keyframes gradient {
+    0%, 100% {background: #ff416c;}
+    10% {background: #ff4b2b;}
+    20% {background: #f39c12;}
+    30% {background: #21d4fd;}
+    40% {background: #b721ff;}
+    50% {background: #0b3d91;}
+    60% {background: #8e44ad;}
+    70% {background: #1abc9c;}
+    80% {background: #f1c40f;}
+    90% {background: #e74c3c;}
 }
 
-@keyframes gradient {
-    0% {background: rgba(255, 0, 0, 0.15);}
-    14% {background: rgba(255, 165, 0, 0.15);}
-    28% {background: rgba(255, 255, 0, 0.15);}
-    42% {background: rgba(0, 128, 0, 0.15);}
-    57% {background: rgba(0, 0, 255, 0.15);}
-    71% {background: rgba(75, 0, 130, 0.15);}
-    85% {background: rgba(238, 130, 238, 0.15);}
-    100% {background: rgba(255, 0, 0, 0.15);}
+@keyframes textcolor {
+    0%, 100% {text-shadow: 0 0 10px rgba(243, 156, 18, .5);}
+    10% {text-shadow: 2px 2px 10px rgba(26, 188, 156, .5);}
+    20% {text-shadow: 4px 4px 10px rgba(142, 68, 173, .5);}
+    30% {text-shadow: 6px 6px 10px rgba(231, 76, 60, .5);}
+    40% {text-shadow: 8px 8px 10px rgba(241, 196, 15, .5);}
+    50% {text-shadow: 6px 6px 10px rgba(26, 188, 156, .5);}
+    60% {text-shadow: 4px 4px 10px rgba(52, 152, 219, .5);}
+    70% {text-shadow: 2px 2px 10px rgba(11, 61, 145, .5);}
+    80% {text-shadow: 0 0 10px rgba(183, 33, 255, .5);}
+    90% {text-shadow: -2px -2px 10px rgba(33, 212, 253, .5);}
+}
+
+
+#transactions_link {
+    float: right;
 }
 
 .container {
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
-    height: 100vh;
-	color:crimson;
-    mix-blend-mode:exclusion;
-    color: white;
     position: relative;
     z-index: 2;
-} */
-table{
-	color:crimson;
-	mix-blend-mode: exclusion;
+    animation: textcolor 60s ease infinite;
+    /* align-items: center; */
+    /* justify-content: center; */
+    min-height: 100vh;
+    padding: 2rem;
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    padding: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
+}
+
+table thead {
+    vertical-align: bottom;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
+    font-size: larger;
+    font-weight: bold;
+}
+
 h1 {
-    padding: 0px;
-	font-family: 'Libre Barcode 39 Text' !important;
+    padding: 10px;
+    font-size:8em;
+    text-shadow: 0 0 10px rgba(183, 33, 255);
+      
+    font-family: 'Libre Barcode 39 Text';
+    font-style: normal;
+    font-weight:400;
+    font-display: swap;
 }
 
-h1 {
-    font-size: 3em;
+code {
+    color:rgba(183, 33, 255);
 }
+h2 {
 
-
-
-footer{
-	padding: 3em;
+    font-family: 'Orbitron', sans-serif;
+}
+.footer {
+    padding: 3em;
 }
 
 body::after {
@@ -61,8 +100,47 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, red, orange, yellow, green, blue, indigo, violet);
-    z-index: 1;
-    animation: gradient 5s ease infinite;
+    /* Colors:
+    1. Pink:    #ff416c
+    2. Orange:  #ff4b2b
+    3. Yellow:  #f39c12
+    4. Cyan:    #21d4fd
+    5. Purple:  #b721ff
+    6. Blue:    #0b3d91
+    7. Violet:  #8e44ad
+*/
+    /* background: linear-gradient(to bottom, #ff416c, #ff4b2b, #f39c12, #21d4fd, #b721ff, #0b3d91, #8e44ad); */
+
+    z-index: -1;
+    animation: gradient 60s ease-in-out infinite;
     opacity: .40;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    padding-right: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    width: 95%;
+}
+
+
+a {
+    color: #21d4fd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color:  #f39c12;;
+    
+}
+
+a:visited {
+    /* color: #b721ff; */
+}
+
+a:active {
+    color: #e74c3c;
 }

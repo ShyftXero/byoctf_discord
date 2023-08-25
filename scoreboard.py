@@ -23,53 +23,41 @@ app.secret_key = "thisisasecret"
 
 
 @app.get("/scores")
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("20/second", override_defaults=False)
 @db.db_session
 def scoreboard():
     
 
     msg = ""
+    team_scores = list()
+    top_players = list()
+
+
 
     if SETTINGS["scoreboard"] == "public":
-        # top 3 team scores
-        team_scores = db.getTopTeams(
-            num=SETTINGS["_scoreboard_size"]
-        )  # private settings with _
-        team_scores.insert(0, ["Team Name", "Score"])
-        table = GithubFlavoredMarkdownTable(team_scores)
-
-        msg += f"""
-#Top {SETTINGS["_scoreboard_size"]} Team scores 
-
-  <textarea disabled cols=30 rows=7>{table.table}</textarea>
-
-"""
-
+        # top 3 team scores by default
+        team_scores = db.getTopTeams(num=SETTINGS["_scoreboard_size"])  
     else:
-        msg += f"Scoreboard is set to private\n"
+        return {'error_msg':"Scoreboard is set to private"}
 
+    
     if SETTINGS["_show_mvp"] == True:
         # top players in the game
         topPlayers = db.topPlayers(num=SETTINGS["_mvp_size"])
-        player_data = [(p.name, p.team.name, v) for p, v in topPlayers]
-        player_data.insert(0, ["Player", "Team", "Score"])
-        table = GithubFlavoredMarkdownTable(player_data)
-        msg += f"""
-#Top {SETTINGS["_mvp_size"]} Players
-
-<textarea disabled cols=60 rows=10>{table.table}</textarea>
-"""
+        top_players = [(p.name, p.team.name, v) for p, v in topPlayers]
+        
     else:
         msg += f"MVP is set to False    "
     
     if request.args.get('json') != None:
         ret = {
             "top_teams": team_scores,
-            "top_players": player_data
+            "top_players": top_players
         }
         return ret
     else:
-        return markdown2.markdown(msg)
+        # return markdown2.markdown(msg)
+        return render_template('scoreboard/scores.html', msg=msg, team_scores=team_scores, top_players=top_players)
 
 @app.post('/api/sub_as')
 @limiter.limit("1/second")
@@ -192,15 +180,19 @@ def get_user(uid):
 def hud(api_key):
     if api_key == None:
         api_key = request.cookies.get('api_key')
+        if api_key == None: # it's STILL none
+            return "invalid api key"
         
     user = db.get_user_by_api_key(api_key)
     if user == None:
         return "invalid api key"
+    teamname=user.team.name
     
-    solved_challs:list[db.Challenge] = db.get_all_challenges(user)
+    solved_challs:list[db.Challenge] = sorted(db.get_completed_challenges(user), key=lambda c: c.title)
+    unsolved_challs = sorted(db.get_incomplete_challenges(user), key=lambda c: c.title)
     
-    unsolved_challs = db.get_unsolved_challenges(user)
-    purchased_hints = db.get_purchased_hints(user)
+    
+    purchased_hints = db.get_team_purchased_hints(user)
     total_byoc_rewards = db.get_byoc_rewards(user)
 
     # ret = f'{solved_challs}<br>{unsolved_challs}<br>{purchased_hints}'
@@ -208,9 +200,31 @@ def hud(api_key):
     total = sum([x[1] for x in scores])
 
 
-    resp = make_response(render_template('scoreboard/hud.html', team_scores=scores, total=total,  total_byoc_rewards=total_byoc_rewards, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key))
+    team_byoc_stats = db.get_team_byoc_stats(user)
+
+    resp = make_response(render_template('scoreboard/hud.html', teamname=teamname, team_scores=scores, total=total,  total_byoc_rewards=total_byoc_rewards, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key, team_byoc_stats=team_byoc_stats))
     resp.set_cookie('api_key', api_key)
     return resp
+
+
+@app.get('/hud/transactions')
+@app.get('/hud/transactions/')
+@db.db_session
+def transactions():
+    api_key = request.cookies.get('api_key')
+    if api_key == None:
+        return "api_key not set; visit HUD first..."
+
+    user = db.get_user_by_api_key(api_key)
+    if user == None:
+        return "invalid api key; visit HUD first."
+
+    teamname = user.team.name
+    transactions = db.get_team_transactions(user)
+
+    return render_template('scoreboard/transactions.html', api_key=api_key, transactions=transactions, teamname=teamname)
+
+
 
 @app.get('/chall/<chall_uuid>')
 @limiter.limit("5/second", override_defaults=False)
@@ -228,12 +242,21 @@ def chall(chall_uuid):
     if user == None:
         return "invalid api key"
     
-    purchased_hints = db.get_purchased_hints(user, chall_id=chall.id)
+    purchased_hints = db.get_team_purchased_hints(user, chall_id=chall.id)
     chall_value= db.challValue(chall)
-    captured_flags = db.getSubmittedChallFlags(chall, user)
-    
+    captured_flags = sorted(db.getSubmittedChallFlags(chall, user), key=lambda f: f.value)
+    solves = db.getSolves(chall)
 
-    return render_template('scoreboard/chall.html', api_key=api_key, chall=chall, chall_value=chall_value, captured_flags=captured_flags, purchased_hints=purchased_hints)
+    teammates = db.getTeammates(user)
+
+    if chall.author in teammates:
+        team_owned_challenge = True
+    else:
+        team_owned_challenge = False
+
+        
+
+    return render_template('scoreboard/chall.html', api_key=api_key, chall=chall,  team_owned_challenge=team_owned_challenge,chall_value=chall_value, captured_flags=captured_flags, purchased_hints=purchased_hints, solves=solves)
 
 
 @app.get("/")

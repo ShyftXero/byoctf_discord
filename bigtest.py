@@ -9,9 +9,9 @@ with db_session:
 	AMOUNT_OF_TEAMS = 25
 	AMOUNT_OF_USERS_PER_TEAM = 4  # Only four players per team
 	AMOUNT_OF_FLAGS = 40
-	AMOUNT_OF_CHALLENGES = 50
+	AMOUNT_OF_CHALLENGES = 25
 	AMOUNT_OF_HINTS_PER_CHALLENGE = 3
-	AMOUNT_OF_SOLVES = 2000 # this high number will help ensure that there are duplicate attempts from users to submit the same flag or a flag of a teammate or a flag they 
+	AMOUNT_OF_SOLVES = 1000 # this high number will help ensure that there are duplicate attempts from users to submit the same flag or a flag of a teammate or a flag they 
 
 	# Define some tag names
 	tag_names = ["byoc", "pentest", "forensics", "reversing", "puzzle", "crypto"]
@@ -68,7 +68,7 @@ with db_session:
 	# Generate challenges
 	print(f'creating {AMOUNT_OF_CHALLENGES} challenges')
 	challenges = [db.Challenge(
-		title=fake.sentence(),
+		title='_'.join(fake.words(nb=2)).upper(),
 		description=fake.text(),
 		flags=random.choices(flags, k=random.randint(1, 3)),
 		author=random.choice(users),
@@ -100,6 +100,8 @@ with db_session:
 	solved_flags = set()
 	for _ in range(AMOUNT_OF_SOLVES):
 		user = random.choice(users)
+		if user.name == 'BYOCTF_Automaton#7840':
+			continue
 		chall = random.choice(challenges)
 		if chall.id == 0:
 			continue
@@ -110,3 +112,17 @@ with db_session:
 		# 	flag = random.choice(flags)
 		solved_flags.add(flag.flag)
 		createSolve(user=user, flag=flag, challenge=chall)
+
+	# Generate random tips
+	print(f'creating {AMOUNT_OF_TEAMS * 4} tips')
+	solved_flags = set()
+	for _ in range(AMOUNT_OF_TEAMS * 4):
+		sender = random.choice(users)
+		recipient = random.choice(users)
+		if 'BYOCTF_Automaton#7840' in [sender.name, recipient.name]:
+			continue
+		if sender.id == 0 or recipient.id == 0:
+			continue
+		tip_amount = random.randint(-1, 50) + random.random()
+		print(f'{sender.name} -> {recipient.name} for {tip_amount}')
+		send_tip(sender, recipient, tip_amount=tip_amount)
