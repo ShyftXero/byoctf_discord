@@ -8,55 +8,78 @@
         integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
         crossorigin="anonymous"></script>
 
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
-        crossorigin="anonymous"></script>
-<!-- CSS only -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/solar/bootstrap.min.css" integrity="sha384-NCwXci5f5ZqlDw+m7FwZSAwboa0svoPPylIW3Nf+GBDsyVum+yArYnaFLE9UDzLd" crossorigin="anonymous">
+		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
 </head>
 <body>
-        <div class='main container' hx-get="/hud/{{api_key}}" hx-trigger="every 3s" hx-swap="outerHTML">
-                <h1>SOTB User HUD</h1>
-                <div class="team_info">
-					<table class="main table">
-							<thead><td>Team Member</td><td>Score</td></thead>
+        <div class='container' hx-get="/hud/{{api_key}}" hx-trigger="every 2m" hx-swap="outerHTML">
+                <h1>SOTB PLAYER HUD</h1> <h2 id="transactions_link"><a href="/hud/transactions">Team Transactions</a></h2>
+                <div class="team_info card card-body">
+					<h2>Team <code>{{teamname}}</code> Total Points <code>{{total}}</code> <h3>(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)</h3></h2>
+					<table class="table">
 							{% for tm in team_scores %}
 									<tr><td>{{tm[0]}}</td><td>{{tm[1]}}</td></tr>
 							{% endfor %}
 					</table>
-					<h2>Total Points <code>{{total}}</code> (including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges)</h2>
 				</div>
                 <!-- <h1>User Challenges and Hints</h1> -->
-                <div class="incomplete">
+                <div class="incomplete card card-body">
 					<h2>Incomplete Challenges:</h2>
-					<ul>
-							{% for chall in unsolved_challs %}
-									<li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
-							{% endfor %}
-					</ul>
+					<table class="table">
+						{% for chall in unsolved_challs %}
+							<tr><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
+						{% endfor %}
+					</table>
 				</div>
 
-                <div class="purchased_hints">
+                <div class="purchased_hints card card-body">
 					<h2>Purchased Hints:</h2>
-					<table class="main table">
-							<thead><td>Challenge ID</td><td>Hint</td><td>Cost</td><td>Hint Purchaser</td></thead>
-							{% for hint in purchased_hints %}
-									<tr><td>{{hint[0]}}</td><td>{{hint[1]}}</td><td>{{hint[2]}}</td><td>{{hint[3]}}</td></tr>
-							{% endfor %}
+					<table class="table sortable">
+							<thead>
+								<td>Challenge Title</td>
+								<td>Hint</td>
+								<td>Cost</td>
+								<td>Hint Purchaser</td>
+							</thead>
+							<tbody>
+								{% for hint in purchased_hints %}
+								<tr><td><a href="/chall/{{hint[0]}}"> {{hint[1]}}</a></td><td>{{hint[2]}}</td><td>{{hint[3]}}</td><td>{{hint[4]}}</td></tr>
+								{% endfor %}
+							</tbody>
 					</table>
 				</div>
 				
-				<div class="solved">
+				<div class="solved card card-body">
 					<h2>Solved Challenges:</h2>
 					<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
-									<ul>
-											{% for chall in solved_challs %}
-													<li>"{{ chall.title }}" - <a href="/chall/{{chall.uuid}}" class="href">{{chall.uuid}}</a></li>
-											{% endfor %}
-									</ul>
+					<table class="table">
+							{% for chall in solved_challs %}
+							<tr><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
+							{% endfor %}
+						</table>
 				</div>
-
+				
+				<div class="solved card card-body">
+					<h2>BYOC Challenges:</h2>
+					<table class="table sortable">
+						<thead>
+							<td>Challenge ID</td>
+							<td>Title</td>
+							<td>Number of Solves</td>
+							<td>Points Earned From This Chall</td>
+						</thead>
+						<tbody>
+							{% for line in team_byoc_stats %}
+							<tr>
+								<td>{{line[0].id}}</td>
+								<td><a href="/chall/{{line[0].uuid}}" class="href">"{{ line[0].title }}" </a></td>
+								<td>{{line[1]}}</td>
+								<td>{{line[2]}}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
                 
         </div>
 		<div class="footer"></div>

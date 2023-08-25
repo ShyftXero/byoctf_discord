@@ -263,7 +263,7 @@ def getSubmittedChallFlags(chall:Challenge, user:User):
         for solve in tm.solves:
             if solve.challenge == chall:
                 flags.append(solve.flag)
-    print(flags)
+    # print(flags)
     return flags
 
 
@@ -359,38 +359,44 @@ def challegeUnlocked(user:User, chall):
     # get all solves for this user and their teammates.
 
     teammates = getTeammates(user)  # including self
-    
+
+     
 
     # logger.debug(f'players {[x.name for x in teammates]}')
     # logger.debug(user.team.name)
-    team_solves = list()
-    for tm in teammates:
-        team_solves.append(
-            select(solve.flag for solve in Solve if tm == solve.user)[:]
-        )
+
+    flags_subbed_by_team = list()
+    flags_subbed_by_team = select(solve.flag for solve in Solve if solve.user in teammates and solve.flag in chall.parent.flags)[:] # optimized query
+    # for tm in teammates:
+    #     flags_subbed_by_team.append(
+    #         select(solve.flag for solve in Solve if tm == solve.user)[:]
+            
+    #     )
     # print(chall, team_solves)
     # logger.debug(f'team_solves {team_solves}')
 
-    # logger.debug(f'"{chall.title}" has a parent "{chall.parent.name}" challenge dependencies {chall.children}')
+    # logger.debug(f'"{chall.title}" has a parent "{chall.parent.title}" challenge dependencies {chall.children}')
 
-    parent_flags = list(chall.parent.flags)
+    parent_flags = set(chall.parent.flags) # use set to deduplicate flags. chall.parent.flags is the flags from ALL parent challenges (possibly more than one challenge). might need to think about that when randomly linking challenges. 
+    
+    if len(parent_flags) == 0:
+        return True
 
+    flag_capture_percent = len(flags_subbed_by_team) / len(parent_flags)
+    
+    if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 2:
+            logger.debug(f"team_solves: {flags_subbed_by_team}")
+            logger.debug(f"parent_flags: {parent_flags}")
+            logger.debug(f"flag_capture_percent { flag_capture_percent}")
 
     # consider making this a tunable setting? 
-    # if flag_percent >= SETTINGS["percent_solved_to_unlock"]:
-    #     return True
-    got_all_flags = all([flag in team_solves for flag in parent_flags])
-    if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 2:
-        logger.debug(f"team_solves: {team_solves}")
-        logger.debug(f"parent_flags: {parent_flags}")
-        logger.debug(f"got_all_flags { got_all_flags}")
-
-    if got_all_flags == True:
-        
+    if flag_capture_percent >= SETTINGS["percent_solved_to_unlock"]: # 50% by default
         return True
-    
+
     return False
 
+
+    
 
 @db_session()
 def rate(user: User, chall: Challenge, user_rating: float):
@@ -414,15 +420,20 @@ def rate(user: User, chall: Challenge, user_rating: float):
 
 
 @db_session()
-def get_all_challenges(user: User):
+def get_unlocked_challenges(user: User):
     # show only challenges which are not hidden (dependencies resolved and released)
+    teammates = getTeammates(user)
 
-    raw = list(select(c for c in Challenge if c.visible == True)) # visible means GMs want it to be solved... 
+    solvable = list(select(c for c in Challenge if c.visible == True and c.author not in teammates)) # type: ignore ; # visible means GMs want it to be solved... 
 
-    challs = [c for c in raw if challegeUnlocked(user, c)] # means the user has met the prereqs for the challenge
+
+    visible_and_unlocked = [c for c in solvable if challegeUnlocked(user, c)] # means the user has met the prereqs for viewing the challenge
     
-    return challs
-@db_session
+    return visible_and_unlocked
+
+
+
+@db_session()
 def issolved(chall:Challenge, user:User):
     teammates = getTeammates(user)
     sol = select(sol for sol in Solve if sol.challenge == chall and sol.user in teammates).first()
@@ -430,13 +441,40 @@ def issolved(chall:Challenge, user:User):
         return True
     return False
 
+@db_session()
+def get_completed_challenges(user:User):
+    teammates = getTeammates(user)
+
+    flags_subbed_by_team = list()
+    
+    unlocked_challs = get_unlocked_challenges(user)
+
+    completed = set()
+    for chall in unlocked_challs:
+        flags_subbed_by_team = select(solve.flag for solve in Solve if solve.user in teammates and solve.flag in chall.flags)[:] # optimized query
+        if len(chall.flags) == 0 : 
+            continue
+        
+        chall_percent = len(flags_subbed_by_team) / len(chall.flags)
+        if chall_percent == 1:
+            completed.add(chall)
+    return completed
+
+@db_session()
+def get_untouched_challenges(user: User):
+    challs = get_unlocked_challenges(user) # this is all unlocked challs / visible challs
+    teammates = getTeammates(user)
+    
+    untouched = list()
+
 
 
 @db_session()
-def get_unsolved_challenges(user: User):
-    """show only challenges which are not hidden AND unsolved by a user"""
+def get_incomplete_challenges(user: User): # TODO: how is this different than get_all_unlocked_challenges() ? around line 423  
+    """show only challenges which are not hidden AND unsolved by a user/team"""
+
     
-    challs = get_all_challenges(user) # this is all unlocked challs / visible challs
+    challs = get_unlocked_challenges(user) # this is all unlocked challs / visible challs
 
     teammates = getTeammates(user)
 
@@ -493,27 +531,68 @@ def getHintTransactions(user: User) -> list[Transaction]:
     return res
 
 @db_session
-def get_purchased_hints(user:User, chall_id=-1):
+def get_team_purchased_hints(user:User, chall_id=-1):
     hint_transactions = getHintTransactions(user)
 
     # msg = f"Team {user.team.name}'s hints:\n"
 
     data = list()
-    teammates = getTeammates(user)  # throws an error about db session is over
+    teammates = getTeammates(user)  
 
     for tm in teammates:
-        tm_hints = getHintTransactions(tm)
+        tm_hints = sorted(getHintTransactions(tm))
         if chall_id == -1:
             data += [
-                (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
+                (ht.hint.challenge.uuid, ht.hint.challenge.title, ht.hint.text, ht.hint.cost, ht.sender.name)
                 for ht in tm_hints
             ]
         else:
             data += [
-                (ht.hint.challenge.id, ht.hint.text, ht.hint.cost, ht.sender.name)
+                (ht.hint.challenge.id, ht.hint.challenge.title, ht.hint.text, ht.hint.cost, ht.sender.name)
                 for ht in tm_hints if ht.hint.challenge.id == chall_id
             ]
     return data
+
+@db_session()
+def get_team_byoc_stats(user:User):
+    
+    teammates = getTeammates(user)
+    team_challs = db.Challenge.select(lambda c: c.author in teammates)[:]  # type: ignore
+
+    # num solves per challenge
+    byoc_solves = list()
+    for chall in team_challs:
+        num_solves = db.Solve.select(lambda s: s.challenge == chall)[:]  # type: ignore
+        total_rewards_for_chall = 0
+        # total_rewards_for_chall = sum(
+        #     db.select( sum(t.value) for t in db.Transaction if t.type == "byoc reward" and t.recipient in teammates and t.challenge == chall).without_distinct()
+        # )
+
+        ts = db.Transaction.select(lambda t: t.type == "byoc reward" and t.recipient in teammates and t.challenge == chall)[:]
+        
+        for t in ts:
+            total_rewards_for_chall += t.value
+        
+        line = [
+            chall,
+            len(num_solves),
+            total_rewards_for_chall
+        ]
+
+        byoc_solves.append(line)
+    
+
+    return byoc_solves
+
+
+@db_session()
+def get_team_transactions(user:User):
+
+    teammates = getTeammates(user)  # throws an error about db session is over
+
+    ts = db.Transaction.select(lambda t: t.sender in teammates or t.recipient in teammates )[:]
+
+    return ts
 
 @db_session
 def getHintCost(user: User, challenge_id: int = 0) -> int|float:
@@ -911,26 +990,26 @@ def createSolve(
 
 @db_session
 def percentComplete(chall: Challenge, user: User):
-    try:
-        flags = list(chall.flags)
-    except AttributeError as e:
-        return 0
-    num_solves_for_chall = 0
     teammates = getTeammates(user)  # look for all solves from my team. not just me.
-    for flag in flags:
-        for teammate in teammates:
-            if Solve.get(user=teammate, flag_text=flag.flag):
-                num_solves_for_chall += 1
     try:
-        return (num_solves_for_chall / len(flags)) * 100
+        # solves = db.select(s for s in db.Solve if s.flag in chall.flags and s.user.name in [tm.name for tm in teammates])[:]
+
+        solves = db.Solve.select(lambda s: s.flag in chall.flags and s.user in teammates)[:]
+
+    
+        return ( len(solves) / len(chall.flags)) * 100
     except ZeroDivisionError as e:
         # the len() of flags is zero... challenge without flags...
         return 0
+    except BaseException as e:
+        print(e)
+        # breakpoint()
+        raise e
 
 
 @db_session
 def challengeComplete(chall: Challenge, user: User):
-    if percentComplete(chall, user) == 100:
+    if percentComplete(chall, user) >= (SETTINGS["percent_solved_to_unlock"] * 100):
         return True
     return False
 
@@ -1105,12 +1184,54 @@ def validateChallenge(challenge_object):
     return result
 
 @db_session()
+def getSolves(chall:Challenge) -> list[Solve]:
+    solves = sorted(db.Solve.select(lambda s: s.challenge == chall), key=lambda s: s.time)
+    return solves
+
+@db_session()
 def upsertTag(name:str):
     t = Tag.get(name=name)
     if t == None:  # meaning a tag like this does not exists
         t = Tag(name=name)
         commit()
     return t  
+
+@db_session()
+def send_tip(sender:User, recipient:User, msg:str|None=None, tip_amount:float=10) -> tuple[bool,float]:
+    # check funds
+    current_points = getScore(sender)
+    logger.debug(f"{sender.name} to {recipient.name} ; sender points {current_points} tip amount {tip_amount}")
+    
+    if current_points < tip_amount:
+        return False, current_points
+    
+    if msg == None:
+        funny_thank_you_phrases = [
+            "Thank you for being a friend." ,
+            "Thanks for putting up with my weirdness. You're a real champ!",
+            "You're the cheese to my macaroni. Thanks for being a friend!",
+            "Gratitude level: Over 9000! Thanks for being in my friend-zone!",
+            "Thank you for being the Watson to my Sherlock. Stay elementary!",
+            "You're more than a friend; you're my unpaid therapist. Thanks for listening!",
+            "Thanks for being my friend – or at least convincingly pretending to be!",
+            "Thanks for laughing at my jokes, even when no one else does. You're a keeper!",
+            "You must have a PhD in Friendship – thanks for being top of the class!",
+            "Friendship with you is like owning a dog without the feeding part. Thanks for always being there!",
+            "Thanks for being the ‘Ctrl + S’ to my life. Friendship saved!"
+        ]
+        msg =  random.choice(funny_thank_you_phrases)
+    else:
+        msg = msg[:100]
+
+    tip = db.Transaction(
+            sender=sender,
+            recipient=recipient,
+            value=tip_amount,
+            type="tip",
+            message=msg,
+        )
+    commit()
+    return True, getScore(sender) # this should be the score post-tip. 
 
 
 @db_session()

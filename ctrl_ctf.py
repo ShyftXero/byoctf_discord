@@ -105,7 +105,7 @@ class Commands:
 
         # os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
         os.system(
-            "ipython -i -c 'import database as db;  user=db.User.get(id=1); user2=db.User.get(id=2); user3=db.User.get(id=3); user4=db.User.get(id=4); user5=db.User.get(id=5)'"
+            "ipython -i -c 'import database as db;  shyft = db.User.get(name=\"shyft_xero\"); chall = db.Challenge[5]; print(\"shyft and chall available\")'"
         )
 
     def set_team(self, username, team):

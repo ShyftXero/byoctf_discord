@@ -632,17 +632,18 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         # is this challenge unlocked?
         # get parent challenges.
         flag_challs = list(flag.challenges)
-
+        # incomplete_challs = list()
         for chall in flag_challs:
             for p_chall in list(chall.parent):
                 print(p_chall.title, p_chall.id)
                 # is the parent complete?
                 # if db.challegeUnlocked(user, chall) == False:
                 if db.challengeComplete(p_chall, user) == False:
+                    # incomplete_challs.append(p_chall)
                     await ctx.send(
-                        f"This challenge is not unlocked yet... good job? Look at `{p_chall.title}` and complete it then try again?"
+                        f"This flag is for a challenge that is not unlocked yet... good job? Look at `{p_chall.title}` and unlock it (50% or more flags captured) then try again?"
                     )
-                    return
+                    # return
 
         msg = "Correct!\n"
         reward = flag.value
@@ -706,14 +707,13 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
 @commands.cooldown(
     1, SETTINGS["_rate_limit_window"], type=discord.ext.commands.BucketType.user
 )  # one submission per second per user
-async def tip(ctx, target_user: Union[discord.User, str], tip_amount: float, msg=None):
+async def tip(ctx, target_user: Union[discord.User, str], tip_amount: float, msg:str|None=None):
     if await isRegistered(ctx) == False:
         return
 
-    if msg == None:
-        msg = "Thank you for being a friend."  # make this a random friendly message?
+    
 
-    if tip_amount < 1:
+    if tip_amount <= 0:
         await ctx.send("nice try... ")
         return
 
@@ -732,33 +732,31 @@ async def tip(ctx, target_user: Union[discord.User, str], tip_amount: float, msg
                 f"invalid recipient...`{target_user}`. Are they registered for the ctf using the `!reg` command?"
             )
             return
-
-        # check funds
-        points = db.getScore(sender)
-        logger.debug(f"my points {points} tip amount {tip_amount}")
-        if points < tip_amount:
+        
+        result, points = db.send_tip( sender, recipient, tip_amount=tip_amount, msg=msg)
+        if result == False:
             await ctx.send(
-                f"You only have {points} points and can't send {tip_amount}..."
+                f"You only have {points} points and can't send {tip_amount}... math is hard... "
             )
             return
+        
+        
 
-        msg = msg[:100]
+        # tip = db.Transaction(
+        #     sender=sender,
+        #     recipient=recipient,
+        #     value=tip_amount,
+        #     type="tip",
+        #     message=msg,
+        # )
 
-        tip = db.Transaction(
-            sender=sender,
-            recipient=recipient,
-            value=tip_amount,
-            type="tip",
-            message=msg,
-        )
-
-        db.commit()
+        # db.commit()
 
     recipient_discord_user = await getDiscordUser(ctx, username(target_user))
     message = f"<@{ctx.author.id}> is sending a tip of `{tip_amount}` points to <@{recipient_discord_user.id}> with message ```{msg}```"
     await ctx.send(message)
     if SETTINGS["_debug"] == True and SETTINGS["_debug_level"] == 1:
-        logger.debug(f"{username(ctx)} - {message}")
+        logger.debug(f"tip from {username(ctx)} - {message}")
 
 
 @bot.command(
@@ -781,7 +779,7 @@ async def list_unsolved(ctx):
 
     with db.db_session:
         user = db.User.get(name=username(ctx))
-        challs = db.get_unsolved_challenges(user)
+        challs = db.get_incomplete_challenges(user)
 
         # logger.debug(challs)
 
@@ -831,7 +829,7 @@ async def list_all(ctx, *, tags=None):
 
     with db.db_session:
         user = db.User.get(name=username(ctx))
-        challs = db.get_all_challenges(user)
+        challs = db.get_unlocked_challenges(user)
         # It'd be nice to show a percentage complete as well...
         #
         # don't show teammates challenges or your own challenges. !bstat to see yours. helps prevent a teammate working on your challenges when they couldn't submit it anyway.

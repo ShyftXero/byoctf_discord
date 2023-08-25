@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+    <title>SOTB HUD</title>
+        <script src="https://unpkg.com/htmx.org@1.8.0"
+        integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
+        crossorigin="anonymous"></script>
+
+		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+</head>
+<body>
+        <div class='container' hx-get="/hud/{{api_key}}" hx-trigger="every 2m" hx-swap="outerHTML">
+			<a href="/hud/{{api_key}}" class="href"><h1>SOTB Transactions HUD</h1></a> 
+			<a href="/hud/{{api_key}}" class="href"><h2>Back to User HUD</h2></a>                 
+
+                <div class="purchased_hints card card-body">
+					<h2>Transactions for team <code>{{teamname}}</code></h2>
+					<table class="table sortable">
+							<thead>
+								<td>Transaction ID</td>
+								<td>Sender</td>
+								<td>Recipient</td>
+								<td>Value</td>
+								<td>Type</td>
+								<td>Message</td>
+								<td>Time</td>
+								
+							</thead>
+
+							<tbody>
+								{% for trans in transactions %}
+								<tr>
+									<td>{{trans.id}}</td>
+									<td>{{trans.sender.name}}</td>
+									<td>{{trans.recipient.name}}</td>
+									<td>{{trans.value}}</td>
+									<td>{{trans.type}}</td>
+									<td>{{trans.message}}</td>
+									<td>{{trans.time}}</td>									
+								</tr>
+								{% endfor %}
+							</tbody>
+					</table>
+				</div>
+				
+				
+
+                
+        </div>
+		<div class="footer"></div>
+</body>
+</html>
