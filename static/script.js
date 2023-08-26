@@ -1,20 +1,14 @@
 function addSpoilerTags() {
-	const tableRows = document.querySelectorAll('tr');  // Replace 'tr' with the actual selector of your rows
+	const tableRows = document.querySelectorAll('tr');  
   
 	tableRows.forEach((row) => {
-	  const cells = row.querySelectorAll('td');  // Replace 'td' with the actual selector of your cells
+	  const cells = row.querySelectorAll('td');  
   
 	  cells.forEach((cell) => {
-		const content = cell.innerHTML;
-		const regex = /FLAG{[^}]+}/g;
-		let newContent = content;
-		let match;
-		
-		while (match = regex.exec(content)) {
-		  const spoilerTag = `<span class="spoiler" onclick="revealSpoiler(this)">[Click to reveal]</span><span class="hidden-flag" style="display:none;">${match[0]}</span>`;
-		  newContent = newContent.replace(match[0], spoilerTag);
-		}
+		let content = cell.innerHTML;
   
+		const newContent = content.replace(/(?!<span class="spoiler">)FLAG{[^}]+}(?!<\/span>)/g, '<span class="spoiler">$&</span>');
+		
 		if (content !== newContent) {
 		  cell.innerHTML = newContent;
 		}
@@ -22,12 +16,18 @@ function addSpoilerTags() {
 	});
   }
   
-  function revealSpoiler(element) {
-	const hiddenFlag = element.nextElementSibling;
-	hiddenFlag.style.display = 'inline';
-	element.style.display = 'none';
-  }
+  document.addEventListener("mouseover", function(event) {
+	if (event.target.classList.contains('spoiler')) {
+	  event.target.style.color = "white"; 
+	}
+  });
   
-  // Run addSpoilerTags every 1 second (1000 milliseconds)
+
+  document.addEventListener("mouseout", function(event) {
+	if (event.target.classList.contains('spoiler')) {
+	  event.target.style.color = "black"; 
+	}
+  });
+
   setInterval(addSpoilerTags, 1000);
   
