@@ -28,7 +28,7 @@
 		</div>
 
 		<div class="captured_flags card card-body">
-			<h2>Captured Flags</h2>{% if team_owned_challenge %}<h2>TEAM OWNED CHALLENGE!!!</h2>{% endif %}
+			<h2>{{captured_flags|length}} Captured Flags of {{chall.flags|length}}</h2>{% if team_owned_challenge %}<h2>TEAM OWNED CHALLENGE!!!</h2>{% endif %} 
 			<table class="table sortable">
 				<thead>
 					<td>Description</td>
