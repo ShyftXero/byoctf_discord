@@ -155,3 +155,14 @@ table.sortable thead {
 table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
     content: " \25B4\25BE" 
 }
+
+
+.spoiler {
+    cursor: pointer;
+    color: #0b3d91;
+    text-decoration: underline;
+  }
+  
+  .hidden-flag {
+    color: black;
+  }
