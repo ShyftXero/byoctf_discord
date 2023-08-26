@@ -219,7 +219,7 @@ def transactions():
         return "invalid api key; visit HUD first."
 
     teamname = user.team.name
-    transactions = db.get_team_transactions(user)
+    transactions = sorted(db.get_team_transactions(user), key=lambda t: t.time, reverse=True)
 
     return render_template('scoreboard/transactions.html', api_key=api_key, transactions=transactions, teamname=teamname)
 
