@@ -180,8 +180,7 @@ def get_user(uid):
 def hud(api_key):
     if api_key == None:
         api_key = request.cookies.get('api_key')
-        if api_key == None: # it's STILL none
-            return "invalid api key"
+        
         
     user = db.get_user_by_api_key(api_key)
     if user == None:
