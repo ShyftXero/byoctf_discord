@@ -172,9 +172,9 @@ def get_user(uid):
     }
     return ret
 
-@app.get('/login', defaults={'api_key':None})
-@app.get('/login/', defaults={'api_key':None})
+
 @app.get('/login/<api_key>', defaults={'api_key':None})
+@limiter.limit("1/second")
 def login(api_key):
     user = db.get_user_by_api_key(api_key)
     if user == None:
