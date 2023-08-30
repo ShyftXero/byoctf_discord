@@ -42,12 +42,14 @@ password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
     bot = db.User.get(id=0)
     # print(bot)
     # exit()
-    shyft = db.User(name="shyft_xero", team=bestteam)
-    fie = db.User(name="fie311", team=bestteam)
+    shyft = db.User(name="shyft_xero", team=bestteam, is_admin=True)
+    fie = db.User(name="fie311", team=bestteam, is_admin=True)
     r3d = db.User(name="combaticus", team=secondteam)
     malloc = db.User(name="blackcatt", team=thirdteam)
     aykay = db.User(name="aykay", team=fourthteam)
     jsm = db.User(name='jsm2191', team=bestteam)
+    moonkaptain = db.User(name='moonkaptain', team=secondteam, is_admin=True)
+    fractumseraph = db.User(name="fractumseraph", team=fourthteam)
 
     # flags
     flag_seed = db.Flag(
