@@ -77,6 +77,8 @@ class User(db.Entity):
     authored_flags = Set(Flag)
     ratings = Set('Rating')
     api_key = Required(uuid.UUID, default=uuid.uuid4)
+    is_admin = Required(bool, default=False)
+    
 
 
 

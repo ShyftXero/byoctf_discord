@@ -28,13 +28,9 @@ app.secret_key = "thisisasecret"
 @limiter.limit("20/second", override_defaults=False)
 @db.db_session
 def scoreboard():
-    
-
     msg = ""
     team_scores = list()
     top_players = list()
-
-
 
     if SETTINGS["scoreboard"] == "public":
         # top 3 team scores by default
@@ -60,6 +56,11 @@ def scoreboard():
     else:
         # return markdown2.markdown(msg)
         return render_template('scoreboard/scores.html', msg=msg, team_scores=team_scores, top_players=top_players)
+
+@app.get('/api/all_info')
+@limiter.limit('6/min')
+@db.db_session
+
 
 @app.post('/api/sub_as')
 @limiter.limit("1/second")
@@ -109,6 +110,9 @@ def create_solve():
     admin_user:db.User = db.get_user_by_api_key(api_key)
     if admin_user == None:
         return f"invalid admin api key: {api_key} ;did it change?"
+
+    if admin_user.is_admin == False:
+        return {"error":"not an admin"}
 
     follow_points_rules = payload.get('follow_points_rules', True)
 
@@ -173,6 +177,7 @@ def get_user(uid):
         'teamname': user.team.name
     }
     return ret
+
 
 
 @app.get('/login/<api_key>')
