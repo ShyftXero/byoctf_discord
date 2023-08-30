@@ -57,9 +57,9 @@ def scoreboard():
         # return markdown2.markdown(msg)
         return render_template('scoreboard/scores.html', msg=msg, team_scores=team_scores, top_players=top_players)
 
-@app.get('/api/all_info')
-@limiter.limit('6/min')
-@db.db_session
+# @app.get('/api/all_info')
+# @limiter.limit('6/min')
+# @db.db_session
 
 
 @app.post('/api/sub_as')
