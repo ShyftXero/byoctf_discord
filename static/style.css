@@ -116,13 +116,24 @@ body::after {
     opacity: .40;
 }
 
+.chall {
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    padding: 1rem 1rem 2rem;
+    background: #f8f3e8;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
 .card {
+
+    
     background-color: rgba(255, 255, 255, 0.2);
     padding: 1rem;
     padding-right: 1rem;
     border-radius: 1rem;
     margin-bottom: 1rem;
-    width: 95%;
+    width: auto;
 }
 
 
@@ -153,7 +164,7 @@ table.sortable thead {
     cursor: default;
 }
 table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort)::after { 
-    content: " \25B4\25BE" 
+    content: "\25B4\25BE" 
 }
 
 

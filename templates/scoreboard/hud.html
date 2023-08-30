@@ -14,14 +14,27 @@
 
 </head>
 <body>
-        <div class='container' hx-get="/hud/{{api_key}}" hx-trigger="every 2m" hx-swap="outerHTML">
+        <div class='container' hx-get="/hud/" hx-trigger="every 2m" hx-swap="outerHTML">
                 <h1>SOTB PLAYER HUD</h1> <h2><a href="/">Scoreboard</a></h2><h2 id="transactions_link"><a href="/hud/transactions">Team Transactions</a></h2>
                 <div class="team_info card card-body">
-					<h2>Team <code>{{teamname}}</code> Total Points <code>{{total}}</code> <h3>(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)</h3></h2>
-					<table class="table">
+					<h2>
+						Team <code>{{teamname}}</code> 
+						Total Points <code>{{total}}</code>
+						<pre>
+							<h5>(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)
+							</h5>
+						</pre>
+					</h2>
+					<table class="table sortable">
+						<thead>
+							<td>Player</td>
+							<td>Points</td>
+						</thead>
+						<tbody>
 							{% for tm in team_scores %}
-									<tr><td>{{tm[0]}}</td><td>{{tm[1]}}</td></tr>
+								<tr><td>{{tm[0]}}</td><td>{{tm[1]}}</td></tr>
 							{% endfor %}
+						</tbody>
 					</table>
 				</div>
                 <!-- <h1>User Challenges and Hints</h1> -->
@@ -29,7 +42,7 @@
 					<h2>Incomplete Challenges:</h2>
 					<table class="table">
 						{% for chall in unsolved_challs %}
-							<tr><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
+							<tr class="card chall"><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
 						{% endfor %}
 					</table>
 				</div>
@@ -68,7 +81,7 @@
 							<td>Challenge ID</td>
 							<td>Title</td>
 							<td>Number of Solves</td>
-							<td>Points Earned From This Chall</td>
+							<td>Points Earned From This Challenge</td>
 						</thead>
 						<tbody>
 							{% for line in team_byoc_stats %}

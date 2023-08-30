@@ -1,7 +1,7 @@
 from rich import print
 import database as db
 from settings import SETTINGS
-from flask import Flask, request, render_template, make_response
+from flask import Flask, request, render_template, make_response, url_for, redirect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -147,7 +147,7 @@ def grant_points():
     # did they present the correct one?
     admin_user = db.get_user_by_api_key(api_key)
     if admin_user == None:
-        return "invalid admin api key"
+        return "invalid admin api key", 403
     
     # seems legit...
     res = db.grant_points(user=target_user,admin_user=admin_user, amount=points, msg=message)
@@ -164,7 +164,7 @@ def grant_points():
 def get_user(uid):
     user:db.User = db.get_user_by_id(uid)
     if user == None:
-        return "invalid user id"
+        return "invalid user id", 403
     ret = {
         "username": user.name,
         'teammates': [ tm.name for tm in db.getTeammates(user)],
@@ -172,19 +172,30 @@ def get_user(uid):
     }
     return ret
 
+@app.get('/login', defaults={'api_key':None})
+@app.get('/login/', defaults={'api_key':None})
+@app.get('/login/<api_key>', defaults={'api_key':None})
+def login(api_key):
+    user = db.get_user_by_api_key(api_key)
+    if user == None:
+        return "invalid api key", 403
+    resp = make_response(redirect(url_for('hud')))
+    resp.set_cookie('api_key', api_key)
+    return resp
 
-@app.get('/hud/', defaults={'api_key':None})
-@app.get('/hud/<api_key>')
+@app.get('/hud')
+@app.get('/hud/')
 @limiter.limit("5/second", override_defaults=False)
 @db.db_session
-def hud(api_key):
+def hud():
+    api_key = request.cookies.get('api_key')
     if api_key == None:
-        api_key = request.cookies.get('api_key')
+        return "api key not present"
         
         
     user = db.get_user_by_api_key(api_key)
     if user == None:
-        return "invalid api key"
+        return "invalid api key", 403
     teamname=user.team.name
     
     solved_challs:list[db.Challenge] = sorted(db.get_completed_challenges(user), key=lambda c: c.title)
@@ -202,7 +213,8 @@ def hud(api_key):
     team_byoc_stats = db.get_team_byoc_stats(user)
 
     resp = make_response(render_template('scoreboard/hud.html', teamname=teamname, team_scores=scores, total=total,  total_byoc_rewards=total_byoc_rewards, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key, team_byoc_stats=team_byoc_stats))
-    resp.set_cookie('api_key', api_key)
+
+    
     return resp
 
 
@@ -212,11 +224,11 @@ def hud(api_key):
 def transactions():
     api_key = request.cookies.get('api_key')
     if api_key == None:
-        return "api_key not set; visit HUD first..."
+        return "api_key not set; login first", 400
 
     user = db.get_user_by_api_key(api_key)
     if user == None:
-        return "invalid api key; visit HUD first."
+        return "invalid api key; login first.", 403
 
     teamname = user.team.name
     transactions = sorted(db.get_team_transactions(user), key=lambda t: t.time, reverse=True)
@@ -231,7 +243,7 @@ def transactions():
 def chall(chall_uuid):
     chall = db.Challenge.get(uuid=chall_uuid)
     if chall == None:
-        return "invalid challenge uuid"
+        return "invalid challenge uuid", 404
     
     api_key = request.cookies.get('api_key')
     if api_key == None:
@@ -239,7 +251,7 @@ def chall(chall_uuid):
     # user = db.get_user_by_api_key(api_key)
     user = db.User.get(api_key=api_key)
     if user == None:
-        return "invalid api key"
+        return "invalid api key", 403
     
     purchased_hints = db.get_team_purchased_hints(user, chall_id=chall.id)
     chall_value= db.challValue(chall)

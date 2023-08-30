@@ -23,6 +23,7 @@ flag_html_template = """
 		Flag Value:<input type="text" class="form-control flag" name="flag_XXX_value" id="flag_XXX_value" placeholder="How many points is THIS flag worth?">
 		Actual Flag:<input type="text" class="form-control flag" name="flag_XXX_flag" id="flag_XXX_flag" placeholder="This is the actual flag as a player would submit it e.g. FLAG{good_job_solving}">
 	</p>
+	<button onclick='document.getElementById("flag_set_XXX").parentNode.parentNode.removeChild(document.getElementById("flag_set_XXX").parentNode)'>Delete</button>
 </div>
 """
 
@@ -33,6 +34,7 @@ hint_html_template = """
 		Hint Cost:<input type="text" class="form-control hint" name="hint_XXX_cost" id="hint_XXX_cost" placeholder="How much will a player have to pay to view this hint?">
 		Hint text:<textarea class="form-control hint" name="hint_XXX_text" id="hint_XXX_text" rows="2" width="100%" placeholder="This is the actual hint you are providing..."></textarea>
 	</p>
+	<button onclick='document.getElementById("hint_set_XXX").parentNode.parentNode.removeChild(document.getElementById("hint_set_XXX").parentNode)'>Delete</button>
 </div>
 """
 
@@ -47,53 +49,60 @@ class hashabledict(dict):
 def collect_flags():
 	flags = list()
 	#print('here')
-	for i in range(1,num_flags):
+	for i in range(1,1000):
 		#print(i)
-		title = Element(f'flag_{i}_title')
-		value = Element(f'flag_{i}_value')
-		flag = Element(f'flag_{i}_flag')
+		try: #these divs may not exists if they were deleted
+			title = Element(f'flag_{i}_title')
+			value = Element(f'flag_{i}_value')
+			flag = Element(f'flag_{i}_flag')
+		except AttributeError as e:
+			continue # carry on
 		#print('flag values', title.value, value.value, flag.value)
-		if title.value == None or value.value == None or flag.value == None: 
-			break
 		try:
+			if title.value == None or value.value == None or flag.value == None: 
+				continue
 			flag_points = int(value.value.strip())
-		except ValueError as e:
-			flag_points = 0
+			tmp = hashabledict({
+				'flag_title': title.value.strip(),
+				'flag_value': flag_points,
+				'flag_flag' : flag.value.strip()
+			})
+			flags.append(tmp)
+			#print(flags)
 
-		tmp = hashabledict({
-			'flag_title': title.value.strip(),
-			'flag_value': flag_points,
-			'flag_flag' : flag.value.strip()
-		})
-		flags.append(tmp)
-		#print(flags)
+		except AttributeError as e:
+			continue	
+		except ValueError as e:
+			continue
 
 	return list(set(flags))
 
 def collect_hints():
 	hints = list()
-	for i in range(1,num_hints):
+	for i in range(1,1000):
 		#print(i)
-		cost = Element(f'hint_{i}_cost')
-		text = Element(f'hint_{i}_text')
-		#print('hint values', cost.value, text.value)
-		if cost.value == None or text.value == None :
-			break
-		
 		try:
+			cost = Element(f'hint_{i}_cost')
+			text = Element(f'hint_{i}_text')
+		except AttributeError as e:
+			continue
+		#print('hint values', cost.value, text.value)
+		try:
+			if cost.value == None or text.value == None :
+				continue
 			cost = int(cost.value.strip())
+			tmp = hashabledict({
+				'hint_cost': cost ,
+				'hint_text': text.value.strip()
+			})
+			hints.append(tmp)
+			#print(hints)
+		except AttributeError as e:
+			continue
 		except ValueError as e:
-			cost = 0
+			continue
 		
-		tmp = hashabledict({
-			'hint_cost': cost ,
-			'hint_text': text.value.strip()
-		})
-		hints.append(tmp)
-		#print(hints)
-
 	return list(set(hints))	
-
 
 
 def add_flag():
