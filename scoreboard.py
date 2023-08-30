@@ -10,6 +10,8 @@ from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
 
 import markdown2
 
+from loguru import logger
+
 app = Flask(__name__)
 limiter = Limiter(
     app,
@@ -175,8 +177,11 @@ def get_user(uid):
 
 @app.get('/login/<api_key>', defaults={'api_key':None})
 @limiter.limit("1/second")
+@db.db_session
 def login(api_key):
+
     user = db.get_user_by_api_key(api_key)
+    logger.debug(f"api_key{api_key}, user:{user.to_dict()}")
     if user == None:
         return "invalid api key", 403
     resp = make_response(redirect(url_for('hud')))
