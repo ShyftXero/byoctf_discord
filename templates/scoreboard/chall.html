@@ -13,8 +13,8 @@
 </head>
 <body>
 	<div class='container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 2m" hx-swap="outerHTML">
-		<a href="/hud/{{api_key}}" class="href"><h1>SOTB Challenge HUD</h1></a> 
-		<a href="/hud/{{api_key}}" class="href"><h2>Back to User HUD</h2></a> 
+		<a href="/hud/" class="href"><h1>SOTB Challenge HUD</h1></a> 
+		<a href="/hud/" class="href"><h2>Back to User HUD</h2></a> 
 		<div class="chall_info card card-body">
 			<h2>Challenge: {{chall.title}}</h2> {% if team_owned_challenge %}<h2>TEAM OWNED CHALLENGE!!!</h2>{% endif %}
 			<table class="table">
