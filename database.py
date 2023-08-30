@@ -1043,11 +1043,11 @@ def validateChallenge(challenge_object):
 
     # unique uuid
     
-    if (
-        type(challenge_object.get("uuid")) == None
-        or len(challenge_object.get("uuid", "")) < 1
-    ):
-        result["fail_reason"] += "; uuid not present"
+    try:
+        t = uuid.UUID(challenge_object.get("uuid", ""))
+    except ValueError as e:
+        result["fail_reason"] += "; uuid not present or invalid"
+        
         return result
 
     c = Challenge.get(uuid=challenge_object.get("uuid"))
@@ -1056,7 +1056,6 @@ def validateChallenge(challenge_object):
         return result
 
     result["uuid"] = challenge_object.get("uuid", "")
-
 
     # title
     if (
@@ -1165,6 +1164,15 @@ def validateChallenge(challenge_object):
         #     if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
         #         logger.debug(result["fail_reason"])
         #     return result
+
+        try:
+            t = uuid.UUID(parent_id)
+        except ValueError as e:
+            result["fail_reason"] += f"; invalid parent challenge uuid {parent_id}"
+
+            return result
+            
+
         parent = Challenge.get(uuid=parent_id)
         if parent == None:
             result[
