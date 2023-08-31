@@ -16,7 +16,12 @@
 <body>
         <div class='container' hx-get="/hud" hx-trigger="every 2m" hx-swap="outerHTML">
                 <h1>SOTB PLAYER HUD</h1> <h2><a href="/">Scoreboard</a></h2><h2 id="transactions_link"><a href="/hud/transactions">Team Transactions</a></h2>
-                <div class="team_info card card-body">
+                {% if is_admin %}
+				<a href="/admin/net/transactions"> Admin Graph - Transactions</a>
+				<a href="/admin/net/players"> Admin Graph - Players and Teams</a>
+				<a href="/admin/net/challenges"> Admin Graph - Challenges</a>
+				{% endif %}
+				<div class="team_info card card-body">
 					<h2>
 						Team <code>{{teamname}}</code> 
 						Total Points <code>{{total}}</code>

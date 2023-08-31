@@ -11,6 +11,9 @@ from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
 import markdown2
 
 from loguru import logger
+from functools import wraps
+
+from vis import challs, trans, players
 
 app = Flask(__name__)
 limiter = Limiter(
@@ -60,6 +63,42 @@ def scoreboard():
 # @app.get('/api/all_info')
 # @limiter.limit('6/min')
 # @db.db_session
+
+
+def get_admin_api_key(func):
+    @wraps(func)
+    def check(*args, **kwargs):
+        api_key = request.cookies.get('api_key')
+        if  api_key == None:
+            return 'api_key not set; visit HUD first...', 403
+        with db.db_session:
+            user = db.get_user_by_api_key(api_key)
+            if user == None or user.is_admin == False:
+                return "user not found or is not admin", 403
+        return func(*args, **kwargs)
+    return check
+
+
+
+@app.get('/admin/net/challenges')
+@get_admin_api_key
+def net_challenges():
+    return challs()
+
+@app.get('/admin/net/players')
+@get_admin_api_key
+def net_players():
+    return players()
+
+
+@app.get('/admin/net/transactions')
+@get_admin_api_key
+def net_trans():
+    user = request.args.get('user')
+    trans_type = request.args.get('trans_type', 'tip')
+    print(f'getting transactions types {trans_type} for user', user)
+    return trans(trans_type=trans_type, user=user)
+
 
 
 @app.post('/api/sub_as')
@@ -222,7 +261,7 @@ def hud():
 
     team_byoc_stats = db.get_team_byoc_stats(user)
 
-    resp = make_response(render_template('scoreboard/hud.html', teamname=teamname, team_scores=scores, total=total,  total_byoc_rewards=total_byoc_rewards, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key, team_byoc_stats=team_byoc_stats))
+    resp = make_response(render_template('scoreboard/hud.html', teamname=teamname, team_scores=scores, total=total,  total_byoc_rewards=total_byoc_rewards, solved_challs=solved_challs, unsolved_challs=unsolved_challs, purchased_hints=purchased_hints, api_key=api_key,is_admin=user.is_admin, team_byoc_stats=team_byoc_stats))
 
     
     return resp
