@@ -79,6 +79,9 @@ def trans(trans_type:str='tip', user:str|None=None):
 			# print(f'trans id {trans.id} - sender "{trans.sender.name}" recipient "{trans.recipient.name}" amount {trans.value}')
 			
 			nxGraph.add_edge(trans.sender.name, trans.recipient.name, size= trans.value/avg_trans   ) # type: ignore
+
+			# nxGraph.add_node(trans.sender.name, sender=trans.sender.name, )
+			# nxGraph.add_node(trans.recipient.name, sender=trans.recipient.name)
 	
 	net.from_nx(nxGraph)
 	# net.show_buttons()
@@ -101,7 +104,7 @@ def players():
 			nxGraph.add_node(team.name, size=25, color='#c1ae09', font='20px arial black')
 			for player in team.members:
 				score = db.getScore(player)
-				print(player, score)
+				# print(player, score)
 				nxGraph.add_node(player.name, size=max(max(score,1)//max(score,1), 10), color=random.choice(colors))
 				nxGraph.add_edge(player.name, team.name)
 	
