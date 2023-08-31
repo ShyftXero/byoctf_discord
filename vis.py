@@ -90,14 +90,14 @@ def trans(trans_type:str='tip', user:str|None=None):
 def players():
 	nxGraph = nx.MultiDiGraph()# other types of graphs
 	with db.db_session:
-		all_teams = db.select(t for t in db.Team if t.id != 0 )[:]
+		all_teams = db.select(t for t in db.Team if t.name != '__botteam__' )[:]
 		len_all_teams = len(all_teams)
 		avg_score = db.average_score()
 		for team in all_teams:
 			nxGraph.add_node(team.name, size=25, color='#c1ae09', font='20px arial black')
 			for player in team.members:
 				score = db.getScore(player)
-				nxGraph.add_node(player.name, size=max(avg_score//max(score,1), 10), color=random.choice(colors))
+				nxGraph.add_node(player.name, size=max(max(score,1)// score, 10), color=random.choice(colors))
 				nxGraph.add_edge(player.name, team.name)
 	
 	net.from_nx(nxGraph)
