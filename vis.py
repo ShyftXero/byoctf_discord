@@ -90,7 +90,7 @@ def trans(trans_type:str='tip', user:str|None=None):
 def players():
 	nxGraph = nx.MultiDiGraph()# other types of graphs
 	with db.db_session:
-		all_teams = db.select(t for t in db.Team)[:]
+		all_teams = db.select(t for t in db.Team if t.id != 0 )[:]
 		len_all_teams = len(all_teams)
 		avg_score = db.average_score()
 		for team in all_teams:
