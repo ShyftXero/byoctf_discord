@@ -78,7 +78,7 @@ def trans(trans_type:str='tip', user:str|None=None):
 
 			# print(f'trans id {trans.id} - sender "{trans.sender.name}" recipient "{trans.recipient.name}" amount {trans.value}')
 			
-			nxGraph.add_edge(trans.sender.name, trans.recipient.name, size= trans.value/avg_trans   ) # type: ignore
+			nxGraph.add_edge(trans.sender.name, trans.recipient.name, weight= avg_trans/trans.value , type=trans.type ) # type: ignore
 
 			# nxGraph.add_node(trans.sender.name, sender=trans.sender.name, )
 			# nxGraph.add_node(trans.recipient.name, sender=trans.recipient.name)
