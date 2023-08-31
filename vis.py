@@ -21,7 +21,7 @@ OUTPUT_PATH = '/tmp'
 
 OMIT_PLAYERS = ['BYOCTF_Automaton#7840']
 
-def make_net()
+def make_net():
 	net = Network(height="1080px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#414199", font_color="#E93CAC", cdn_resources='remote')
 	net.show_buttons()
 	return net
