@@ -137,7 +137,10 @@ class Rating(db.Entity):
 
 
 #########
-
+@db_session
+def average_score() -> float:
+    all_scores = [getScore(u) for u in User.select(lambda u: u.id != 0)[:]]
+    return sum(all_scores) / len(all_scores)
 
 def ensure_bot_acct():
     # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py

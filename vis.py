@@ -2,30 +2,26 @@
 from rich import print
 from pyvis.network import Network, Node
 import networkx as nx
-
+import random
 import database as db
 import itertools
 
 from typer import Typer
 
+IMPORTED = True
+
 app = Typer()
 
-colors = {
-	'pool blue':'#59CBE8', 
-	'maldive': '#00BCE1',
-	# 'pink bite':'#E93CAC', 
-	'saphire splendor':'#1E22AA', 
-	# 'shadow planet':'#701547', 
-	# 'midnight dreams':'#051C2C', 
-}
+
+colors = ['#C724B1','#71DBD4','#642F6C','#58A7AF','#B3B0C4','#3A3A59','#59CBE8','#1E22AA', '#00BCE1']
 
 OUTPUT_PATH = '/tmp'
 
-colors_list = [c for c in colors.values()] 
+
 
 OMIT_PLAYERS = ['BYOCTF_Automaton#7840']
 
-net = Network(height="1080px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#051C2C", font_color="#E93CAC", )
+net = Network(height="1080px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#414199", font_color="#E93CAC", cdn_resources='remote')
 
 # net.toggle_physics(False)
 net.show_buttons()
@@ -61,7 +57,7 @@ def trans(trans_type:str='tip', user:str|None=None):
 			user = db.User.get(name=user)
 			if user == None:
 				print('user not found')
-				return 
+				return "user not found"
 			
 		trans:db.Transaction
 		if trans_type in ['*', 'all']:
@@ -69,34 +65,48 @@ def trans(trans_type:str='tip', user:str|None=None):
 		else:
 			all_trans = db.select(t for t in db.Transaction if t.type == trans_type)[:]
 
+		avg_trans = sum([t.value for t in all_trans]) / len(all_trans)
+		# print(avg_trans)
 		len_all_trans = len(all_trans)
 		for trans in all_trans:
 			if user != None:
 				if user.id not in [trans.sender.id, trans.recipient.id]:
 					continue
 
-			print(f'trans id {trans.id} - sender "{trans.sender.name}" recipient "{trans.recipient.name}" amount {trans.value}')
+			# print(f'trans id {trans.id} - sender "{trans.sender.name}" recipient "{trans.recipient.name}" amount {trans.value}')
 			
-			nxGraph.add_edge(trans.sender.name, trans.recipient.name, weight=len_all_trans / trans.value) # type: ignore
+			nxGraph.add_edge(trans.sender.name, trans.recipient.name, size= trans.value/avg_trans   ) # type: ignore
 	
 	net.from_nx(nxGraph)
 	# net.show_buttons()
 	# net.filter_menu
+	if IMPORTED: 
+		net.write_html('/tmp/trans_net.html')
+		with open('/tmp/trans_net.html') as f:
+			return f.read()
 	net.show(f'{OUTPUT_PATH}/inter-player_transactions_{trans_type}.html', notebook=False)
 
 @app.command()
 def players():
 	nxGraph = nx.MultiDiGraph()# other types of graphs
 	with db.db_session:
-		for team in db.select(t for t in db.Team)[:]:
-			nxGraph.add_node(team.name)
+		all_teams = db.select(t for t in db.Team)[:]
+		len_all_teams = len(all_teams)
+		avg_score = db.average_score()
+		for team in all_teams:
+			nxGraph.add_node(team.name, size=25, color='#c1ae09', font='20px arial black')
 			for player in team.members:
-				nxGraph.add_node(player.name)
+				score = db.getScore(player)
+				nxGraph.add_node(player.name, size=max(avg_score//score, 10), color=random.choice(colors))
 				nxGraph.add_edge(player.name, team.name)
 	
 	net.from_nx(nxGraph)
 	# net.show_buttons()
 	# net.filter_menu
+	if IMPORTED:
+		net.write_html('/tmp/players_net.html')
+		with open('/tmp/players_net.html') as f:
+			return f.read()
 	net.show(f'{OUTPUT_PATH}/challenge_relationships.html', notebook=False)
 	
 @app.command()
@@ -110,7 +120,7 @@ def challs(chall:str|None=None):
 			chall = db.Challenge.get(uuid=chall)
 			if chall == None:
 				print("challenge not found")
-				return 
+				return "challenge not found"
 		if chall != None:
 			challs = db.select(c for c in db.Challenge if c == chall)[:]
 		else:
@@ -123,7 +133,7 @@ def challs(chall:str|None=None):
 			relations += len(chall.children)
 			relations += len(chall.parent)
 			
-			color = colors_list[relations % len(colors_list)] # Example logic
+			color = colors[relations % len(colors)] # Example logic
 
 			nxGraph.add_node(chall.title, label=chall.title, color=color)
 
@@ -135,8 +145,14 @@ def challs(chall:str|None=None):
 	net.from_nx(nxGraph)
 	# net.show_buttons()
 	# net.filter_menu
+	if IMPORTED: 
+		net.write_html('/tmp/challs_net.html')
+		with open('/tmp/challs_net.html') as f:
+			return f.read()
 	net.show(f'{OUTPUT_PATH}/players_and_teams.html', notebook=False)	
+	
 		
 
 if __name__ == '__main__':
+	# IMPORTED = False
 	app()
