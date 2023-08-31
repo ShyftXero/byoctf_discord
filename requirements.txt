@@ -9,9 +9,6 @@ markdown2==2.4.5
 networkx==3.1
 pony==0.7.16
 pyfiglet==0.8.post1
-pyodide==0.0.2
-pyodide_http==0.2.1
-pyscript==0.2.5
 pyvis==0.3.2
 PyYAML==6.0.1
 Requests==2.31.0
