@@ -97,6 +97,7 @@ def players():
 			nxGraph.add_node(team.name, size=25, color='#c1ae09', font='20px arial black')
 			for player in team.members:
 				score = db.getScore(player)
+				print(player, score)
 				nxGraph.add_node(player.name, size=max(max(score,1)// score, 10), color=random.choice(colors))
 				nxGraph.add_edge(player.name, team.name)
 	
