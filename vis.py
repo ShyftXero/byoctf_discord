@@ -21,10 +21,12 @@ OUTPUT_PATH = '/tmp'
 
 OMIT_PLAYERS = ['BYOCTF_Automaton#7840']
 
-net = Network(height="1080px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#414199", font_color="#E93CAC", cdn_resources='remote')
-
+def make_net()
+	net = Network(height="1080px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#414199", font_color="#E93CAC", cdn_resources='remote')
+	net.show_buttons()
+	return net
 # net.toggle_physics(False)
-net.show_buttons()
+
 
 @app.command()
 def all_reports():
@@ -48,6 +50,7 @@ def all_reports():
 			
 @app.command()
 def trans(trans_type:str='tip', user:str|None=None):
+	net = make_net()
 	nxGraph = nx.MultiDiGraph()# other types of graphs
 	with db.db_session:
 
@@ -88,6 +91,7 @@ def trans(trans_type:str='tip', user:str|None=None):
 
 @app.command()
 def players():
+	net = make_net()
 	nxGraph = nx.MultiDiGraph()# other types of graphs
 	with db.db_session:
 		all_teams = db.select(t for t in db.Team if t.name != '__botteam__' )[:]
@@ -113,6 +117,7 @@ def players():
 @app.command()
 def challs(chall:str|None=None):
 	"""chall is the uuid of the challenge"""
+	net = make_net()
 	nxGraph = nx.MultiDiGraph()# other types of graphs
 	with db.db_session:
 		chall:db.Challenge
@@ -156,4 +161,5 @@ def challs(chall:str|None=None):
 
 if __name__ == '__main__':
 	# IMPORTED = False
+	net = make_net()
 	app()
