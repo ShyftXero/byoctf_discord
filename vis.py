@@ -141,7 +141,7 @@ def challs(chall:str|None=None):
 			
 			color = colors[relations % len(colors)] # Example logic
 
-			nxGraph.add_node(chall.title, label=chall.title, color=color)
+			nxGraph.add_node(chall.title, label=f'{chall.author.name}-{chall.title}', color=color)
 
 				
 			for parent in chall.parent:
