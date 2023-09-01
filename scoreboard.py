@@ -19,7 +19,7 @@ app = Flask(__name__)
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=["3 per second"],
+    default_limits=["25 per second"],
     storage_uri="memory://",
 )
 
@@ -28,7 +28,7 @@ app.secret_key = "thisisasecret"
 
 
 @app.get("/scores")
-@limiter.limit("20/second", override_defaults=False)
+@limiter.limit("25/second", override_defaults=False)
 @db.db_session
 def scoreboard():
     msg = ""
@@ -234,7 +234,7 @@ def login(api_key):
 
 @app.get('/hud')
 @app.get('/hud/')
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def hud():
     api_key = request.cookies.get('api_key')
@@ -287,7 +287,7 @@ def transactions():
 
 
 @app.get('/chall/<chall_uuid>')
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def chall(chall_uuid):
     chall = db.Challenge.get(uuid=chall_uuid)
