@@ -190,6 +190,23 @@ def generateMapping():
 generateMapping()
 
 @db_session
+def get_team_by_id(target:str|int|uuid.UUID) -> User:
+    if isinstance(target, str):
+        try:
+            target = uuid.UUID(target)
+        except ValueError:
+            return None
+        return select(t for t in db.Team if t.uuid == target ).first()
+    if isinstance(target, int):
+        try:
+            target = int(target)
+        except ValueError:
+            return None
+        return select(t for t in db.Team if t.id == target ).first()
+    return None
+
+
+@db_session
 def get_user_by_id(target:str|int|uuid.UUID) -> User:
     if isinstance(target, str):
         try:
