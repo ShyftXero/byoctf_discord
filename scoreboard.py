@@ -1,3 +1,4 @@
+import uuid
 from rich import print
 import database as db
 from settings import SETTINGS
@@ -203,11 +204,20 @@ def grant_points():
     else:
         return {"status":"db error", "orig_request":payload}
 
-@app.get('/api/get_team/<uuid_str>')
+@app.get('/api/get_team/<target>')
 @limiter.limit("1/second")
 @db.db_session
-def get_team(uuid_str):
-    team:db.Team = db.get_team_by_id(uuid_str)
+def get_team(target):
+    try:
+        target = int(target)
+    except ValueError:
+        pass
+    try: 
+        target = uuid.UUID(target)
+    except BaseException:
+        pass
+
+    team:db.Team = db.get_team_by_id(target)
     if team == None:
         return "invalid team id", 403
     ret = {

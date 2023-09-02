@@ -98,6 +98,7 @@ class Team(db.Entity):
     members = Set(User)
     name = Required(str)
     password = Required(str)
+    uuid = Required(uuid.UUID,default=uuid.uuid4, unique=True)
 
 
 class Tag(db.Entity):
