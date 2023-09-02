@@ -206,11 +206,12 @@ def grant_points():
 @app.get('/api/get_team/<uuid_str>')
 @limiter.limit("1/second")
 @db.db_session
-def get_user(uuid_str):
+def get_team(uuid_str):
     team:db.Team = db.get_team_by_id(uuid_str)
     if team == None:
         return "invalid team id", 403
     ret = {
+        "id":team.id,
         "uuid": team.uuid,
         "teamname": team.name,
         # 'teammembers': [ tm.name for tm in db.getTeammates(team)],
