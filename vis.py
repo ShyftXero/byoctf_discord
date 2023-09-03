@@ -22,8 +22,10 @@ OUTPUT_PATH = '/tmp'
 OMIT_PLAYERS = ['BYOCTF_Automaton#7840']
 
 def make_net():
-	net = Network(height="1080px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#414199", font_color="#E93CAC", cdn_resources='remote')
-	net.show_buttons()
+	net = Network(height="900px", width="100%", directed=True, notebook=False, select_menu=True, filter_menu=True, neighborhood_highlight=True, bgcolor="#414199", font_color="#E93CAC", cdn_resources='remote')
+	# net.show_buttons()
+	net.show_buttons(filter_=['physics'] )
+
 	return net
 # net.toggle_physics(False)
 
@@ -75,9 +77,13 @@ def trans(trans_type:str='tip', user:str|None=None):
 			if user != None:
 				if user.id not in [trans.sender.id, trans.recipient.id]:
 					continue
+			title = f'''
+Num of sent transactions: {db.select(t for t in db.Transaction if t.sender == trans.sender ).count()}
+Num of recv transactions: {db.select(t for t in db.Transaction if t.recipient == trans.sender ).count()}
 
+			'''.strip()
 			# print(f'trans id {trans.id} - sender "{trans.sender.name}" recipient "{trans.recipient.name}" amount {trans.value}')
-			
+			nxGraph.add_node(trans.sender.name, title=title)
 			nxGraph.add_edge(trans.sender.name, trans.recipient.name, weight=min(avg_trans/trans.value, 20) , type=trans.type ) # type: ignore
 
 			# nxGraph.add_node(trans.sender.name, sender=trans.sender.name, )
@@ -100,12 +106,19 @@ def players():
 		all_teams = db.select(t for t in db.Team if t.name != '__botteam__' )[:]
 		len_all_teams = len(all_teams)
 		avg_score = db.average_score()
-		for team in all_teams:
-			nxGraph.add_node(team.name, size=25, color='#c1ae09', font='20px arial black')
+		for idx, team in enumerate(all_teams):
+			
+			title = f'''
+Team Name: {team.name}
+Team ID: {team.id}
+Team UUID: {team.uuid}
+Team members: {', '.join([p.name for p in team.members])} 
+			'''.strip()
+			nxGraph.add_node(team.name, size=25, color='#c1ae09', font='20px arial black', uuid=str(team.uuid), title=title)
 			for player in team.members:
 				score = db.getScore(player)
 				# print(player, score)
-				nxGraph.add_node(player.name, size=max(max(score,1)//max(score,1), 10), color=random.choice(colors))
+				nxGraph.add_node(player.name, size=max(max(score,1)//max(score,1), 10), color=random.choice(colors), group=idx)
 				nxGraph.add_edge(player.name, team.name)
 	
 	net.from_nx(nxGraph)
@@ -136,7 +149,15 @@ def challs(chall:str|None=None):
 			challs = db.select(c for c in db.Challenge)[:]
 		
 		len_challs = len(challs)
-		for chall in challs:
+		for idx, chall in enumerate(challs):
+			title = f'''
+Challenge Title: {chall.title}
+Challenge ID: {chall.id}
+Challenge UUID: {chall.uuid}
+Challenge Author: {chall.author.name}
+Number of flags: {len(chall.flags)}
+
+			'''.strip()
 			relations = 0
 			
 			relations += len(chall.children)
@@ -144,11 +165,11 @@ def challs(chall:str|None=None):
 			
 			color = colors[relations % len(colors)] # Example logic
 
-			nxGraph.add_node(chall.title, label=f'{chall.title}', color=color, author=chall.author.name)
+			nxGraph.add_node(chall.title, label=f'{chall.title}', color=color, author=chall.author.name, title=title, group=idx)
 
 				
 			for parent in chall.parent:
-				nxGraph.add_node(parent.title, label=parent.title)
+				nxGraph.add_node(parent.title, label=parent.title, group=idx)
 				nxGraph.add_edge(parent.title, chall.title, weight=relations/len_challs) # this is the correct way to express child parent relationships ; test by dev reset and looking at the relationship of small number of challs
 
 	net.from_nx(nxGraph)

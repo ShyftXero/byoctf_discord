@@ -208,14 +208,13 @@ def grant_points():
 @limiter.limit("1/second")
 @db.db_session
 def get_team(target):
-    try:
-        target = int(target)
-    except ValueError:
-        pass
-    try: 
+    if db.is_valid_uuid(target):
         target = uuid.UUID(target)
-    except BaseException:
-        pass
+    else:
+        try:
+            target = int(target)
+        except ValueError: 
+            return {'error':'invalid id'}
 
     team:db.Team = db.get_team_by_id(target)
     if team == None:
@@ -230,17 +229,27 @@ def get_team(target):
 
 
 
-@app.get('/api/get_username/<int:uid>')
+@app.get('/api/get_username/<target>')
 @limiter.limit("1/second")
 @db.db_session
-def get_user(uid):
-    user:db.User = db.get_user_by_id(uid)
+def get_user(target):
+    if db.is_valid_uuid(target):
+        target = uuid.UUID(target)
+    else:
+        try:
+            target = int(target)
+        except ValueError: 
+            return {'error':'invalid id'}
+        
+    user:db.User = db.get_user_by_id(target)
     if user == None:
         return "invalid user id", 403
     ret = {
         "username": user.name,
         'teammates': [ tm.name for tm in db.getTeammates(user)],
-        'teamname': user.team.name
+        'teamname': user.team.name, 
+        'id': user.id, 
+        
     }
     return ret
 

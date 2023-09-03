@@ -28,19 +28,21 @@ from pony.orm import *
 db = Database()
 
 
+
+
 class Flag(db.Entity):
     id = PrimaryKey(int, auto=True)
-    challenges = Set("Challenge")
+    challenges = Set('Challenge')
     description = Optional(str)
-    solves = Set("Solve")
+    solves = Set('Solve')
     flag = Required(str)
     value = Required(float)
     unsolved = Optional(bool, default=True)
     bonus = Optional(bool, default=False)
-    tags = Set("Tag")
-    author = Required("User")
+    tags = Set('Tag')
+    author = Required('User')
     byoc = Optional(bool)
-    transaction = Optional("Transaction")
+    transaction = Optional('Transaction')
     reward_capped = Optional(bool, default=False)
 
 
@@ -48,22 +50,22 @@ class Challenge(db.Entity):
     id = PrimaryKey(int, auto=True)
     title = Required(str)
     flags = Set(Flag)
-    author = Required("User")
+    author = Required('User')
     description = Optional(str)
-    parent = Set("Challenge", reverse="children")
-    children = Set("Challenge", reverse="parent")
-    tags = Set("Tag")
+    parent = Set('Challenge', reverse='children')
+    children = Set('Challenge', reverse='parent')
+    tags = Set('Tag')
     release_time = Optional(datetime, default=lambda: datetime.now())
     visible = Optional(bool, default=True)
-    hints = Set("Hint")
+    hints = Set('Hint')
     byoc = Optional(bool, default=False)
     byoc_ext_url = Optional(str, nullable=True, default=None)
     unsolved = Optional(bool, default=True)
     byoc_ext_value = Optional(float)
-    solve = Set("Solve")
-    transaction = Set("Transaction")
-    ratings = Set("Rating")
-    uuid = Required(uuid.UUID, default=uuid.uuid4)
+    solve = Set('Solve')
+    transaction = Set('Transaction')
+    ratings = Set('Rating')
+    uuid = Optional(str, unique=True, default=lambda: str(uuid.uuid4()))
 
 
 class User(db.Entity):
@@ -76,10 +78,8 @@ class User(db.Entity):
     recipient_transactions = Set('Transaction', reverse='recipient')
     authored_flags = Set(Flag)
     ratings = Set('Rating')
-    api_key = Required(uuid.UUID, default=uuid.uuid4)
+    api_key = Required(str, default=lambda: str(uuid.uuid4()))
     is_admin = Required(bool, default=False)
-    
-
 
 
 class Solve(db.Entity):
@@ -88,7 +88,7 @@ class Solve(db.Entity):
     flag = Optional(Flag)
     user = Required(User)
     value = Required(float)
-    transaction = Optional("Transaction")
+    transaction = Optional('Transaction')
     challenge = Optional(Challenge)
     flag_text = Optional(str)
 
@@ -98,12 +98,12 @@ class Team(db.Entity):
     members = Set(User)
     name = Required(str)
     password = Required(str)
-    uuid = Required(uuid.UUID,default=uuid.uuid4, unique=True)
+    uuid = Required(str, default=lambda: str(uuid.uuid4()))
 
 
 class Tag(db.Entity):
     id = PrimaryKey(int, auto=True)
-    name = Required(str, unique=True)
+    name = Optional(str)
     challenges = Set(Challenge)
     flags = Set(Flag)
 
@@ -111,15 +111,15 @@ class Tag(db.Entity):
 class Transaction(db.Entity):
     id = PrimaryKey(int, auto=True)
     value = Optional(float)
-    sender = Required(User, reverse="sent_transactions")
-    recipient = Required(User, reverse="recipient_transactions")
+    sender = Required(User, reverse='sent_transactions')
+    recipient = Required(User, reverse='recipient_transactions')
     type = Required(str)
     message = Optional(str)
     time = Optional(datetime, default=lambda: datetime.now())
     solve = Optional(Solve)
     flag = Optional(Flag)
     challenge = Optional(Challenge)
-    hint = Optional("Hint")
+    hint = Optional('Hint')
 
 
 class Hint(db.Entity):
@@ -135,7 +135,8 @@ class Rating(db.Entity):
     user = Required(User)
     challenge = Required(Challenge)
     value = Optional(int, default=0)  # 1-5
-
+    note = Optional(str)
+    time = Optional(datetime, default=lambda: datetime.now())
 
 #########
 @db_session
@@ -190,38 +191,27 @@ def generateMapping():
 
 generateMapping()
 
-@db_session
-def get_team_by_id(target:str|int|uuid.UUID) -> User:
-    if isinstance(target, str):
-        try:
-            target = uuid.UUID(target)
-        except ValueError:
-            return None
-        return select(t for t in db.Team if t.uuid == target ).first()
-    if isinstance(target, int):
-        try:
-            target = int(target)
-        except ValueError:
-            return None
-        return select(t for t in db.Team if t.id == target ).first()
-    return None
+def is_valid_uuid(val):
+    try:
+        uuid.UUID(str(val))
+        return True
+    except ValueError:
+        return False
 
+@db_session #TODO 02sep23 this isn't working... 
+def get_team_by_id(target:str|int|uuid.UUID) -> User:
+    if is_valid_uuid(target):
+        return select(t for t in db.Team if str(t.uuid) == str(target) ).first()
+    else:
+        return select(t for t in db.Team if t.id == target ).first()
 
 @db_session
 def get_user_by_id(target:str|int|uuid.UUID) -> User:
-    if isinstance(target, str):
-        try:
-            target = uuid.UUID(target)
-        except ValueError:
-            return None
-        return select(u for u in db.User if u.api_key == target ).first()
-    if isinstance(target, int):
-        try:
-            target = int(target)
-        except ValueError:
-            return None
+    if is_valid_uuid(target):
+        return select(u for u in db.User if str(u.api_key) == str(target) ).first()
+    else:
         return select(u for u in db.User if u.id == target ).first()
-    return None
+    
 
 @db_session
 def grant_points(user:str, admin_user:db.User=None, amount:float=0, msg:str="admin granted points"):

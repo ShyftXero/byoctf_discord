@@ -3,6 +3,7 @@ import uuid
 from database import *
 import faker
 import pony
+hashlib
 
 fake = faker.Faker()
 with db_session:
@@ -35,7 +36,7 @@ with db_session:
 		while name in team_names:
 			name = fake.company()
 		team_names.add(name)
-		teams.append(db.Team(name=name, password=fake.password()))
+		teams.append(db.Team(name=name, password=hashlib.sha256(fake.password().encode()).hexdigest()))
 
 	# Generate users for each team
 	print(f'creating users')
