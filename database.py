@@ -199,16 +199,16 @@ def is_valid_uuid(val):
         return False
 
 @db_session #TODO 02sep23 this isn't working... 
-def get_team_by_id(target:str|int|uuid.UUID) -> User:
+def get_team_by_id(target:str|int) -> User:
     if is_valid_uuid(target):
-        return select(t for t in db.Team if str(t.uuid) == str(target) ).first()
+        return select(t for t in db.Team if t.uuid == target ).first()
     else:
         return select(t for t in db.Team if t.id == target ).first()
 
 @db_session
-def get_user_by_id(target:str|int|uuid.UUID) -> User:
+def get_user_by_id(target:str|int) -> User:
     if is_valid_uuid(target):
-        return select(u for u in db.User if str(u.api_key) == str(target) ).first()
+        return select(u for u in db.User if u.api_key == target ).first()
     else:
         return select(u for u in db.User if u.id == target ).first()
     
@@ -235,7 +235,7 @@ def grant_points(user:str, admin_user:db.User=None, amount:float=0, msg:str="adm
         return False
 
 @db_session
-def get_user_by_api_key(target:str|uuid.UUID) -> User:
+def get_user_by_api_key(target:str) -> User:
     if is_valid_uuid(target):
         return select(u for u in db.User if u.api_key == target ).first()
     else:
@@ -245,14 +245,11 @@ def get_user_by_api_key(target:str|uuid.UUID) -> User:
 def update_user_api_key(user:User,new_uuid:str=None):
     """create or set an new api_key for a user. Must be a uuid in str form"""
     if new_uuid != None:
-        if isinstance(new_uuid, str):
-            try:
-                user.api_key = uuid.UUID(new_uuid)
-            except ValueError:
-                print(f'invalid uuid {new_uuid}')
-                return
+        if is_valid_uuid(new_uuid)
+            user.api_key = new_uuid
+            return
     else: # generate a new random one
-        user.api_key = uuid.uuid4()
+        user.api_key = str(uuid.uuid4())
     
     print(user.api_key)
 
@@ -1052,11 +1049,8 @@ def validateChallenge(challenge_object):
 
     # unique uuid
     
-    try:
-        t = uuid.UUID(challenge_object.get("uuid", ""))
-    except ValueError as e:
+    if is_valid_uuid(challenge_object.get("uuid", "")) == False:
         result["fail_reason"] += "; uuid not present or invalid"
-        
         return result
 
     c = Challenge.get(uuid=challenge_object.get("uuid"))
@@ -1174,11 +1168,8 @@ def validateChallenge(challenge_object):
         #         logger.debug(result["fail_reason"])
         #     return result
 
-        try:
-            t = uuid.UUID(parent_id)
-        except ValueError as e:
+        if is_valid_uuid(parent_id) == False:
             result["fail_reason"] += f"; invalid parent challenge uuid {parent_id}"
-
             return result
             
 
