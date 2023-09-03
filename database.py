@@ -236,14 +236,10 @@ def grant_points(user:str, admin_user:db.User=None, amount:float=0, msg:str="adm
 
 @db_session
 def get_user_by_api_key(target:str|uuid.UUID) -> User:
-    if isinstance(target, str):
-        try:
-            target = uuid.UUID(target)
-        except ValueError:
-            return None
-        
-    return select(u for u in db.User if u.api_key == target ).first()
-    
+    if is_valid_uuid(target):
+        return select(u for u in db.User if u.api_key == target ).first()
+    else:
+        return None
 
 @db_session
 def update_user_api_key(user:User,new_uuid:str=None):
