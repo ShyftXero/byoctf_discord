@@ -245,7 +245,7 @@ def get_user_by_api_key(target:str) -> User:
 def update_user_api_key(user:User,new_uuid:str=None):
     """create or set an new api_key for a user. Must be a uuid in str form"""
     if new_uuid != None:
-        if is_valid_uuid(new_uuid)
+        if is_valid_uuid(new_uuid):
             user.api_key = new_uuid
             return
     else: # generate a new random one
