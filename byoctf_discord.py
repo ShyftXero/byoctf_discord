@@ -378,7 +378,7 @@ async def register(
             user = db.User(name=username(ctx), team=unafilliated)
 
         if user.team.name != "__unaffiliated__":
-            msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. Use `!unreg` to leave."
+            msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. talk to an admin to have your team changed..."
             await ctx.send(msg)
             if SETTINGS["_debug"]:
                 logger.debug(msg)
