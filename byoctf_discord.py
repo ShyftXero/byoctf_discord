@@ -905,7 +905,7 @@ async def list_all(ctx, *, tags=None):
 
 @bot.command(
     name="view",
-    help="view a challenge by id e.g. !view <chall_id>",
+    help="view a challenge by id e.g. !view <chall_id> int or uuid",
     aliases=["vc", "v"],
 )
 async def view_challenge(ctx, chall_id: int):
@@ -920,23 +920,28 @@ async def view_challenge(ctx, chall_id: int):
         await ctx.send("CTF isn't running yet")
         return
 
-    try:
-        chall_id = int(chall_id)
-        if chall_id < 0:
-            raise ValueError
-    except ValueError as e:
-        msg = f"invalid challenge id: `{chall_id}`"
-        logger.debug(str(e), msg)
-        await ctx.send(msg)
-        return
-    except BaseException as e:
-        logger.debug(e)
-        return 
+    if db.is_valid_uuid(chall_id) == False:
+        try:
+            chall_id = int(chall_id)
+            if chall_id < 0:
+                raise ValueError
+        except ValueError as e:
+            msg = f"invalid challenge id: `{chall_id}`"
+            logger.debug(str(e), msg)
+            await ctx.send(msg)
+            return
+        except BaseException as e:
+            logger.debug(e)
+            return 
 
     with db.db_session:
         user = db.User.get(name=username(ctx))
         # is it unlocked for this user?
-        chall = db.Challenge.get(id=chall_id)
+        if db.is_valid_uuid(chall_id):
+            chall = db.Challenge.get(uuid=chall_id)
+        else:
+            chall = db.Challenge.get(id=chall_id)
+
         if chall != None and db.challegeUnlocked(user, chall):
             author = await getDiscordUser(ctx, chall.author.name)
             if isinstance(author, discord.User):
