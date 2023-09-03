@@ -58,7 +58,7 @@ async def newLeader() -> bool:
         await ctf_chan.send(
             f"There's a new Leader!!! `{leader[0]}` with `{leader[1]}` points"
         )
-        # this is a hook point for calling the lights api to do something on leader change... 
+        # this is a hook point for calling the lights api to do something on leader change...
         return True
     return False
 
@@ -197,7 +197,6 @@ def renderChallenge(result: dict, preview=False):
 
     # preview is for the rendering of the validator for byoc challenges
     if preview == True:
-
         if result.get("valid"):
             msg = f"Challenge **valid**.  😎😎😎 \n\n"
         else:
@@ -265,6 +264,7 @@ def renderChallenge(result: dict, preview=False):
 # user2 leaves team B
 # user2 joins team A
 
+
 @db.db_session()
 @bot.command(
     name="unregister",
@@ -273,7 +273,6 @@ def renderChallenge(result: dict, preview=False):
 )
 @commands.dm_only()
 async def unregister(ctx: discord.ext.commands.Context):
-
     if await isRegistered(ctx) == False:
         return
 
@@ -283,7 +282,7 @@ async def unregister(ctx: discord.ext.commands.Context):
         return
 
     await ctx.send("registration is disabled... you pesky hackers ruined it..")
-    return # this may be deprecated or removed in the future...
+    return  # this may be deprecated or removed in the future...
     if SETTINGS["registration"] == "disabled":
         await ctx.send("registration is disabled")
         return
@@ -325,7 +324,6 @@ def _spray(msg: str = "BYOCTF \nby fs2600 ") -> str:
 
 @bot.command(name="spray", help="show a random byoctf banner")
 async def spray(ctx: discord.ext.commands.Context, msg: str = "BYOCTF \nby fs2600 "):
-
     ret = _spray(msg=msg)
     count = 0
     while len(ret) > 2000:
@@ -707,18 +705,20 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
 @commands.cooldown(
     1, SETTINGS["_rate_limit_window"], type=discord.ext.commands.BucketType.user
 )  # one submission per second per user
-async def tip(ctx, target_user: Union[discord.User, str], tip_amount: float, msg:str|None=None):
+async def tip(
+    ctx,
+    target_user: Union[discord.User, str],
+    tip_amount: float,
+    msg: str | None = None,
+):
     if await isRegistered(ctx) == False:
         return
-
-    
 
     if tip_amount <= 0:
         await ctx.send("nice try... ")
         return
 
     with db.db_session:
-
         sender = db.User.get(name=username(ctx))
 
         recipient = db.User.get(name=username(target_user))
@@ -732,15 +732,13 @@ async def tip(ctx, target_user: Union[discord.User, str], tip_amount: float, msg
                 f"invalid recipient...`{target_user}`. Are they registered for the ctf using the `!reg` command?"
             )
             return
-        
-        result, points = db.send_tip( sender, recipient, tip_amount=tip_amount, msg=msg)
+
+        result, points = db.send_tip(sender, recipient, tip_amount=tip_amount, msg=msg)
         if result == False:
             await ctx.send(
                 f"You only have {points} points and can't send {tip_amount}... math is hard... "
             )
             return
-        
-        
 
         # tip = db.Transaction(
         #     sender=sender,
@@ -899,8 +897,8 @@ async def list_all(ctx, *, tags=None):
     # logger.debug("discord",challs)
     msg = f"Showing all unlocked challenges"
     await ctx.send(msg)
-    await sendBigMessage(ctx,table.table)
-    # 
+    await sendBigMessage(ctx, table.table)
+    #
 
 
 @bot.command(
@@ -920,7 +918,7 @@ async def view_challenge(ctx, chall_id):
         await ctx.send("CTF isn't running yet")
         return
 
-    if db.is_valid_uuid(chall_id) :
+    if db.is_valid_uuid(chall_id):
         ...
     else:
         try:
@@ -934,7 +932,7 @@ async def view_challenge(ctx, chall_id):
             return
         except BaseException as e:
             logger.debug(e)
-            return 
+            return
 
     with db.db_session:
         user = db.User.get(name=username(ctx))
@@ -953,7 +951,7 @@ async def view_challenge(ctx, chall_id):
             # msg += f'\nTitle`{chall.title}`\nDescription```{chall.description} ```'
             res = {}
             res["challenge_title"] = chall.title
-            res['uuid'] = chall.uuid
+            res["uuid"] = chall.uuid
             res["challenge_description"] = chall.description
             res["parent"] = [c.id for c in list(chall.parent)]
             res["value"] = db.challValue(chall)
@@ -994,11 +992,13 @@ async def buy_hint(ctx, challenge_id: int):
         return
     with db.db_session:
         user = db.User.get(name=username(ctx))
-        hint_cost  = db.getHintCost(user, challenge_id)
-        if hint_cost < 0: 
-            await ctx.send(f"there are no available hints to purchase for challenge id {challenge_id}")
-            return 
-    
+        hint_cost = db.getHintCost(user, challenge_id)
+        if hint_cost < 0:
+            await ctx.send(
+                f"there are no available hints to purchase for challenge id {challenge_id}"
+            )
+            return
+
     await ctx.send(
         f"\n\nA hint for *challenge {challenge_id}* will cost you ***{hint_cost} points***\n\n***Reply with `confirm` in the next 20 seconds to purchase this hint.***"
     )
@@ -1019,7 +1019,6 @@ async def buy_hint(ctx, challenge_id: int):
     if resp.content != "confirm":
         await ctx.send("**Cancelling due to invalid response...**")
 
-
     with db.db_session:
         user = db.User.get(name=username(ctx))
         chall = db.Challenge.get(id=challenge_id)
@@ -1027,14 +1026,11 @@ async def buy_hint(ctx, challenge_id: int):
         res, hint = db.buyHint(user=user, challenge_id=challenge_id)
         if res != "ok":
             await ctx.send(res)
-            return 
-        
-        hint_message = f"Here's a hint for Challenge ID {challenge_id} `{chall.title}`\n`{hint.text}`"
-        await sendBigMessage(ctx, hint_message,wrap=False)
-        await ctx.send('You can view your purchased hints with `!hints`' )
+            return
 
-        
-        
+        hint_message = f"Here's a hint for Challenge ID {challenge_id} `{chall.title}`\n`{hint.text}`"
+        await sendBigMessage(ctx, hint_message, wrap=False)
+        await ctx.send("You can view your purchased hints with `!hints`")
 
 
 @bot.command(name="hints", help="show your purchased hints")
@@ -1403,7 +1399,9 @@ async def byoc_commit(ctx):
     # print(dir(ctx.bot))
     # exit()
     challenge_object = await loadBYOCFile(ctx)
-    challenge_object["author"] = username(ctx) # this should prevent someone from submitting a challenge as someone else... sneaky... lol 
+    challenge_object["author"] = username(
+        ctx
+    )  # this should prevent someone from submitting a challenge as someone else... sneaky... lol
     result = db.validateChallenge(challenge_object)
     channel = ctx.channel
 
@@ -1456,7 +1454,6 @@ async def byoc_commit(ctx):
 
 @bot.command("tutorial", help="a tldr for essential commands", aliases=["tut"])
 async def tutorial(ctx):
-
     # if await inPublicChannel(ctx, msg=f"Hey, <@{ctx.author.id}>, don't view the tutorial in public channels..."):
     #     return
 

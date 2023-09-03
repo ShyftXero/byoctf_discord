@@ -89,7 +89,7 @@ class Commands:
         print("re-initialized diskcache.")
 
     @db_session
-    def hide_chall(self, chall_id:int):
+    def hide_chall(self, chall_id: int):
         chall = db.Challenge[chall_id]
         if chall == None:
             print("no such challenge")
@@ -98,14 +98,13 @@ class Commands:
         commit()
         self.challs(chall_id=chall_id)
 
-
     def shell(self):
         """drop into an ipython shell with five users loaded (user1-5); mainly for development or answering questions by interrogating the db. You should be able to prototype your db code here."""
         import os
 
         # os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
         os.system(
-            "ipython -i -c 'import database as db;  shyft = db.User.get(name=\"shyft_xero\"); chall = db.Challenge[5]; print(\"shyft and chall available\")'"
+            'ipython -i -c \'import database as db;  shyft = db.User.get(name="shyft_xero"); chall = db.Challenge[5]; print("shyft and chall available")\''
         )
 
     def set_team(self, username, team):
@@ -187,15 +186,15 @@ class Commands:
     def users(self):
         """Dump all users, which team they're on and their individual score."""
         data = db.select(u for u in db.User)[:]
-        u:db.User
-        data = [(u.id, u.name, u.team.name, db.getScore(u), u.api_key ) for u in data]
+        u: db.User
+        data = [(u.id, u.name, u.team.name, db.getScore(u), u.api_key) for u in data]
 
-        data.insert(0, ["ID", "Name", "Team", "Score", 'API key'])  # type: ignore
+        data.insert(0, ["ID", "Name", "Team", "Score", "API key"])  # type: ignore
         table = mdTable(data)
         print(table.table)
 
     @db.db_session
-    def tail_trans(self, size:int=10):
+    def tail_trans(self, size: int = 10):
         ts = list(
             db.select(
                 (
@@ -208,7 +207,9 @@ class Commands:
                     t.time,
                 )
                 for t in db.Transaction  # type: ignore
-            ).order_by(-7).limit(size)
+            )
+            .order_by(-7)
+            .limit(size)
         )
 
         ts.insert(
@@ -216,7 +217,7 @@ class Commands:
         )
         table = mdTable(ts)
         print(table.table)
-        
+
     @db.db_session
     def trans(self):
         """Dumps a list of all transactions from all users. This will allow you to reconstitute a score if needed or analyze if something doesn't work as expected."""
@@ -333,7 +334,7 @@ class Commands:
         os.remove(SETTINGS["_logfile"])
 
         print("Deleting and recreating database")
-        if SETTINGS['_db_type'] == 'sqlite':
+        if SETTINGS["_db_type"] == "sqlite":
             os.remove(SETTINGS["_db_database"])
         from database import db
 
@@ -344,7 +345,7 @@ class Commands:
 
     def top_flags(self):
         solves = db.getMostCommonFlagSolves()
-        data = [ ["Number of solves", "Description", "Flag", 'Value']]
+        data = [["Number of solves", "Description", "Flag", "Value"]]
         for s in solves:
             data.append((s[1], s[0].description, s[0].flag, s[0].value))
         table = mdTable(data)
@@ -364,8 +365,9 @@ class Commands:
             print(
                 f'Challenge id {chall.id} "{chall.title}" visible set to {chall.visible}'
             )
+
     @db_session
-    def challs(self, chall_id:int=-1337):
+    def challs(self, chall_id: int = -1337):
         """This dumps the all the challenges"""
 
         data = list()
@@ -379,7 +381,7 @@ class Commands:
                 "Visible",
                 "BYOC",
                 "BYOC_External",
-                "UUID"
+                "UUID",
             ],
         )
         if chall_id == -1337:
@@ -395,7 +397,7 @@ class Commands:
                         chall.visible,
                         chall.byoc,
                         chall.byoc_ext_url,
-                        chall.uuid
+                        chall.uuid,
                     ]
                 )
         else:
@@ -410,10 +412,10 @@ class Commands:
                         chall.visible,
                         chall.byoc,
                         chall.byoc_ext_url,
-                        chall.uuid
+                        chall.uuid,
                     ]
                 )
-        
+
         table = mdTable(data)
         print(table.table)
         # for chal in data:
@@ -481,7 +483,11 @@ class Commands:
 
         # total byoc rewards sum
         total_byoc_rewards = sum(
-            db.select(sum(t.value) for t in db.Transaction if t.type == "byoc reward" or t.type == "byoc hint reward")
+            db.select(
+                sum(t.value)
+                for t in db.Transaction
+                if t.type == "byoc reward" or t.type == "byoc hint reward"
+            )
         )
 
         print(table.table)
@@ -531,7 +537,7 @@ class Commands:
                 print("cancelled")
 
     @db.db_session
-    def add_flag(self, submitted_flag: str, value: float, author:str|None=None):
+    def add_flag(self, submitted_flag: str, value: float, author: str | None = None):
         """Useful for adhoc or bonus flag creation. not associated with a challenge."""
         print(f"Got flag '{submitted_flag}' for {value} points")
 
@@ -546,22 +552,19 @@ class Commands:
         except BaseException as e:
             print("invalid value...", e)
             return
-        
+
         if author != None:
             db_author = db.User.get(name=author)
             if db_author == None:
                 print(f"{author} not found")
-                return 
-        
+                return
+
         if db_author == None:
             db_author = db.User.get(name=SETTINGS["_botusername"])
-
 
         flag = db.Flag(flag=submitted_flag, value=value, author=db_author, byoc=False)
         db.commit()
         print(f"Flag {flag.id} created: '{flag.flag}' by author '{db_author.name}'")
-        
-
 
     @db.db_session
     def del_flag(self, flag_id: int):
