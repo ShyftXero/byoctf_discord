@@ -20,14 +20,15 @@ limiter = Limiter(
 CORS(app)
 app.secret_key = "thisisasecret"
 
+
 @app.get("/create")
 def create():
-    return render_template('creator/creator.html')
+    return render_template("creator/creator.html")
+
 
 @app.post("/validate")
 @limiter.limit("2/second", override_defaults=False)
 def validate():
-
     try:
         # print(f'{request.form}')
         challenge_object = toml.loads(request.form.get("toml"))
@@ -36,7 +37,7 @@ def validate():
         return f"error decoding toml: {e}"
     except TypeError as e:
         print(e)
-        return f'error parsing toml: {e}'
+        return f"error parsing toml: {e}"
 
     result = database.validateChallenge(challenge_object)
     logger.debug(challenge_object)

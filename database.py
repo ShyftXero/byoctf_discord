@@ -24,25 +24,22 @@ from pony.orm import *
 # things also changed in the project and I left some things in order to not break stuff.
 
 
-
 db = Database()
-
-
 
 
 class Flag(db.Entity):
     id = PrimaryKey(int, auto=True)
-    challenges = Set('Challenge')
+    challenges = Set("Challenge")
     description = Optional(str)
-    solves = Set('Solve')
+    solves = Set("Solve")
     flag = Required(str)
     value = Required(float)
     unsolved = Optional(bool, default=True)
     bonus = Optional(bool, default=False)
-    tags = Set('Tag')
-    author = Required('User')
+    tags = Set("Tag")
+    author = Required("User")
     byoc = Optional(bool)
-    transaction = Optional('Transaction')
+    transaction = Optional("Transaction")
     reward_capped = Optional(bool, default=False)
 
 
@@ -50,21 +47,21 @@ class Challenge(db.Entity):
     id = PrimaryKey(int, auto=True)
     title = Required(str)
     flags = Set(Flag)
-    author = Required('User')
+    author = Required("User")
     description = Optional(str)
-    parent = Set('Challenge', reverse='children')
-    children = Set('Challenge', reverse='parent')
-    tags = Set('Tag')
+    parent = Set("Challenge", reverse="children")
+    children = Set("Challenge", reverse="parent")
+    tags = Set("Tag")
     release_time = Optional(datetime, default=lambda: datetime.now())
     visible = Optional(bool, default=True)
-    hints = Set('Hint')
+    hints = Set("Hint")
     byoc = Optional(bool, default=False)
     byoc_ext_url = Optional(str, nullable=True, default=None)
     unsolved = Optional(bool, default=True)
     byoc_ext_value = Optional(float)
-    solve = Set('Solve')
-    transaction = Set('Transaction')
-    ratings = Set('Rating')
+    solve = Set("Solve")
+    transaction = Set("Transaction")
+    ratings = Set("Rating")
     uuid = Optional(str, unique=True, default=lambda: str(uuid.uuid4()))
 
 
@@ -72,12 +69,12 @@ class User(db.Entity):
     id = PrimaryKey(int, auto=True)
     name = Required(str, unique=True)
     challenges = Set(Challenge)
-    solves = Set('Solve')
-    team = Optional('Team')
-    sent_transactions = Set('Transaction', reverse='sender')
-    recipient_transactions = Set('Transaction', reverse='recipient')
+    solves = Set("Solve")
+    team = Optional("Team")
+    sent_transactions = Set("Transaction", reverse="sender")
+    recipient_transactions = Set("Transaction", reverse="recipient")
     authored_flags = Set(Flag)
-    ratings = Set('Rating')
+    ratings = Set("Rating")
     api_key = Required(str, default=lambda: str(uuid.uuid4()))
     is_admin = Required(bool, default=False)
 
@@ -88,7 +85,7 @@ class Solve(db.Entity):
     flag = Optional(Flag)
     user = Required(User)
     value = Required(float)
-    transaction = Optional('Transaction')
+    transaction = Optional("Transaction")
     challenge = Optional(Challenge)
     flag_text = Optional(str)
 
@@ -111,15 +108,15 @@ class Tag(db.Entity):
 class Transaction(db.Entity):
     id = PrimaryKey(int, auto=True)
     value = Optional(float)
-    sender = Required(User, reverse='sent_transactions')
-    recipient = Required(User, reverse='recipient_transactions')
+    sender = Required(User, reverse="sent_transactions")
+    recipient = Required(User, reverse="recipient_transactions")
     type = Required(str)
     message = Optional(str)
     time = Optional(datetime, default=lambda: datetime.now())
     solve = Optional(Solve)
     flag = Optional(Flag)
     challenge = Optional(Challenge)
-    hint = Optional('Hint')
+    hint = Optional("Hint")
 
 
 class Hint(db.Entity):
@@ -138,11 +135,13 @@ class Rating(db.Entity):
     note = Optional(str)
     time = Optional(datetime, default=lambda: datetime.now())
 
+
 #########
 @db_session
 def average_score() -> float:
     all_scores = [getScore(u) for u in User.select(lambda u: u.id != 0)[:]]
     return sum(all_scores) / len(all_scores)
+
 
 def ensure_bot_acct():
     # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
@@ -191,6 +190,7 @@ def generateMapping():
 
 generateMapping()
 
+
 def is_valid_uuid(val):
     try:
         uuid.UUID(str(val))
@@ -198,23 +198,30 @@ def is_valid_uuid(val):
     except ValueError:
         return False
 
-@db_session #TODO 02sep23 this isn't working... 
-def get_team_by_id(target:str|int) -> User:
+
+@db_session  # TODO 02sep23 this isn't working...
+def get_team_by_id(target: str | int) -> User:
     if is_valid_uuid(target):
-        return select(t for t in db.Team if t.uuid == target ).first()
+        return select(t for t in db.Team if t.uuid == target).first()
     else:
-        return select(t for t in db.Team if t.id == target ).first()
+        return select(t for t in db.Team if t.id == target).first()
+
 
 @db_session
-def get_user_by_id(target:str|int) -> User:
+def get_user_by_id(target: str | int) -> User:
     if is_valid_uuid(target):
-        return select(u for u in db.User if u.api_key == target ).first()
+        return select(u for u in db.User if u.api_key == target).first()
     else:
-        return select(u for u in db.User if u.id == target ).first()
-    
+        return select(u for u in db.User if u.id == target).first()
+
 
 @db_session
-def grant_points(user:str, admin_user:db.User=None, amount:float=0, msg:str="admin granted points"):
+def grant_points(
+    user: str,
+    admin_user: db.User = None,
+    amount: float = 0,
+    msg: str = "admin granted points",
+):
     botuser = db.User.get(name=SETTINGS["_botusername"])
     if admin_user == None:
         admin_user = botuser
@@ -234,35 +241,37 @@ def grant_points(user:str, admin_user:db.User=None, amount:float=0, msg:str="adm
         print("invalid user")
         return False
 
+
 @db_session
-def get_user_by_api_key(target:str) -> User:
+def get_user_by_api_key(target: str) -> User:
     if is_valid_uuid(target):
-        return select(u for u in db.User if u.api_key == target ).first()
+        return select(u for u in db.User if u.api_key == target).first()
     else:
         return None
 
+
 @db_session
-def update_user_api_key(user:User,new_uuid:str=None):
+def update_user_api_key(user: User, new_uuid: str = None):
     """create or set an new api_key for a user. Must be a uuid in str form"""
     if new_uuid != None:
         if is_valid_uuid(new_uuid):
             user.api_key = new_uuid
             return
-    else: # generate a new random one
+    else:  # generate a new random one
         user.api_key = str(uuid.uuid4())
-    
+
     print(user.api_key)
 
 
-
 @db_session
-def getTeammates(user:User):
+def getTeammates(user: User):
     """this includes the user in the list of teammates..."""
     res = list(select(member for member in User if member.team.name == user.team.name))
     return res
 
+
 @db_session
-def getSubmittedChallFlags(chall:Challenge, user:User):
+def getSubmittedChallFlags(chall: Challenge, user: User):
     teammates = getTeammates(user)
     flags = list()
     for tm in teammates:
@@ -274,7 +283,7 @@ def getSubmittedChallFlags(chall:Challenge, user:User):
 
 
 @db_session
-def getScore(user:User):
+def getScore(user: User):
     if type(user) == str:  # for use via cmdline in ctrl_ctf.py
         # logger.debug(f'looking for user {user}')
         user = User.get(name=user)
@@ -297,7 +306,7 @@ def getScore(user:User):
 
 
 @db_session
-def getTeammateScores(user:User):
+def getTeammateScores(user: User):
     teammates = list(
         select(member for member in User if member.team.name == user.team.name)
     )
@@ -323,7 +332,7 @@ def challValue(challenge: Challenge):
 
 
 @db_session()
-def topPlayers(num:int=10):
+def topPlayers(num: int = 10):
     all_users = select(u for u in User if u.name != SETTINGS["_botusername"])
 
     topN = [(u, getScore(u)) for u in all_users]
@@ -337,7 +346,7 @@ def topPlayers(num:int=10):
 
 
 @db_session()
-def getTopTeams(num:int=3):
+def getTopTeams(num: int = 3):
     all_users = select(u for u in User if u.name != SETTINGS["_botusername"])
 
     all_scores = [(u, getScore(u)) for u in all_users]
@@ -358,7 +367,7 @@ def getTopTeams(num:int=3):
 
 
 @db_session()
-def challegeUnlocked(user:User, chall):
+def challegeUnlocked(user: User, chall):
     """returns true if all the dependencies for a given challenge have been met by the specified user"""
     # logger.debug(f'{user.name} wants to access {chall.title}')
 
@@ -366,43 +375,47 @@ def challegeUnlocked(user:User, chall):
 
     teammates = getTeammates(user)  # including self
 
-     
-
     # logger.debug(f'players {[x.name for x in teammates]}')
     # logger.debug(user.team.name)
 
     flags_subbed_by_team = list()
-    flags_subbed_by_team = select(solve.flag for solve in Solve if solve.user in teammates and solve.flag in chall.parent.flags)[:] # optimized query
+    flags_subbed_by_team = select(
+        solve.flag
+        for solve in Solve
+        if solve.user in teammates and solve.flag in chall.parent.flags
+    )[
+        :
+    ]  # optimized query
     # for tm in teammates:
     #     flags_subbed_by_team.append(
     #         select(solve.flag for solve in Solve if tm == solve.user)[:]
-            
+
     #     )
     # print(chall, team_solves)
     # logger.debug(f'team_solves {team_solves}')
 
     # logger.debug(f'"{chall.title}" has a parent "{chall.parent.title}" challenge dependencies {chall.children}')
 
-    parent_flags = set(chall.parent.flags) # use set to deduplicate flags. chall.parent.flags is the flags from ALL parent challenges (possibly more than one challenge). might need to think about that when randomly linking challenges. 
-    
+    parent_flags = set(
+        chall.parent.flags
+    )  # use set to deduplicate flags. chall.parent.flags is the flags from ALL parent challenges (possibly more than one challenge). might need to think about that when randomly linking challenges.
+
     if len(parent_flags) == 0:
         return True
 
     flag_capture_percent = len(flags_subbed_by_team) / len(parent_flags)
-    
-    if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 2:
-            logger.debug(f"team_solves: {flags_subbed_by_team}")
-            logger.debug(f"parent_flags: {parent_flags}")
-            logger.debug(f"flag_capture_percent { flag_capture_percent}")
 
-    # consider making this a tunable setting? 
-    if flag_capture_percent >= SETTINGS["percent_solved_to_unlock"]: # 50% by default
+    if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 2:
+        logger.debug(f"team_solves: {flags_subbed_by_team}")
+        logger.debug(f"parent_flags: {parent_flags}")
+        logger.debug(f"flag_capture_percent { flag_capture_percent}")
+
+    # consider making this a tunable setting?
+    if flag_capture_percent >= SETTINGS["percent_solved_to_unlock"]:  # 50% by default
         return True
 
     return False
 
-
-    
 
 @db_session()
 def rate(user: User, chall: Challenge, user_rating: float):
@@ -430,57 +443,71 @@ def get_unlocked_challenges(user: User):
     # show only challenges which are not hidden (dependencies resolved and released)
     teammates = getTeammates(user)
 
-    solvable = list(select(c for c in Challenge if c.visible == True and c.author not in teammates)) # type: ignore ; # visible means GMs want it to be solved... 
+    solvable = list(select(c for c in Challenge if c.visible == True and c.author not in teammates))  # type: ignore ; # visible means GMs want it to be solved...
 
+    visible_and_unlocked = [
+        c for c in solvable if challegeUnlocked(user, c)
+    ]  # means the user has met the prereqs for viewing the challenge
 
-    visible_and_unlocked = [c for c in solvable if challegeUnlocked(user, c)] # means the user has met the prereqs for viewing the challenge
-    
     return visible_and_unlocked
 
 
-
 @db_session()
-def issolved(chall:Challenge, user:User):
+def issolved(chall: Challenge, user: User):
     teammates = getTeammates(user)
-    sol = select(sol for sol in Solve if sol.challenge == chall and sol.user in teammates).first()
+    sol = select(
+        sol for sol in Solve if sol.challenge == chall and sol.user in teammates
+    ).first()
     if sol != None:
         return True
     return False
 
+
 @db_session()
-def get_completed_challenges(user:User):
+def get_completed_challenges(user: User):
     teammates = getTeammates(user)
 
     flags_subbed_by_team = list()
-    
+
     unlocked_challs = get_unlocked_challenges(user)
 
     completed = set()
     for chall in unlocked_challs:
-        flags_subbed_by_team = select(solve.flag for solve in Solve if solve.user in teammates and solve.flag in chall.flags)[:] # optimized query
-        if len(chall.flags) == 0 : 
+        flags_subbed_by_team = select(
+            solve.flag
+            for solve in Solve
+            if solve.user in teammates and solve.flag in chall.flags
+        )[
+            :
+        ]  # optimized query
+        if len(chall.flags) == 0:
             continue
-        
+
         chall_percent = len(flags_subbed_by_team) / len(chall.flags)
         if chall_percent == 1:
             completed.add(chall)
     return completed
 
+
 @db_session()
 def get_untouched_challenges(user: User):
-    challs = get_unlocked_challenges(user) # this is all unlocked challs / visible challs
+    challs = get_unlocked_challenges(
+        user
+    )  # this is all unlocked challs / visible challs
     teammates = getTeammates(user)
-    
+
     untouched = list()
 
 
-
 @db_session()
-def get_incomplete_challenges(user: User): # TODO: how is this different than get_all_unlocked_challenges() ? around line 423  
+def get_incomplete_challenges(
+    user: User,
+):  # TODO: how is this different than get_all_unlocked_challenges() ? around line 423
     """show only challenges which are not hidden AND unsolved by a user/team"""
 
-    
-    challs = get_unlocked_challenges(user) # this is all unlocked challs / visible challs
+    challs = get_unlocked_challenges(
+        user
+    )  # this is all unlocked challs / visible challs
 
     teammates = getTeammates(user)
 
@@ -492,9 +519,7 @@ def get_incomplete_challenges(user: User): # TODO: how is this different than ge
             # solve = Solve.get(user=user, flag=flag.flag)
             solves = list(
                 select(
-                    s
-                    for s in Solve
-                    if s.user in teammates and s.flag.flag == flag.flag 
+                    s for s in Solve if s.user in teammates and s.flag.flag == flag.flag
                 )  # type: ignore
             )
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
@@ -517,17 +542,23 @@ def getMostCommonFlagSolves(num=3):
 
 
 @db_session
-def get_byoc_rewards(user:User):
+def get_byoc_rewards(user: User):
     if isinstance(user, str):
         user = User.get(name=user)
         if user == None:
-            return 0 
+            return 0
 
     teammates = getTeammates(user)
     total = sum(
-        select(sum(t.value) for t in db.Transaction if (t.type == "byoc reward" or t.type == "byoc hint reward") and t.recipient in teammates)
+        select(
+            sum(t.value)
+            for t in db.Transaction
+            if (t.type == "byoc reward" or t.type == "byoc hint reward")
+            and t.recipient in teammates
+        )
     )
     return total
+
 
 @db_session
 def getHintTransactions(user: User) -> list[Transaction]:
@@ -536,32 +567,46 @@ def getHintTransactions(user: User) -> list[Transaction]:
     )[:]
     return res
 
+
 @db_session
-def get_team_purchased_hints(user:User, chall_id=-1):
+def get_team_purchased_hints(user: User, chall_id=-1):
     hint_transactions = getHintTransactions(user)
 
     # msg = f"Team {user.team.name}'s hints:\n"
 
     data = list()
-    teammates = getTeammates(user)  
+    teammates = getTeammates(user)
 
     for tm in teammates:
         tm_hints = sorted(getHintTransactions(tm))
         if chall_id == -1:
             data += [
-                (ht.hint.challenge.uuid, ht.hint.challenge.title, ht.hint.text, ht.hint.cost, ht.sender.name)
+                (
+                    ht.hint.challenge.uuid,
+                    ht.hint.challenge.title,
+                    ht.hint.text,
+                    ht.hint.cost,
+                    ht.sender.name,
+                )
                 for ht in tm_hints
             ]
         else:
             data += [
-                (ht.hint.challenge.id, ht.hint.challenge.title, ht.hint.text, ht.hint.cost, ht.sender.name)
-                for ht in tm_hints if ht.hint.challenge.id == chall_id
+                (
+                    ht.hint.challenge.id,
+                    ht.hint.challenge.title,
+                    ht.hint.text,
+                    ht.hint.cost,
+                    ht.sender.name,
+                )
+                for ht in tm_hints
+                if ht.hint.challenge.id == chall_id
             ]
     return data
 
+
 @db_session()
-def get_team_byoc_stats(user:User):
-    
+def get_team_byoc_stats(user: User):
     teammates = getTeammates(user)
     team_challs = db.Challenge.select(lambda c: c.author in teammates)[:]  # type: ignore
 
@@ -574,34 +619,35 @@ def get_team_byoc_stats(user:User):
         #     db.select( sum(t.value) for t in db.Transaction if t.type == "byoc reward" and t.recipient in teammates and t.challenge == chall).without_distinct()
         # )
 
-        ts = db.Transaction.select(lambda t: t.type == "byoc reward" and t.recipient in teammates and t.challenge == chall)[:]
-        
+        ts = db.Transaction.select(
+            lambda t: t.type == "byoc reward"
+            and t.recipient in teammates
+            and t.challenge == chall
+        )[:]
+
         for t in ts:
             total_rewards_for_chall += t.value
-        
-        line = [
-            chall,
-            len(num_solves),
-            total_rewards_for_chall
-        ]
+
+        line = [chall, len(num_solves), total_rewards_for_chall]
 
         byoc_solves.append(line)
-    
 
     return byoc_solves
 
 
 @db_session()
-def get_team_transactions(user:User):
-
+def get_team_transactions(user: User):
     teammates = getTeammates(user)  # throws an error about db session is over
 
-    ts = db.Transaction.select(lambda t: t.sender in teammates or t.recipient in teammates )[:]
+    ts = db.Transaction.select(
+        lambda t: t.sender in teammates or t.recipient in teammates
+    )[:]
 
     return ts
 
+
 @db_session
-def getHintCost(user: User, challenge_id: int = 0) -> int|float:
+def getHintCost(user: User, challenge_id: int = 0) -> int | float:
     # this is to abstract away some of the issues with populating test data
     # see around line 970 in buy_hint in byoctf_discord.py
 
@@ -609,7 +655,7 @@ def getHintCost(user: User, challenge_id: int = 0) -> int|float:
     chall = Challenge.get(id=challenge_id)
     if chall == None:
         return -1
-    
+
     hints_for_this_chall = list(chall.hints)
     purchasable_hints = list()
 
@@ -634,15 +680,16 @@ def getHintCost(user: User, challenge_id: int = 0) -> int|float:
             logger.debug(
                 f"{user.name} has no more hints for challenge id {challenge_id}"
             )
-        #return "There are no more hints available to purchase for this challenge.", None
+        # return "There are no more hints available to purchase for this challenge.", None
         return -1
-    
+
     sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
 
     # print(f'hints available to purchase: {purchasable_hints}')
     cheapest_hint = purchasable_hints[0]
     # print(cheapest_hint.to_dict())
     return cheapest_hint.cost
+
 
 @db_session
 def buyHint(user: User, challenge_id: int = 0):
@@ -651,10 +698,10 @@ def buyHint(user: User, challenge_id: int = 0):
 
     # does challenge have hints
     chall = Challenge.get(id=challenge_id)
-    
-    if chall == None: 
+
+    if chall == None:
         return f"invalid challenge id: {challenge_id}", None
-    
+
     teammates = getTeammates(user)
 
     if chall.author in teammates:
@@ -813,10 +860,16 @@ def createExtSolve(user: User, chall: Challenge, submitted_flag: str):
 
 @db_session
 def createSolve(
-    user: User = None, flag: Flag = None, msg: str = "", challenge: Challenge = None, points_override:float|None=None, follow_points_rules:bool=True):
-    """The createSolve function attempts to create the transaction that awards points and fails if certain criteria aren't met. Its core purpose was to prevent players from submitting their own flags, their teammates flags, or flags they've already captured. It's also how the decaying points and first blood bonus and BYOC payouts are awarded (if applicable). 
+    user: User = None,
+    flag: Flag = None,
+    msg: str = "",
+    challenge: Challenge = None,
+    points_override: float | None = None,
+    follow_points_rules: bool = True,
+):
+    """The createSolve function attempts to create the transaction that awards points and fails if certain criteria aren't met. Its core purpose was to prevent players from submitting their own flags, their teammates flags, or flags they've already captured. It's also how the decaying points and first blood bonus and BYOC payouts are awarded (if applicable).
 
-    points_override is to allow admins to manually specify points when creating the solve. 
+    points_override is to allow admins to manually specify points when creating the solve.
     """
     botuser = User.get(name=SETTINGS["_botusername"])
 
@@ -894,7 +947,7 @@ def createSolve(
     #     challenge.visible = False # disable the challenge so noone else can see it?
 
     # this becomes part of a big elif chain
-    if flag.unsolved == True and follow_points_rules == True: # this will 
+    if flag.unsolved == True and follow_points_rules == True:  # this will
         reward += value * (SETTINGS["_firstblood_rate"])
         flag.unsolved = False
 
@@ -1000,10 +1053,11 @@ def percentComplete(chall: Challenge, user: User):
     try:
         # solves = db.select(s for s in db.Solve if s.flag in chall.flags and s.user.name in [tm.name for tm in teammates])[:]
 
-        solves = db.Solve.select(lambda s: s.flag in chall.flags and s.user in teammates)[:]
+        solves = db.Solve.select(
+            lambda s: s.flag in chall.flags and s.user in teammates
+        )[:]
 
-    
-        return ( len(solves) / len(chall.flags)) * 100
+        return (len(solves) / len(chall.flags)) * 100
     except ZeroDivisionError as e:
         # the len() of flags is zero... challenge without flags...
         return 0
@@ -1030,7 +1084,7 @@ def validateChallenge(challenge_object):
     result = {
         "valid": False,
         "author": challenge_object.get("author"),
-        "uuid":"",
+        "uuid": "",
         "tags": list(),
         "challenge_title": "",
         "challenge_description": "",
@@ -1048,7 +1102,7 @@ def validateChallenge(challenge_object):
     # title, description, tags, flags with at least one flag, hints
 
     # unique uuid
-    
+
     if is_valid_uuid(challenge_object.get("uuid", "")) == False:
         result["fail_reason"] += "; uuid not present or invalid"
         return result
@@ -1079,7 +1133,6 @@ def validateChallenge(challenge_object):
         len(challenge_object.get("challenge_description", "")) < 1
         or len(challenge_object.get("challenge_description", "")) > 1500
     ):
-
         result["fail_reason"] += "; failed description length (too long or too short?) "
         return result
     result["challenge_description"] = challenge_object["challenge_description"]
@@ -1109,12 +1162,16 @@ def validateChallenge(challenge_object):
     if challenge_object.get("external_validation") == True:
         # can we reach the endpoint via requests?
         try:
-            resp = requests.get(challenge_object.get("external_validation_url"), timeout=3)
+            resp = requests.get(
+                challenge_object.get("external_validation_url"), timeout=3
+            )
             data = json.loads(resp.text)
             result["tags"].append("ext_validation")
-        
+
         except ConnectTimeout as e:
-            result["fail_reason"] += f"; http request timeout to ext url ({e}) need a lower latency server?"
+            result[
+                "fail_reason"
+            ] += f"; http request timeout to ext url ({e}) need a lower latency server?"
             return result
         except BaseException as e:
             result["fail_reason"] += f"; failed validate http request to ext url ({e})"
@@ -1156,7 +1213,7 @@ def validateChallenge(challenge_object):
         result["flags"] = challenge_object["flags"]
 
     # parent challenges
-    parents = challenge_object.get("depends_on", list()) # these should be uuid strings
+    parents = challenge_object.get("depends_on", list())  # these should be uuid strings
     for parent_id in parents:
         # try:
         #     parent_id = int(parent_id)
@@ -1171,7 +1228,6 @@ def validateChallenge(challenge_object):
         if is_valid_uuid(parent_id) == False:
             result["fail_reason"] += f"; invalid parent challenge uuid {parent_id}"
             return result
-            
 
         parent = Challenge.get(uuid=parent_id)
         if parent == None:
@@ -1191,31 +1247,40 @@ def validateChallenge(challenge_object):
 
     return result
 
-@db_session()
-def getSolves(chall:Challenge) -> list[Solve]:
-    solves = sorted(db.Solve.select(lambda s: s.challenge == chall), key=lambda s: s.time)
-    return solves
 
 @db_session()
-def upsertTag(name:str):
+def getSolves(chall: Challenge) -> list[Solve]:
+    solves = sorted(
+        db.Solve.select(lambda s: s.challenge == chall), key=lambda s: s.time
+    )
+    return solves
+
+
+@db_session()
+def upsertTag(name: str):
     t = Tag.get(name=name)
     if t == None:  # meaning a tag like this does not exists
         t = Tag(name=name)
         commit()
-    return t  
+    return t
+
 
 @db_session()
-def send_tip(sender:User, recipient:User, msg:str|None=None, tip_amount:float=10) -> tuple[bool,float]:
+def send_tip(
+    sender: User, recipient: User, msg: str | None = None, tip_amount: float = 10
+) -> tuple[bool, float]:
     # check funds
     current_points = getScore(sender)
-    logger.debug(f"{sender.name} to {recipient.name} ; sender points {current_points} tip amount {tip_amount}")
-    
+    logger.debug(
+        f"{sender.name} to {recipient.name} ; sender points {current_points} tip amount {tip_amount}"
+    )
+
     if current_points < tip_amount:
         return False, current_points
-    
+
     if msg == None:
         funny_thank_you_phrases = [
-            "Thank you for being a friend." ,
+            "Thank you for being a friend.",
             "Thanks for putting up with my weirdness. You're a real champ!",
             "You're the cheese to my macaroni. Thanks for being a friend!",
             "Gratitude level: Over 9000! Thanks for being in my friend-zone!",
@@ -1225,21 +1290,21 @@ def send_tip(sender:User, recipient:User, msg:str|None=None, tip_amount:float=10
             "Thanks for laughing at my jokes, even when no one else does. You're a keeper!",
             "You must have a PhD in Friendship – thanks for being top of the class!",
             "Friendship with you is like owning a dog without the feeding part. Thanks for always being there!",
-            "Thanks for being the ‘Ctrl + S’ to my life. Friendship saved!"
+            "Thanks for being the ‘Ctrl + S’ to my life. Friendship saved!",
         ]
-        msg =  random.choice(funny_thank_you_phrases)
+        msg = random.choice(funny_thank_you_phrases)
     else:
         msg = msg[:100]
 
     tip = db.Transaction(
-            sender=sender,
-            recipient=recipient,
-            value=tip_amount,
-            type="tip",
-            message=msg,
-        )
+        sender=sender,
+        recipient=recipient,
+        value=tip_amount,
+        type="tip",
+        message=msg,
+    )
     commit()
-    return True, getScore(sender) # this should be the score post-tip. 
+    return True, getScore(sender)  # this should be the score post-tip.
 
 
 @db_session()
@@ -1267,7 +1332,7 @@ def buildChallenge(challenge_object, byoc=False):
         logger.debug(result["fail_reason"])
         return -1
 
-    chall_uuid = result.get('uuid','')
+    chall_uuid = result.get("uuid", "")
 
     chall_obj_tags = set(
         [t.lower().strip() for t in result["tags"]]
@@ -1275,13 +1340,13 @@ def buildChallenge(challenge_object, byoc=False):
     tags = list()
     for tag in chall_obj_tags:
         t = upsertTag(tag)
-        
+
         tags.append(t)
 
     # add a tag for byoc
     if byoc:
-        byoc_tag = upsertTag('byoc')
-                    
+        byoc_tag = upsertTag("byoc")
+
         tags.append(byoc_tag)
     tags = list(set(tags))  # incase someone added byoc tag manually
 
@@ -1308,7 +1373,7 @@ def buildChallenge(challenge_object, byoc=False):
         byoc=result.get("byoc", result.get("byoc", False)),
         byoc_ext_url=result.get("external_validation_url"),
         byoc_ext_value=result.get("value", 0),
-        uuid=result.get("uuid","")
+        uuid=result.get("uuid", ""),
     )
 
     # need to do this so I can get an ID from the chall

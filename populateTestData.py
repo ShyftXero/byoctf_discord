@@ -17,24 +17,23 @@ ensure_bot_acct()
 AMOUNT_OF_DATA = 10
 
 with db_session:
-
     # teams; These passwords are sha256 of teamname.
     # botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
     bestteam = db.Team(
-name="bestteam",
-password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
+        name="bestteam",
+        password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
     )
     secondteam = db.Team(
-name="secondteam",
-password="4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f",
+        name="secondteam",
+        password="4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f",
     )
     thirdteam = db.Team(
-name="thirdteam",
-password="7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b",
+        name="thirdteam",
+        password="7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b",
     )
     fourthteam = db.Team(
-name="fourthteam",
-password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
+        name="fourthteam",
+        password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
     )
 
     # users
@@ -47,13 +46,13 @@ password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
     r3d = db.User(name="combaticus", team=secondteam)
     malloc = db.User(name="blackcatt", team=thirdteam)
     aykay = db.User(name="aykay", team=fourthteam)
-    jsm = db.User(name='jsm2191', team=bestteam)
-    moonkaptain = db.User(name='moonkaptain', team=secondteam, is_admin=True)
+    jsm = db.User(name="jsm2191", team=bestteam)
+    moonkaptain = db.User(name="moonkaptain", team=secondteam, is_admin=True)
     fractumseraph = db.User(name="fractumseraph", team=fourthteam)
 
     # flags
     flag_seed = db.Flag(
-flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
+        flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
     )  # avoid firstblood
     flag_asdf = db.Flag(flag="FLAG{asdf}", value=100, author=malloc, byoc=True)
     flag_ASDF = db.Flag(flag="FLAG{ASDF}", value=200, author=malloc, byoc=True)
@@ -76,66 +75,66 @@ flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
 
     # challenges
     bonus_challenge = db.Challenge(
-id=0,
-title="__bonus__",
-description="this is the description for all bonus challenges...",
-author=bot,
+        id=0,
+        title="__bonus__",
+        description="this is the description for all bonus challenges...",
+        author=bot,
     )
 
     c1 = db.Challenge(
-title="challenge 1",
-description="challenge 1 description",
-flags=[flag_asdf, flag_ASDF],
-author=malloc,
-byoc=True,
-tags=[byoc_tag, puzzle_tag, forensics_tag],
+        title="challenge 1",
+        description="challenge 1 description",
+        flags=[flag_asdf, flag_ASDF],
+        author=malloc,
+        byoc=True,
+        tags=[byoc_tag, puzzle_tag, forensics_tag],
     )
     c2 = db.Challenge(
-title="challenge 2",
-description="challenge 2 description; unlocks c3",
-flags=[flag_qwer],
-author=fie,
-tags=[pentest_tag, forensics_tag, crypto_tag],
+        title="challenge 2",
+        description="challenge 2 description; unlocks c3",
+        flags=[flag_qwer],
+        author=fie,
+        tags=[pentest_tag, forensics_tag, crypto_tag],
     )
     c3 = db.Challenge(
-title="challenge 3",
-description="challenge 3 description; requires c2",
-flags=[flag_qwer],
-author=fie,
-parent=[c2],
-tags=[crypto_tag],
+        title="challenge 3",
+        description="challenge 3 description; requires c2",
+        flags=[flag_qwer],
+        author=fie,
+        parent=[c2],
+        tags=[crypto_tag],
     )
 
     c4 = db.Challenge(
-title="challenge 4",
-description="challenge 4 description;DONT SOLVE",
-flags=[flag_nosolve],
-author=r3d,
+        title="challenge 4",
+        description="challenge 4 description;DONT SOLVE",
+        flags=[flag_nosolve],
+        author=r3d,
     )
 
     c5 = db.Challenge(
-title="challenge 5",
-description="challenge 5 description;DO SOLVE",
-flags=[flag_dosolve],
-author=r3d,
-tags=[byoc_tag, pentest_tag, reversing_tag],
+        title="challenge 5",
+        description="challenge 5 description;DO SOLVE",
+        flags=[flag_dosolve],
+        author=r3d,
+        tags=[byoc_tag, pentest_tag, reversing_tag],
     )
 
     c6 = db.Challenge(
-title="challenge 6",
-description="challenge 6 description;",
-flags=[flag_jkl],
-author=malloc,
-parent=[c5, c4],
-tags=[byoc_tag, pentest_tag, forensics_tag],
+        title="challenge 6",
+        description="challenge 6 description;",
+        flags=[flag_jkl],
+        author=malloc,
+        parent=[c5, c4],
+        tags=[byoc_tag, pentest_tag, forensics_tag],
     )
 
     c7 = db.Challenge(
-title="chall 7",
-description="chall 7 desc",
-flags=[flag_fgh],
-author=aykay,
-tags=[forensics_tag],
+        title="chall 7",
+        description="chall 7 desc",
+        flags=[flag_fgh],
+        author=aykay,
+        tags=[forensics_tag],
     )
 
     # hints
@@ -152,7 +151,9 @@ tags=[forensics_tag],
     fie_seed = db.Transaction(sender=bot, recipient=fie, value=1000, type="seed")
     r3d_seed = db.Transaction(sender=bot, recipient=r3d, value=1000, type="seed")
     malloc_seed = db.Transaction(sender=bot, recipient=malloc, value=1000, type="seed")
-    jsm_seed = malloc_seed = db.Transaction(sender=bot, recipient=jsm, value=1337, type="seed")
+    jsm_seed = malloc_seed = db.Transaction(
+        sender=bot, recipient=jsm, value=1337, type="seed"
+    )
 
     commit()
 
@@ -190,13 +191,18 @@ tags=[forensics_tag],
     createSolve(user=aykay, flag=flag_zxcv)
     createSolve(user=aykay, flag=flag_jkl)
 
-    res, tip1 = send_tip(shyft,fie,tip_amount=12,msg="from populateTestData")
-    res, tip2 = send_tip(r3d,fie) # default tip amount
-    res, tip3 = send_tip(sender=fie,recipient=jsm,tip_amount=17,msg="from populateTestData")
-    res, tip4 = send_tip(sender=shyft,recipient=jsm,tip_amount=5,)
-    res, tip5 = send_tip(sender=jsm,recipient=aykay,tip_amount=50)
-    res, tip6 = send_tip(sender=jsm,recipient=shyft,tip_amount=50)
-
+    res, tip1 = send_tip(shyft, fie, tip_amount=12, msg="from populateTestData")
+    res, tip2 = send_tip(r3d, fie)  # default tip amount
+    res, tip3 = send_tip(
+        sender=fie, recipient=jsm, tip_amount=17, msg="from populateTestData"
+    )
+    res, tip4 = send_tip(
+        sender=shyft,
+        recipient=jsm,
+        tip_amount=5,
+    )
+    res, tip5 = send_tip(sender=jsm, recipient=aykay, tip_amount=50)
+    res, tip6 = send_tip(sender=jsm, recipient=shyft, tip_amount=50)
 
     # # show()
     commit()
