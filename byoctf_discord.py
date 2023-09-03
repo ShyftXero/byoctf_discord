@@ -908,7 +908,7 @@ async def list_all(ctx, *, tags=None):
     help="view a challenge by id e.g. !view <chall_id> int or uuid",
     aliases=["vc", "v"],
 )
-async def view_challenge(ctx, chall_id: int):
+async def view_challenge(ctx, chall_id):
     if await isRegistered(ctx) == False:
         return
 
@@ -920,7 +920,9 @@ async def view_challenge(ctx, chall_id: int):
         await ctx.send("CTF isn't running yet")
         return
 
-    if db.is_valid_uuid(chall_id) == False:
+    if db.is_valid_uuid(chall_id) :
+        ...
+    else:
         try:
             chall_id = int(chall_id)
             if chall_id < 0:
