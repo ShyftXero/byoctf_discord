@@ -166,13 +166,14 @@ def generateMapping():
     if SETTINGS["_db_type"] == "sqlite":
         db.bind(provider="sqlite", filename=SETTINGS["_db_database"], create_db=True)
     elif SETTINGS["_db_type"] == "postgres":
-        print("postgres is untested... good luck...")
+        print("postgres is tested less than sqlite... good luck...")
         db.bind(
             provider="postgres",
             user=SETTINGS["_db_user"],
             password=SETTINGS["_db_pass"],
             host=SETTINGS["_db_host"],
             database=SETTINGS["_db_database"],
+            port=SETTINGS["_db_port"]
         )
     elif SETTINGS["_db_type"] == "mysql":
         print("mysql is untested... good luck...")
@@ -1271,9 +1272,9 @@ def send_tip(
 ) -> tuple[bool, float]:
     # check funds
     current_points = getScore(sender)
-    logger.debug(
-        f"{sender.name} to {recipient.name} ; sender points {current_points} tip amount {tip_amount}"
-    )
+    # logger.debug(
+    #     f"{sender.name} to {recipient.name} ; sender points {current_points} tip amount {tip_amount}"
+    # )
 
     if current_points < tip_amount:
         return False, current_points

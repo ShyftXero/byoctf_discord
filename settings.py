@@ -1,6 +1,6 @@
 import diskcache as dc
 
-CACHE_PATH = "./byoctf_diskcache"
+CACHE_PATH = "./__diskcache__"
 
 SETTINGS = dc.Cache(directory=CACHE_PATH)
 
@@ -25,16 +25,17 @@ def default_config():
         "percent_solved_to_unlock": 0.5,  # this is the minimum percentage of parent chall flags must be captured to determine if a challenge is unlocked.
         "_logfile": "byoctf.log",  # logfile for debugging/tail -f or whatever
         # sqlite config
-        "_db_type": "sqlite",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
-        "_db_user": "username1",  # db username
-        "_db_pass": "password1",  # db password
-        "_db_database": "byoctf.db",  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
+        # "_db_type": "sqlite",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
+        # "_db_user": "username1",  # db username
+        # "_db_pass": "password1",  # db password
+        # "_db_database": "byoctf.db",  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
         # postgres config
-        # "_db_type": "postgres",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
-        # "_db_host": custom_secrets.postgres_db_host,  # database host
-        # "_db_user": custom_secrets.postgres_db_user,  # db username
-        # "_db_pass": custom_secrets.postgres_db_pass,  # db password ; the old password will be a flag... just remind me and show where you got it. --shyft
-        # "_db_database": custom_secrets.postgres_db_database,  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
+        "_db_type": "postgres",  # sqlite is easy and works well enough. I probably won't leverage the others.; that being said, hosted cockroach or postgres is also easy...
+        "_db_host": custom_secrets.postgres_db_host,  # database host
+        "_db_port": custom_secrets.postgres_db_port, # database port
+        "_db_user": custom_secrets.postgres_db_user,  # db username
+        "_db_pass": custom_secrets.postgres_db_pass,  # db password ; the old password will be a flag... just remind me and show where you got it. --shyft
+        "_db_database": custom_secrets.postgres_db_database,  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
         "_ctf_guild_id": 618912342385885198,  # your discord server. user right-click copy ID to get these
         "_ctf_channel_id": 735581872259727435,  # channel ID to give to users once they register.
         "_ctf_channel_role_id": 735582054485328004,  # the ID of the role which will be given to players as they register; makes the channel visible to them.
