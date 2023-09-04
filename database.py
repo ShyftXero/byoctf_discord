@@ -1075,7 +1075,7 @@ def challengeComplete(chall: Challenge, user: User):
 
 
 @db_session()
-def validateChallenge(challenge_object):
+def validateChallenge(challenge_object, bypass_length=False):
     if SETTINGS["_debug"]:
         logger.debug(f"validating the challenge from {challenge_object.get('author')}")
         if SETTINGS["_debug_level"] >= 1:
@@ -1131,7 +1131,7 @@ def validateChallenge(challenge_object):
 
     if type(challenge_object.get("challenge_description")) == None or (
         len(challenge_object.get("challenge_description", "")) < 1
-        or len(challenge_object.get("challenge_description", "")) > 1500
+        or len(challenge_object.get("challenge_description", "")) > 1500 and bypass_length == False
     ):
         result["fail_reason"] += "; failed description length (too long or too short?) "
         return result

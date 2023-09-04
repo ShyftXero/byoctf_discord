@@ -5,6 +5,7 @@ from rich import print
 import fire
 from pony.orm.core import commit, db_session
 from settings import *
+import toml
 
 if is_initialized() == False:
     init_config()
@@ -582,21 +583,21 @@ class Commands:
             return
         print("Cancelling...")
 
-    def add_chall(self, json_file, byoc=False):
+    def add_chall(self, toml_file, byoc=False):
         """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user."""
 
         import json
 
         try:
-            raw = open(json_file).read()
-            chall_obj = json.loads(raw)
+            raw = open(toml_file).read()
+            chall_obj = toml.loads(raw)
         except FileNotFoundError:
-            print("Can't find file:", json_file)
+            print("Can't find file:", toml_file)
             return
-        except json.JSONDecodeError:
-            print("Check JSON syntax in file:", json_file)
+        except toml.TomlDecodeError:
+            print("Check TOML syntax in file:", toml_file)
             return
-        result = db.validateChallenge(chall_obj)
+        result = db.validateChallenge(chall_obj, bypass_length=True)
 
         # for byoc loading of challenges. avoids them being tagged as BYOC ; ./ctrl_ctf.py add_chall chall.json byoc=True
         if byoc:
