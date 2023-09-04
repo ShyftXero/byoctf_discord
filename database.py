@@ -1133,7 +1133,7 @@ def validateChallenge(challenge_object, bypass_length=False):
         len(challenge_object.get("challenge_description", "")) < 1
         or len(challenge_object.get("challenge_description", "")) > 1500 and bypass_length == False
     ):
-        result["fail_reason"] += "; failed description length (too long or too short?) "
+        result["fail_reason"] += f"; failed description length (too long or too short?) len = {len(challenge_object.get('challenge_description', ''))} "
         return result
     result["challenge_description"] = challenge_object["challenge_description"]
 
