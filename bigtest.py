@@ -4,7 +4,7 @@ from database import *
 import faker
 import pony
 
-hashlib
+from mpire import WorkerPool
 
 fake = faker.Faker()
 with db_session:
