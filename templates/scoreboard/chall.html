@@ -18,10 +18,10 @@
 		<div class="chall_info card card-body">
 			<h2>Challenge: {{chall.title}}</h2> {% if team_owned_challenge %}<h2>TEAM OWNED CHALLENGE!!!</h2>{% endif %}
 			<table class="table">
-				<tr><td>UUID</td><td>{{chall.uuid}}</td></tr>
+				<tr><td>UUID</td><td><code>{{chall.uuid}}</code></td></tr>
 				<tr><td>Numeric ID</td><td>{{chall.id}}</td></tr>
 				<tr><td>Author</td><td>{{chall.author.name}}</td></tr>
-				<tr><td>Description</td><td>{{chall.description}}</td></tr>
+				<tr><td>Description</td><td><pre>{{chall.description}}</pre></td></tr>
 				<tr><td>Number of Flags</td><td>{{chall.flags|length}}</td></tr>
 				<tr><td>Sum of Flag values</td><td>{{chall_value}}</td></tr>
 			</table>
@@ -37,7 +37,7 @@
 
 				<tbody>
 				{% for flag in captured_flags %}
-					<tr><td>{{flag.description}}</td><td>{{flag.flag}}</td><td>{{flag.value}}</td></tr>        
+					<tr><td><pre>{{flag.description}}</pre></td><td>{{flag.flag}}</td><td>{{flag.value}}</td></tr>        
 				{% endfor %}
 				</tbody>
 			</table>
