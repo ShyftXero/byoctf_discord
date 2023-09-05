@@ -2,6 +2,7 @@ custom_secrets.py
 byoctf.db
 byoctf.log
 byoctf_diskcache/
+__diskcache__/
 __pycache__/
 .vscode/
 venv
