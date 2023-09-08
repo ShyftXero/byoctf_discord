@@ -347,6 +347,38 @@ def transactions():
     )
 
 
+@app.get('/challenges')
+@limiter.limit("100/second", override_defaults=False)
+@db.db_session
+def challenges():
+    api_key = request.cookies.get("api_key")
+    if api_key == None:
+        return "api_key not set; visit HUD first...", 403
+    user = db.User.get(api_key=api_key)
+    if user == None:
+        return "invalid user api_key", 403
+    
+    available_challenges = db.get_unlocked_challenges(user)
+    teammates = db.getTeammates(user)
+    parsed = [
+                (
+                    c.id,
+                    c.uuid,
+                    c.author.name,
+                    c.title,
+                    db.challValue(c),
+                    f"{db.percentComplete(c, user)}%",
+                    "*" * int(db.avg(r.value for r in db.Rating if r.challenge == c) or 0),
+                    ", ".join([t.name for t in c.tags]),
+                )
+                for c in available_challenges
+                if c.id > 0 and c.author not in teammates
+            ]
+    print(parsed)
+    return render_template('scoreboard/challenges.html', parsed=parsed, available_challenges=available_challenges)
+    
+
+
 @app.get("/chall/<chall_uuid>")
 @limiter.limit("100/second", override_defaults=False)
 @db.db_session

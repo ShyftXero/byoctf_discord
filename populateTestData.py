@@ -50,6 +50,10 @@ with db_session:
     moonkaptain = db.User(name="moonkaptain", team=secondteam, is_admin=True)
     fractumseraph = db.User(name="fractumseraph", team=fourthteam)
 
+    users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
+    for u in users:
+        rotate_keys(u)
+
     # flags
     flag_seed = db.Flag(
         flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
@@ -206,3 +210,11 @@ with db_session:
 
     # # show()
     commit()
+
+    msg = f'''
+shyft api_key={shyft.api_key}
+https://scoreboard.byoctf.com/login/{shyft.api_key}
+private key = {shyft.private_key}
+public key = {shyft.public_key}
+'''.strip()
+    print(msg)

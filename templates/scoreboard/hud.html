@@ -16,6 +16,7 @@
 <body>
         <div class='container' hx-get="/hud" hx-trigger="every 2m" hx-swap="outerHTML">
                 <h1>SOTB PLAYER HUD</h1> <h2><a href="/">Scoreboard</a></h2><h2 id="transactions_link"><a href="/hud/transactions">Team Transactions</a></h2>
+				<h2><a href="/challenges">All Challenges</a></h2>
                 {% if is_admin %}
 				<a href="/admin/net/transactions"> Admin Graph - Transactions</a>
 				<a href="/admin/net/players"> Admin Graph - Players and Teams</a>
@@ -45,11 +46,28 @@
                 <!-- <h1>User Challenges and Hints</h1> -->
                 <div class="incomplete card card-body">
 					<h2>Incomplete Challenges:</h2>
-					<table class="table">
+					<!-- <table class="table">
 						{% for chall in unsolved_challs %}
 							<tr class="card chall"><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
 						{% endfor %}
-					</table>
+					</table> -->
+					<div class="challenge_grid">
+						{% for chall in unsolved_challs %}	
+							<div class="card">
+								<a href="/chall/{{chall.uuid}}" class="href">
+									<h3>"{{ chall.title }}"</h3>
+								</a>
+								By <a href="/player/{{chall.author.id}}">{{chall.author.name}}</a>
+								<br>
+								Tags: {% for t in chall.tags %}{{t.name}} {% endfor %}
+								<br>
+								Rating {{"⭐" * chall.get_rating()}}
+							</div>
+							
+						{% endfor %}
+					</div>
+		
+
 				</div>
 
                 <div class="purchased_hints card card-body">
@@ -72,11 +90,27 @@
 				<div class="solved card card-body">
 					<h2>Solved Challenges:</h2>
 					<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
-					<table class="table">
+					<!-- <table class="table">
 							{% for chall in solved_challs %}
 							<tr><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
 							{% endfor %}
-						</table>
+						</table> -->
+
+						<div class="challenge_grid">
+							{% for chall in unsolved_challs %}	
+								<div class="card">
+									<a href="/chall/{{chall.uuid}}" class="href">
+										<h3>"{{ chall.title }}"</h3>
+									</a>
+									By <a href="/player/{{chall.author.id}}">{{chall.author.name}}</a>
+									<br>
+									Tags: {% for t in chall.tags %}{{t.name}} {% endfor %}
+									<br>
+									Rating {{"⭐" * chall.get_rating()}}
+								</div>
+								
+							{% endfor %}
+						</div>
 				</div>
 				
 				<div class="solved card card-body">

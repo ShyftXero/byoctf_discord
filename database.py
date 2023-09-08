@@ -1,3 +1,4 @@
+import binascii
 from collections import Counter
 import hashlib
 import random
@@ -7,6 +8,8 @@ from settings import SETTINGS
 import json
 import toml
 import uuid
+
+from nacl.public import PrivateKey, PublicKey
 
 import requests
 from requests.exceptions import ConnectTimeout
@@ -77,6 +80,8 @@ class User(db.Entity):
     ratings = Set("Rating")
     api_key = Required(str, default=lambda: str(uuid.uuid4()))
     is_admin = Required(bool, default=False)
+    public_key = Optional(str)
+    private_key = Optional(str)
 
 
 class Solve(db.Entity):
@@ -136,29 +141,6 @@ class Rating(db.Entity):
     time = Optional(datetime, default=lambda: datetime.now())
 
 
-#########
-@db_session
-def average_score() -> float:
-    all_scores = [getScore(u) for u in User.select(lambda u: u.id != 0)[:]]
-    return sum(all_scores) / len(all_scores)
-
-
-def ensure_bot_acct():
-    # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
-    with db_session:
-        unaffiliated = db.Team.get(name="__unaffiliated__")
-        if unaffiliated == None:
-            unaffiliated = db.Team(name="__unaffiliated__", password="__unaffiliated__")
-
-        botteam = db.Team.get(name="__botteam__")
-        if botteam == None:
-            botteam = db.Team(name="__botteam__", password="__botteam__")
-
-        bot = db.User.get(id=0)
-        if bot == None:
-            bot = db.User(id=0, name=SETTINGS["_botusername"], team=botteam)
-
-        commit()
 
 
 def generateMapping():
@@ -188,9 +170,55 @@ def generateMapping():
     # db.create_tables()
     db.generate_mapping(create_tables=True)
 
+def set_custom_methods():
+    ...
+    def get_chall_value(self):
+        flags = list(select(c.flags for c in Challenge if c.id == self.id))
+        return sum([flag.value for flag in flags])
+    setattr(Challenge, 'get_value', get_chall_value)
 
+    def get_chall_rating(self):
+        return int(avg(r.value for r in Rating if r.challenge == self) or 0)
+    setattr(Challenge, 'get_rating', get_chall_rating)
 generateMapping()
+set_custom_methods()
+#########
 
+
+
+
+
+@db_session
+def average_score() -> float:
+    all_scores = [getScore(u) for u in User.select(lambda u: u.id != 0)[:]]
+    return sum(all_scores) / len(all_scores)
+
+@db_session
+def rotate_keys(user:User):
+    user.api_key = str(uuid.uuid4())
+    priv =  PrivateKey.generate()
+    pub = priv.public_key
+    # this is to get the bytes form... 
+    user.private_key = priv._private_key.hex()
+    user.public_key = pub._public_key.hex()
+
+def ensure_bot_acct():
+    # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
+    with db_session:
+        unaffiliated = db.Team.get(name="__unaffiliated__")
+        if unaffiliated == None:
+            unaffiliated = db.Team(name="__unaffiliated__", password="__unaffiliated__")
+
+        botteam = db.Team.get(name="__botteam__")
+        if botteam == None:
+            botteam = db.Team(name="__botteam__", password="__botteam__")
+
+        bot = db.User.get(id=0)
+        if bot == None:
+            bot = db.User(id=0, name=SETTINGS["_botusername"], team=botteam)
+            rotate_keys(bot)
+
+        commit()
 
 def is_valid_uuid(val):
     try:
@@ -419,7 +447,7 @@ def challegeUnlocked(user: User, chall):
 
 
 @db_session()
-def rate(user: User, chall: Challenge, user_rating: float):
+def rate(user: User, chall: Challenge, user_rating: int|float):
     if chall == None or challegeUnlocked(user, chall) == False:
         return -1
 
@@ -429,12 +457,17 @@ def rate(user: User, chall: Challenge, user_rating: float):
     elif user_rating > SETTINGS["rating_max"]:
         user_rating = SETTINGS["rating_max"]
 
+    user_rating = int(user_rating)
     prev_rating = Rating.get(user=user, challenge=chall)
     if prev_rating:
         # update your previous rating
         prev_rating.value = user_rating
     else:
-        new_rating = Rating(user=user, challenge=chall, value=user_rating)
+        try:
+            # breakpoint()
+            new_rating = Rating(user=user, challenge=chall, value=user_rating)
+        except TypeError:
+            return prev_rating
 
     return user_rating
 
@@ -1259,10 +1292,12 @@ def getSolves(chall: Challenge) -> list[Solve]:
 
 @db_session()
 def upsertTag(name: str):
-    t = Tag.get(name=name)
-    if t == None:  # meaning a tag like this does not exists
+    try:
         t = Tag(name=name)
         commit()
+    except pony.orm.core.TransactionIntegrityError:
+        t = Tag.get(name=name)
+    
     return t
 
 

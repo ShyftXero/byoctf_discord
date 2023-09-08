@@ -54,7 +54,12 @@ with db_session:
             while name in user_names:
                 name = fake.user_name()
             user_names.add(name)
-            users.append(db.User(name=name, team=team))
+            try: 
+                u = db.User(name=name, team=team)
+            except BaseException as e:
+                print(e)
+                continue
+            users.append(u)
 
     # Generate flags
     print(f"creating {AMOUNT_OF_FLAGS} flags")
@@ -77,7 +82,7 @@ with db_session:
     print(f"creating {AMOUNT_OF_CHALLENGES} challenges")
     challenges = [
         db.Challenge(
-            title="_".join(fake.words(nb=2)).upper(),
+            title="_".join(fake.words(nb=random.randint(2,4))).upper(),
             description=fake.text(),
             flags=random.choices(flags, k=random.randint(1, 3)),
             author=random.choice(users),
@@ -149,3 +154,7 @@ with db_session:
         tip_amount = random.randint(-1, 50) + random.random()
         print(f"{sender.name} -> {recipient.name} for {tip_amount}")
         send_tip(sender, recipient, tip_amount=tip_amount)
+    
+    # Generate random ratings 
+    for _ in range(AMOUNT_OF_SOLVES):
+        rate(random.choice(users), random.choice(challenges), random.randint(-2,5) + random.random() )

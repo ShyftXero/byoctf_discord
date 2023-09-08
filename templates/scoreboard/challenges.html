@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+    <title>SOTB HUD</title>
+        <script src="https://unpkg.com/htmx.org@1.8.0"
+        integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
+        crossorigin="anonymous"></script>
+
+		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+		<script src="/static/script.js"></script>
+
+		
+</head>
+<body>
+	<div class='container' hx-get="/challenges" hx-trigger="every 2m" hx-swap="outerHTML">
+		<h1>SOTB Challenges</h1> <h2><a href="/">Scoreboard</a></h2><h2><a href="/hud">Player HUD</a></h2>
+	
+		<!-- <h1>User Challenges and Hints</h1> -->
+		<div class="container">
+			<h2>Available Challenges:</h2>
+			<div class="challenge_grid">
+				{% for chall in available_challenges %}	
+					<div class="card">
+						<a href="/chall/{{chall.uuid}}" class="href">
+							<h3>"{{ chall.title }}"</h3>
+						</a>
+						By <a href="/player/{{chall.author.id}}">{{chall.author.name}}</a>
+						<br>
+						Tags: {% for t in chall.tags %}{{t.name}} {% endfor %}
+						<br>
+						Rating {{"⭐" * chall.get_rating()}}
+					</div>
+					
+				{% endfor %}
+			</div>
+
+			<!-- <div class="challenge_grid">
+				{% for chall in parsed %}	
+					<div class="card">
+						<a href="/chall/{{chall[1]}}" class="href">
+							<h3>"{{ chall[3] }}"</h3>
+						</a>
+						By <a href="/player/{{chall[2]}}">{{chall[2]}}</a>
+						<br>
+						<strong>{{chall[5]}} Complete</strong>
+						<br>
+						Tags: {{chall[7]}}
+					</div>
+					
+				{% endfor %}
+			</div> -->
+
+			<!-- <table class="table">
+				<thead>
+					<tr>
+						<td>Title</td>
+						<td>Total Value</td>
+						<td>Percent Complete</td>
+						<td>Rating</td>
+						<td>Tags</td>
+						<td>Author</td>
+
+					</tr>
+				</thead>
+				<tbody>
+				{% for chall in parsed %}
+					<tr class>
+						<td><a href="/chall/{{chall[1]}}" class="href">"{{ chall[3] }}" </a></td>
+						
+						<td>{{chall[4]}}</td>
+						<td>{{chall[5]}}</td>
+						<td>{{chall[6]}}</td>
+						<td>{{chall[7]}}</td>
+						<td>{{chall[2]}}</td>
+						<td>name{{chall[2]}}</td> 
+
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table> -->
+		</div>
+
+</body>
+</html>
