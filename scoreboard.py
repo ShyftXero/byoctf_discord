@@ -29,7 +29,7 @@ app.secret_key = "thisisasecret"
 
 
 @app.get("/scores")
-@limiter.limit("25/second", override_defaults=False)
+@limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def scoreboard():
     msg = ""
@@ -82,6 +82,18 @@ def get_admin_api_key(func):
 
     return check
 
+def get_api_key(func):
+    @wraps(func)
+    def check(*args, **kwargs):
+        api_key = request.cookies.get("api_key")
+        if api_key == None:
+            return "api_key not set; visit HUD first...", 403
+        with db.db_session:
+            user = db.get_user_by_api_key(api_key)
+            if user == None:
+                return "user not found", 403
+        return func(*args, **kwargs)
+    return check
 
 @app.get("/admin/net/challenges")
 @get_admin_api_key
@@ -274,6 +286,14 @@ def login(api_key):
     resp.set_cookie("api_key", api_key)
     return resp
 
+@app.get('/transactions')
+@limiter.limit("100/second")
+@db.db_session
+def get_public_transactions():
+    public_transactions = db.select( t for t in db.Transaction).sort_by(lambda t: db.desc(t.time)).limit(500)[:]
+        
+    return render_template('scoreboard/public_transactions.html', public_transactions=public_transactions)
+         
 
 @app.get("/hud")
 @app.get("/hud/")

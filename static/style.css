@@ -3,12 +3,14 @@
 
 
 body {
-    margin: 0;
-    padding: 0;
+
     position: relative;
     background-color: #8e44ad;
     color: #414141;
     font-family: 'Roboto', sans-serif;
+    /* max-height: 100vh; */
+    height: 100%;
+    overflow-y: hidden;
 }
 @keyframes gradient {
     0%, 100% {background: #ff416c;}
@@ -49,8 +51,9 @@ body {
     animation: textcolor 60s ease infinite;
     /* align-items: center; */
     /* justify-content: center; */
-    min-height: 100vh;
-    padding: 2rem;
+    
+    
+    padding: 1rem;
 }
 
 table {
@@ -62,6 +65,7 @@ table th,
 table td {
     padding: 0.75rem;
     border-top: 1px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
+    font-size: x-large;
 }
 
 table thead {
@@ -72,8 +76,9 @@ table thead {
 }
 
 h1 {
-    padding: 10px;
-    font-size:8em;
+    text-align: center;
+    padding: 0px;
+    font-size:7em;
     text-shadow: 0 0 10px rgba(183, 33, 255);
       
     font-family: 'Libre Barcode 39 Text';
@@ -90,7 +95,7 @@ h2 {
     font-family: 'Orbitron', sans-serif;
 }
 .footer {
-    padding: 3em;
+    padding: 1em;
 }
 
 body::after {
@@ -179,4 +184,64 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
     grid-template-rows: repeat(5, 1fr);
     grid-column-gap: 10px;
     grid-row-gap: 0px;
+}
+
+
+.header_links {
+    display: flex;
+    
+}
+.public_stuff {
+    flex: 1;
+    text-align: right;
+}
+.private_stuff {
+    
+}
+
+
+
+.teams_and_players{
+    display: flex;
+    column-gap: 10px;
+    height: 30vh;    
+}
+.top_teams{
+    flex: 1;
+    
+}
+.mvps{
+    flex: 1;
+    padding: 10px;
+    
+}
+
+.video-responsive { 
+    flex:auto;
+    position: relative;  
+    /* padding-bottom: 66%;  */
+    height: 100vh; 
+    overflow:hidden; 
+    /* height: 100% */
+  } 
+
+.video-responsive iframe  {
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%;
+    height: calc(40vh);
+}
+  
+._marquee { 
+    text-align: center;
+    /* padding: 20px; */
+    padding-bottom: -150px;
+    font-size: 7em;
+    text-shadow: 0 0 10px rgba(183, 33, 255);
+      
+    font-family: 'Libre Barcode 39 Text';
+    font-style: normal;
+    font-weight:500;
+    font-display: swap;
 }

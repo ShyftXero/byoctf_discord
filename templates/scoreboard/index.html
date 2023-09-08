@@ -19,12 +19,20 @@
 </head>
 
 <body>
-	<div class="w-100 p-3 container">
-		<marquee behavior="scroll" direction="">
-			<h1>SOTB2023 Scoreboard</h1>
+	<div class="_marquee">
+		<marquee behavior="scroll" direction="" >
+			<p><a href="/hud">SOTB2023 Scoreboard</a></p>
 		</marquee>
-		<h2><a href="/hud">Player HUD</a></h2>
-		<div hx-get="/scores" hx-trigger="every 5s"></div>
+	</div>
+	<div class="container">
+		
+		<div class='scores' hx-get="/scores" hx-trigger="every 1s">
+			scores go here
+		</div>
+	</div>
+	<div class="video-responsive">
+		<iframe  src="https://gif.shellontheborder.com" frameborder="0" allowfullscreen></iframe>
+	</div>
 </body>
 
 </html>
