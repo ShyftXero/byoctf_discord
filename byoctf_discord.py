@@ -374,6 +374,7 @@ async def register(
 
         if user == None:
             user = db.User(name=username(ctx), team=unafilliated)
+            db.rotate_keys(user)
 
         if user.team.name != "__unaffiliated__":
             msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. talk to an admin to have your team changed..."
@@ -428,6 +429,7 @@ async def register(
 
     msg = f"Registered as `{username(ctx)}` on team `{teamname}`. Check the {channel.mention} channel"
     await ctx.send(msg)
+    
 
 
 @bot.command(
@@ -540,7 +542,7 @@ async def byoc_stats(ctx):
         teammates = db.getTeammates(user)
 
     await ctx.send(
-        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\n"
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\n```Public Key: {user.public_key}\nPrivate Key: {user.private_key}```"
     )
 
 
@@ -696,6 +698,52 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         msg += f"Your score is now `{db.getScore(user)}`"
         # logger.debug(msg)
         await ctx.send(msg)
+
+@bot.command(
+    name="rotate_keys",
+    help="generate new api_key, public_key, and private_key",
+)
+@commands.cooldown(
+    1, SETTINGS["_rate_limit_window"], type=discord.ext.commands.BucketType.user
+)  # one submission per second per user
+async def rotate_keys(ctx):
+    if await isRegistered(ctx) == False:
+        return
+
+    if await inPublicChannel(
+        ctx,
+        msg=f"Hey, <@{ctx.author.id}>, send that command in a DM to the bot...",
+    ):
+        return
+    
+    def check(msg):
+        return msg.content == "confirm" and msg.channel == ctx.channel
+        # TODO  https://discordpy.readthedocs.io/en/latest/api.html#discord.Client.wait_for
+    
+    await ctx.send(
+        "\n\n\n***Reply with `confirm` in the next 20 seconds to rotate your api, pub/priv keys***"
+    )
+
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+        if user == None:
+            await ctx.send("invalid user somehow...")
+            return
+        
+        resp = None
+        try:
+            resp = await ctx.bot.wait_for("message", check=check, timeout=20)
+        except asyncio.exceptions.TimeoutError as e:
+            await ctx.send("**Cancelling...**")
+            return
+        if resp.content == "confirm":
+            db.rotate_keys(user)
+
+            await ctx.send('Keys updated. use `!whoami` to see them... ')
+            return
+        await ctx.send('invalid response')
+
+
 
 
 @bot.command(
