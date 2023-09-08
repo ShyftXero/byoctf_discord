@@ -1,40 +1,42 @@
 <div>
 	<h2>{{msg}}</h2>
-</div>
-<div class="top_teams card card-body">
-	<h2>Top Teams</h2>
-	<table class="table">
-		<thead>
-			<td>Team</td>
-			<td>Score</td>
-		</thead>
-		<tbody>
-		{% for t in team_scores %}
-			<tr>
-				<td>{{t[0]}}</td>
-				<td>{{t[1]}}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
-</div>
+</div >
+<div class='teams_and_players'>
+	<div class="top_teams card card-body">
+		<h2>Top Teams</h2>
+		<table class="table">
+			<thead>
+				<td>Team</td>
+				<td>Score</td>
+			</thead>
+			<tbody>
+			{% for t in team_scores %}
+				<tr>
+					<td>{{t[0]}}</td>
+					<td>{{t[1]}}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
 
-<div class="mvps card card-body">
-	<h2>Top Scoring Players</h2>
-	<table class="table">
-		<thead>
-			<td>Player</td>
-			<td>Team</td>
-			<td>Individual Score</td>
-		</thead>
-		<tbody>
-		{% for p in top_players %}
-			<tr>
-				<td>{{p[0]}}</td>
-				<td>{{p[1]}}</td>
-				<td>{{p[2]}}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+	<div class="mvps card card-body">
+		<h2>Top Scoring Players</h2>
+		<table class="table">
+			<thead>
+				<td>Player</td>
+				<td>Team</td>
+				<td>Individual Score</td>
+			</thead>
+			<tbody>
+			{% for p in top_players %}
+				<tr>
+					<td>{{p[0]}}</td>
+					<td>{{p[1]}}</td>
+					<td>{{p[2]}}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
 </div>

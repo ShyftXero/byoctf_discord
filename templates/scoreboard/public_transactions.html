@@ -11,10 +11,10 @@
 		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
 
 		<script src="/static/script.js"></script>
-
+		
 </head>
 <body>
-        <div class='container' hx-get="/hud/transactions" hx-trigger="every 2m" hx-swap="outerHTML">
+        <div class='container' hx-get="/hud" hx-trigger="every 10s" hx-swap="outerHTML">
 			<h1>SOTB PLAYER HUD</h1> 
 				
 				<div class="header_links">
@@ -35,40 +35,34 @@
 						<h2><a href="/challenges">All Challenges</a></h2>
 						<h2><a href="/transactions">Public Transactions</a></h2>
 					</div>
-				</div>               
-
-                <div class="purchased_hints card card-body">
-					<h2>Transactions for team <code>{{teamname}}</code></h2>
+				</div>
+                
+                <div class="public_log card card-body">
+					<h2>Public Transactions:</h2>
 					<table class="table sortable">
 							<thead>
-								<td>Transaction ID</td>
+								<td>Team</td>
 								<td>Sender</td>
 								<td>Recipient</td>
+								<td>Transaction Type</td>
 								<td>Value</td>
-								<td>Type</td>
-								<td>Message</td>
 								<td>Time</td>
-								
 							</thead>
-
 							<tbody>
-								{% for trans in transactions %}
-								<tr>
-									<td>{{trans.id}}</td>
-									<td>{{trans.sender.name}}</td>
-									<td>{{trans.recipient.name}}</td>
-									<td>{{trans.value}}</td>
-									<td>{{trans.type}}</td>
-									<td>{{trans.message}}</td>
-									<td>{{trans.time}}</td>									
-								</tr>
+								{% for trans in public_transactions %}
+									<tr>
+										<td>{{trans.sender.team.name}}</td>
+										<td>{{trans.sender.name}}</td>
+										<td>{{trans.recipient.name}}</td>
+										<td>{{trans.type}}</td>
+										<td>{{trans.value}}</td>
+										<td>{{trans.time}}</td>
+									</tr>
 								{% endfor %}
 							</tbody>
 					</table>
 				</div>
 				
-				
-
                 
         </div>
 </body>

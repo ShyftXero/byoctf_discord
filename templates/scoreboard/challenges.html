@@ -16,7 +16,27 @@
 </head>
 <body>
 	<div class='container' hx-get="/challenges" hx-trigger="every 2m" hx-swap="outerHTML">
-		<h1>SOTB Challenges</h1> <h2><a href="/">Scoreboard</a></h2><h2><a href="/hud">Player HUD</a></h2>
+		<h1>SOTB PLAYER HUD</h1> 
+				
+				<div class="header_links">
+					<div class="private_stuff">
+						<h2><a href="/">Scoreboard</a></h2>
+						<h2><a href="/hud/transactions">Team Transactions</a></h2>
+
+						{% if is_admin %}
+						<h3>
+							<a href="/admin/net/transactions"> Admin Graph - Transactions</a><br>
+							<a href="/admin/net/players"> Admin Graph - Players and Teams</a><br>
+							<a href="/admin/net/challenges"> Admin Graph - Challenges</a><br>
+						</h3>
+						{% endif %}
+					</div>
+
+					<div class="public_stuff">
+						<h2><a href="/challenges">All Challenges</a></h2>
+						<h2><a href="/transactions">Public Transactions</a></h2>
+					</div>
+				</div>
 	
 		<!-- <h1>User Challenges and Hints</h1> -->
 		<div class="container">
