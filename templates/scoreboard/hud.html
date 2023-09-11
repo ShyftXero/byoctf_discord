@@ -2,6 +2,8 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
+	<link rel="stylesheet" type="text/css" href="/static/glitch.css">
+	
 
     <title>SOTB HUD</title>
         <script src="https://unpkg.com/htmx.org@1.8.0"
@@ -14,8 +16,10 @@
 </head>
 <body>
         <div class='container' hx-get="/hud" hx-trigger="every 2m" hx-swap="outerHTML">
-                <h1>SOTB PLAYER HUD</h1> 
-				
+				<div class="glitch-wrapper">
+					<div class="glitch header" data-glitch="SOTB PLAYER HUD">SOTB PLAYER HUD</div>
+				 </div>
+				 
 				<div class="header_links">
 					<div class="private_stuff">
 						<h2><a href="/">Scoreboard</a></h2>
@@ -39,10 +43,10 @@
 					<h2>
 						Team <code>{{teamname}}</code> 
 						Total Points <code>{{total}}</code>
-						<pre>
-							<h5>(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)
-							</h5>
-						</pre>
+						
+							(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)
+							
+						
 					</h2>
 					<table class="table sortable">
 						<thead>
@@ -56,17 +60,13 @@
 						</tbody>
 					</table>
 				</div>
-                <!-- <h1>User Challenges and Hints</h1> -->
-                <div class="incomplete card card-body">
+                
+                <div class="incomplete card">
 					<h2>Incomplete Challenges:</h2>
-					<!-- <table class="table">
-						{% for chall in unsolved_challs %}
-							<tr class="card chall"><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
-						{% endfor %}
-					</table> -->
+					
 					<div class="challenge_grid">
 						{% for chall in unsolved_challs %}	
-							<div class="card">
+							<div class="card inner-card">
 								<a href="/chall/{{chall.uuid}}" class="href">
 									<h3>"{{ chall.title }}"</h3>
 								</a>
@@ -103,13 +103,7 @@
 				<div class="solved card card-body">
 					<h2>Solved Challenges:</h2>
 					<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
-					<!-- <table class="table">
-							{% for chall in solved_challs %}
-							<tr><td><a href="/chall/{{chall.uuid}}" class="href">"{{ chall.title }}" </a></td></tr>
-							{% endfor %}
-						</table> -->
-
-						<div class="challenge_grid">
+					<div class="challenge_grid">
 							{% for chall in unsolved_challs %}	
 								<div class="card">
 									<a href="/chall/{{chall.uuid}}" class="href">

@@ -2,102 +2,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 
+
+@font-face {
+    font-family: corrupted_file;
+    src: url(/static/corrupted_file.ttf);
+  }
+
+:root{
+    font-size: 16pt;
+    
+}
+* {
+    box-sizing: border-box;
+  }
+
+html{
+    height: 100vh;
+    width: 100%;
+}
+
 body {
 
     position: relative;
     background-color: #8e44ad;
     color: #414141;
     font-family: 'Roboto', sans-serif;
-    /* max-height: 100vh; */
-    height: 100%;
-    overflow-y: hidden;
-}
-@keyframes gradient {
-    0%, 100% {background: #ff416c;}
-    10% {background: #ff4b2b;}
-    20% {background: #f39c12;}
-    30% {background: #21d4fd;}
-    40% {background: #b721ff;}
-    50% {background: #0b3d91;}
-    60% {background: #8e44ad;}
-    70% {background: #1abc9c;}
-    80% {background: #f1c40f;}
-    90% {background: #e74c3c;}
-}
-
-@keyframes textcolor {
-    0%, 100% {text-shadow: 0 0 10px rgba(243, 156, 18, .5);}
-    10% {text-shadow: 2px 2px 10px rgba(26, 188, 156, .5);}
-    20% {text-shadow: 4px 4px 10px rgba(142, 68, 173, .5);}
-    30% {text-shadow: 6px 6px 10px rgba(231, 76, 60, .5);}
-    40% {text-shadow: 8px 8px 10px rgba(241, 196, 15, .5);}
-    50% {text-shadow: 6px 6px 10px rgba(26, 188, 156, .5);}
-    60% {text-shadow: 4px 4px 10px rgba(52, 152, 219, .5);}
-    70% {text-shadow: 2px 2px 10px rgba(11, 61, 145, .5);}
-    80% {text-shadow: 0 0 10px rgba(183, 33, 255, .5);}
-    90% {text-shadow: -2px -2px 10px rgba(33, 212, 253, .5);}
-}
-
-
-#transactions_link {
-    float: right;
-}
-
-.container {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    z-index: 2;
-    animation: textcolor 60s ease infinite;
-    /* align-items: center; */
-    /* justify-content: center; */
     
-    
-    padding: 1rem;
 }
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table th,
-table td {
-    padding: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
-    font-size: x-large;
-}
-
-table thead {
-    vertical-align: bottom;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
-    font-size: larger;
-    font-weight: bold;
-}
-
-h1 {
-    text-align: center;
-    padding: 0px;
-    font-size:7em;
-    text-shadow: 0 0 10px rgba(183, 33, 255);
-      
-    font-family: 'Libre Barcode 39 Text';
-    font-style: normal;
-    font-weight:400;
-    font-display: swap;
-}
-
-code {
-    color:rgba(183, 33, 255);
-}
-h2 {
-
-    font-family: 'Orbitron', sans-serif;
-}
-.footer {
-    padding: 1em;
-}
-
 body::after {
     content: "";
     position: absolute;
@@ -117,9 +48,92 @@ body::after {
     /* background: linear-gradient(to bottom, #ff416c, #ff4b2b, #f39c12, #21d4fd, #b721ff, #0b3d91, #8e44ad); */
 
     z-index: -1;
-    animation: gradient 60s ease-in-out infinite;
+    animation: background_gradient 60s ease-in-out infinite;
     opacity: .40;
 }
+
+@keyframes background_gradient {
+    0%, 100% {background: #ff416c;}
+    10% {background: #ff4b2b;}
+    20% {background: #f39c12;}
+    30% {background: #21d4fd;}
+    40% {background: #b721ff;}
+    50% {background: #0b3d91;}
+    60% {background: #8e44ad;}
+    70% {background: #1abc9c;}
+    80% {background: #f1c40f;}
+    90% {background: #e74c3c;}
+}
+
+@keyframes textcolor {
+    0%, 100% {text-shadow: 0 0 10px rgba(243, 156, 18, .5);}
+    10% {text-shadow: 2px 2px 10px rgba(26, 188, 156, .5);}
+    20% {text-shadow: 4px 4px 10px rgba(142, 68, 173, .5);}
+    30% {text-shadow: 6px 6px 10px rgba(231, 76, 60, .5);}
+    40% {text-shadow: 8px 8px 10px rgba(211, 255, 14, 0.836);}
+    50% {text-shadow: 6px 6px 10px rgba(26, 188, 156, .5);}
+    60% {text-shadow: 4px 4px 10px rgba(52, 152, 219, .5);}
+    70% {text-shadow: 2px 2px 10px rgba(11, 61, 145, .5);}
+    80% {text-shadow: 0 0 10px rgba(183, 33, 255, .5);}
+    90% {text-shadow: -2px -2px 10px rgba(33, 212, 253, .5);}
+}
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* z-index: 2; */
+    animation: textcolor 60s ease infinite;
+    padding: 1rem;
+
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    height: auto;
+    font-size: large;
+}
+
+table td {
+    padding: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
+    font-size: larger;
+}
+
+table thead {
+    vertical-align: bottom;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Soften the border color */
+    font-size: larger;
+    font-weight: bold;
+}
+
+h1 {
+    text-align: center;
+    padding: 0px;
+    font-size:7em;
+    text-shadow: 0 0 10px rgba(183, 33, 255);
+      
+    /* font-family: 'Libre Barcode 39 Text'; */
+    font-family: corrupted_file;
+    font-style: normal;
+    font-weight:400;
+    font-display: swap;
+}
+
+code {
+    color:rgba(183, 33, 255);
+}
+h2 {
+
+    font-family: 'Orbitron', sans-serif;
+}
+.footer {
+    padding: 1em;
+}
+
+
 
 .chall {
     height: fit-content;
@@ -130,15 +144,20 @@ body::after {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.2);
     border-radius: 3px;
 }
+
+
 .card {
 
-    
+    /* height: 90%; */
     background-color: rgba(255, 255, 255, 0.2);
-    padding: 1rem;
-    padding-right: 1rem;
+    padding: .5rem;
     border-radius: 1rem;
-    margin-bottom: 1rem;
-    width: auto;
+    margin: 1rem;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    /* padding: 1rem; */
 }
 
 
@@ -146,10 +165,12 @@ a {
     color: #21d4fd;
     text-decoration: none;
     transition: color 0.3s ease;
+    /* animation: textcolor 10s ease-in-out infinite; */
 }
 
 a:hover {
     color:  #f39c12;;
+    
     
 }
 
@@ -200,28 +221,31 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
 }
 
 
-
 .teams_and_players{
     display: flex;
     column-gap: 10px;
-    height: 30vh;    
+    /* height: 100%;     */
+    /* height: 30vh; */
 }
 .top_teams{
     flex: 1;
-    
+    height: 100%;
 }
+
 .mvps{
     flex: 1;
     padding: 10px;
+    height: 100%;
     
 }
 
 .video-responsive { 
+    /* display: inline; */
     flex:auto;
     position: relative;  
     /* padding-bottom: 66%;  */
-    height: 100vh; 
-    overflow:hidden; 
+    height: 40vh; 
+    /* overflow:hidden;  */
     /* height: 100% */
   } 
 
@@ -230,18 +254,27 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
     top: 0; 
     left: 0; 
     width: 100%;
-    height: calc(40vh);
+    height: 100%;
+    
 }
   
 ._marquee { 
     text-align: center;
-    /* padding: 20px; */
-    padding-bottom: -150px;
-    font-size: 7em;
+    padding: 20px;
+    /* padding-bottom: -150px; */
+    font-size: 100pt;
     text-shadow: 0 0 10px rgba(183, 33, 255);
       
-    font-family: 'Libre Barcode 39 Text';
+    /* font-family: 'Libre Barcode 39 Text'; */
+    font-family: corrupted_file;
     font-style: normal;
     font-weight:500;
+    font-display: swap;
+}
+
+.header {
+    font-family: corrupted_file;
+    font-style: normal;
+    /* font-weight:300; */
     font-display: swap;
 }

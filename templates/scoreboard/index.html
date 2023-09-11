@@ -10,29 +10,33 @@
 		integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
 		crossorigin="anonymous"></script>
 
-
-
-
-
-	<link rel="stylesheet" type="text/css" href="/static/style.css">
+		<link rel="stylesheet" type="text/css" href="/static/style.css">
+		
 
 </head>
 
 <body>
 	<div class="_marquee">
-		<marquee behavior="scroll" direction="" >
-			<p><a href="/hud">SOTB2023 Scoreboard</a></p>
-		</marquee>
-	</div>
-	<div class="container">
-		
-		<div class='scores' hx-get="/scores" hx-trigger="every 1s">
-			scores go here
+
+		<div class="glitch-wrapper">
+			<marquee  direction="down" width="100%" height="150" behavior="alternate">
+				<marquee behavior="alternate">
+					<div class="glitch header" data-glitch="SOTB2023 SCOREBOARD" ><a href="/hud">SOTB2023 SCOREBOARD</a></div>
+				</marquee>
+			</marquee>
 		</div>
+		
+	</div>
+	<div class="container teams_and_players" hx-get="/scores" hx-trigger="load, every 1m">
+		
+		scores go here
+		
 	</div>
 	<div class="video-responsive">
 		<iframe  src="https://gif.shellontheborder.com" frameborder="0" allowfullscreen></iframe>
 	</div>
 </body>
+
+
 
 </html>
