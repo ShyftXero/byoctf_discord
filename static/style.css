@@ -8,8 +8,13 @@
     src: url(/static/corrupted_file.ttf);
   }
 
+@font-face {
+    font-family: pixeland;
+    src: url(/static/Pixeland.ttf);
+  }
+
 :root{
-    font-size: 16pt;
+    font-size: 14pt;
     
 }
 * {
@@ -117,9 +122,10 @@ h1 {
       
     /* font-family: 'Libre Barcode 39 Text'; */
     font-family: corrupted_file;
+    /* font-family: pixeland; */
     font-style: normal;
-    font-weight:400;
-    font-display: swap;
+    /* font-weight:400; */
+    font-display: block;
 }
 
 code {
@@ -266,15 +272,15 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
     text-shadow: 0 0 10px rgba(183, 33, 255);
       
     /* font-family: 'Libre Barcode 39 Text'; */
-    font-family: corrupted_file;
+    font-family: pixeland;
     font-style: normal;
     font-weight:500;
-    font-display: swap;
+    font-display: block;
 }
 
 .header {
-    font-family: corrupted_file;
+    font-family: pixeland;
     font-style: normal;
     /* font-weight:300; */
-    font-display: swap;
+    font-display: block;
 }

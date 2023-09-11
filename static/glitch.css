@@ -14,7 +14,7 @@
    font-size: 92px;
    font-weight: 700;
    line-height: 1.2;
-   color: #afafaf;
+   color: #863ab3;
    letter-spacing: 6px;
    /* animation: shift 4s ease-in-out infinite alternate; */
    z-index: 1;
@@ -27,7 +27,7 @@
    left: -2px;
    text-shadow: -1px 0 #00ffff;
    width: 100%;
-   color: #afafaf;
+   color: #a941e6;
    /* background-color: #222; */
    overflow: hidden;
    clip: rect(0, 900px, 0, 0);
@@ -41,7 +41,7 @@
    left: 2px;
    text-shadow: 1px 0 #ff00ff;
    width: 100%;
-   color: #afafaf;
+   color: #aa5ad8;
    /* background-color: #222; */
    overflow: hidden;
    clip: rect(0, 900px, 0, 0);
