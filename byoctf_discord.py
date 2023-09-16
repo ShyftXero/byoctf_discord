@@ -1030,6 +1030,7 @@ async def view_challenge(ctx, chall_id):
             msg = "challenge doesn't exist or isn't unlocked yet"
 
     # should we consider using a sendBigMessage?
+    msg = db.render_variables(user, msg)
     await sendBigMessage(ctx, msg, wrap=False)
     # await ctx.send(msg)
 

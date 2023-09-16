@@ -229,6 +229,21 @@ def rotate_keys(user:User):
     user.private_key = priv
     user.public_key = pub
 
+
+@db_session
+def render_variables(user:User, msg:str) -> str:
+    """this will replace the variables '{{PLAYERNAME}}' '{{TEAMNAME}}' AND '{{TEAMUUID}}' with appropriate values for a given player. This is mainly used in challenge descriptions. """
+    variables = {
+        '{{PLAYERNAME}}':user.name,
+        '{{TEAMNAME}}':user.team.name,
+        '{{TEAMUUID}}':user.team.uuid,
+    }
+
+    for k,v in variables.items():
+        msg = msg.replace(k,v)
+    
+    return msg
+
 def ensure_bot_acct():
     # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
     with db_session:
