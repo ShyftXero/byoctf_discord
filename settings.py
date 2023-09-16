@@ -58,6 +58,7 @@ def default_config():
 
 def init_config():
     config = default_config()
+    SETTINGS = dc.Cache(directory=CACHE_PATH)
     for k, v in config.items():
         SETTINGS[k] = v
 
@@ -67,7 +68,7 @@ def is_initialized():
 
     for k in starting_config.keys():
         if k not in list(SETTINGS.iterkeys()):
-            print(f"{k} is missing... run ./ctrl_ctf.py init_config")
+            print(f"{k} is missing... run ./ctrl_ctf.py INIT")
             return False
     return True
 
