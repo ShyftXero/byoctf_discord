@@ -61,7 +61,7 @@ with db_session:
             except BaseException as e:
                 print(e)
                 continue
-            rotate_keys(u)
+            rotate_player_keys(u)
             users.append(u)
 
     # Generate flags

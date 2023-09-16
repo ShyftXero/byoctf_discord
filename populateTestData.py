@@ -69,9 +69,10 @@ with db_session:
 
     users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
     for u in users:
-        rotate_keys(u)
-    
-    # shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+        rotate_player_keys(u)
+    db.commit()
+    shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+    db.commit()
     # flags
     flag_seed = db.Flag(
         flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
@@ -181,8 +182,8 @@ https://someserver.com/{\{TEAMUUID}\}
 print("code block here")
 ```
 """.strip(),
-        flags=[flag_asdf],
-        author=shyft,
+        flags=[flag_fgh],
+        author=aykay,
         tags=[forensics_tag],
     )
 
