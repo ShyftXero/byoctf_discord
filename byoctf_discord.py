@@ -363,6 +363,8 @@ async def register(
         )
         return
 
+    # db.register_team(teamname, password, username(ctx)) 
+    # # TODO move over to using this function to separate discord from business logic 16SEP23
     with db.db_session:
         teamname = teamname.strip()
         password = password.strip()
@@ -386,6 +388,9 @@ async def register(
         # does the team exist?
         if team == None:
             team = db.Team(name=teamname, password=hashed_pass)
+            pub,priv = db.generate_keys()
+            team.public_key = pub
+            team.private_key = priv
 
         if len(team.members) == SETTINGS["_team_size"]:
             msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."

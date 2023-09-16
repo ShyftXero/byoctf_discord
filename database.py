@@ -10,6 +10,7 @@ import toml
 import uuid
 
 from nacl.public import PrivateKey, PublicKey
+from Crypto.PublicKey import RSA
 
 import requests
 from requests.exceptions import ConnectTimeout
@@ -101,6 +102,8 @@ class Team(db.Entity):
     name = Required(str)
     password = Required(str)
     uuid = Required(str, default=lambda: str(uuid.uuid4()))
+    public_key = Optional(str)
+    private_key = Optional(str)
 
 
 class Tag(db.Entity):
@@ -185,6 +188,19 @@ set_custom_methods()
 #########
 
 
+@db_session
+def register_team(teamname:str, password:str, username:str) -> Team:
+    teamname = teamname.strip()
+    password = password.strip()
+    hashed_pass = hashlib.sha256(password.encode()).hexdigest()
+
+    team = Team.get(name=teamname)
+    unafilliated = Team.get(name="__unaffiliated__")
+    user = User.get(name=username)
+
+    if user == None:
+        user = User(name=username, team=unafilliated)
+        rotate_keys(user)
 
 
 
@@ -193,14 +209,25 @@ def average_score() -> float:
     all_scores = [getScore(u) for u in User.select(lambda u: u.id != 0)[:]]
     return sum(all_scores) / len(all_scores)
 
+def generate_keys(keysize:int=2048):
+    """returns pub,private keys in PKCS8 PEM format
+    
+    """
+    key = RSA.generate(keysize)
+    priv = key.export_key('PEM', pkcs=8).decode()
+    pub = key.publickey().export_key().decode()
+    return pub,priv
+
 @db_session
 def rotate_keys(user:User):
     user.api_key = str(uuid.uuid4())
-    priv =  PrivateKey.generate()
-    pub = priv.public_key
-    # this is to get the bytes form... 
-    user.private_key = priv._private_key.hex()
-    user.public_key = pub._public_key.hex()
+    pub,priv = generate_keys()
+    # priv =  PrivateKey.generate()
+    # pub = priv.public_key
+    # user.private_key = priv._private_key.hex()
+    # user.public_key = pub._public_key.hex()
+    user.private_key = priv
+    user.public_key = pub
 
 def ensure_bot_acct():
     # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py

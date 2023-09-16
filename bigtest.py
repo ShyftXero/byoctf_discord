@@ -36,11 +36,13 @@ with db_session:
         while name in team_names:
             name = fake.company()
         team_names.add(name)
-        teams.append(
-            db.Team(
+        t = db.Team(
                 name=name, password=hashlib.sha256(fake.password().encode()).hexdigest()
             )
-        )
+        pub,priv = generate_keys()
+        t.public_key = pub
+        t.private_key = priv
+        teams.append(t)
 
     # Generate users for each team
     print(f"creating users")
@@ -59,6 +61,7 @@ with db_session:
             except BaseException as e:
                 print(e)
                 continue
+            rotate_keys(u)
             users.append(u)
 
     # Generate flags
