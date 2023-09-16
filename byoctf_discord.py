@@ -557,14 +557,6 @@ async def my_keys(ctx):
         await ctx.send(f"```Public Key:\n{user.public_key}```")
         await ctx.send(f"```Private Key:\n{user.private_key}```")
 
-@bot.command(name="rotatekeys", help="Rotate public and private keys")
-async def rotate_my_keys(ctx):
-    with db.db_session:
-        user = db.User.get(name=username(ctx))
-        user.public_key, user.private_key = db.generate_keys()
-        await ctx.send(f"New keys generated\n```Public Key:\n{user.public_key}```")
-        await ctx.send(f"```Private Key:\n{user.private_key}```")
-
 
 
 @bot.command(
