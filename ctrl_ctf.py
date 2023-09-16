@@ -83,6 +83,8 @@ class Commands:
 
     def reinit_config(self):
         """This will repopulate the diskcache with the default config provided in settings.py"""
+        import os
+        os.system('rm -rf __diskcache__')
         import settings  # force a recreation fo the settings obj and feed it a default config
 
         settings.init_config()
@@ -333,8 +335,6 @@ class Commands:
 
         
 
-        self.reinit_config()
-
         print("Deleting logs")
         os.remove(SETTINGS["_logfile"])
 
@@ -343,8 +343,6 @@ class Commands:
             os.remove(SETTINGS["_db_database"])
         from database import db
 
-        print("removing cache")
-        os.system("rm -rf __pycache__ __diskcache__")
         self.reinit_config()
 
         print("Populating test data")
