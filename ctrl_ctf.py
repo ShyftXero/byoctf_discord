@@ -331,6 +331,10 @@ class Commands:
         print(f"killing bot via {cmd}")
         os.system(cmd)
 
+        
+
+        self.reinit_config()
+
         print("Deleting logs")
         os.remove(SETTINGS["_logfile"])
 
@@ -339,6 +343,8 @@ class Commands:
             os.remove(SETTINGS["_db_database"])
         from database import db
 
+        print("removing cache")
+        os.system("rm -rf __pycache__ __diskcache__")
         self.reinit_config()
 
         print("Populating test data")
