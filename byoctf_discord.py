@@ -547,8 +547,10 @@ async def byoc_stats(ctx):
         teammates = db.getTeammates(user)
 
     await ctx.send(
-        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\n```Public Key: {user.public_key}\nPrivate Key: {user.private_key}```"
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\n"
     )
+    await ctx.send(f"```Public Key:\n{user.public_key}```")
+    await ctx.send(f"```Private Key:\n{user.private_key}```")
 
 
 @bot.command(
