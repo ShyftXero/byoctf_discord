@@ -10,6 +10,10 @@
 
  	<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
 	<script src="/static/script.js"></script>
+
+	<script type="module" src="https://md-block.verou.me/md-block.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" integrity="sha512-UOoJElONeUNzQbbKQbjldDf9MwOHqxNz49NNJJ1d90yp+X9edsHyJoAs6O4K19CZGaIdjI5ohK+O2y5lBTW6uQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 </head>
 <body>
 	<div class='container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 2m" hx-swap="outerHTML">
@@ -21,7 +25,14 @@
 				<tr><td>UUID</td><td><code>{{chall.uuid}}</code></td></tr>
 				<tr><td>Numeric ID</td><td>{{chall.id}}</td></tr>
 				<tr><td>Author</td><td>{{chall.author.name}}</td></tr>
-				<tr><td>Description</td><td><pre>{{chall.description}}</pre></td></tr>
+				<tr>
+					<td>Description</td>
+					<td>
+						<md-block>
+							{{rendered_chall_description}}
+						</md-block>
+					</td>
+				</tr>
 				<tr><td>Number of Flags</td><td>{{chall.flags|length}}</td></tr>
 				<tr><td>Sum of Flag values</td><td>{{chall_value}}</td></tr>
 			</table>

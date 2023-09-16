@@ -441,6 +441,8 @@ def chall(chall_uuid):
         team_owned_challenge = True
     else:
         team_owned_challenge = False
+    
+    rendered_chall_description = db.render_variables(user, chall.description)
 
     return render_template(
         "scoreboard/chall.html",
@@ -451,6 +453,7 @@ def chall(chall_uuid):
         captured_flags=captured_flags,
         purchased_hints=purchased_hints,
         solves=solves,
+        rendered_chall_description=rendered_chall_description,
     )
 
 

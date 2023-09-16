@@ -70,7 +70,7 @@ with db_session:
     users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
     for u in users:
         rotate_keys(u)
-
+    shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
     # flags
     flag_seed = db.Flag(
         flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
@@ -158,6 +158,33 @@ with db_session:
         tags=[forensics_tag],
     )
 
+    c8 = db.Challenge(
+        title="chall 8 - variables",
+        uuid='b83c07a9-69f9-44b0-855e-ac02514214fd',
+        description="""
+chall 8 uses _variables_ AND markdown *in* the **description**.
+hello, {{PLAYERNAME}}. You are on team '{{TEAMNAME}}'
+mainly useful for the webpage
+try to use h3 for headings in the challenge 
+### Markdown heading
+- {\{PLAYERNAME}\} -> {{PLAYERNAME}}
+- {\{TEAMNAME}\} -> {{TEAMNAME}}
+- {\{TEAMUUID}\} -> {{TEAMUUID}}
+
+#### Another sub heading 
+content here
+https://someserver.com/{\{TEAMUUID}\}
+ will become https://someserver.com/{{TEAMUUID}}
+
+```python
+print("code block here")
+```
+""".strip(),
+        flags=[flag_asdf],
+        author=shyft,
+        tags=[forensics_tag],
+    )
+
     # hints
     c1_h1 = db.Hint(text="try asdf", cost=10, challenge=c1)
     c1_h2 = db.Hint(text="try ASDF", cost=10, challenge=c1)
@@ -229,8 +256,8 @@ with db_session:
     commit()
 
     msg = f'''
-shyft api_key={shyft.api_key}
-https://scoreboard.byoctf.com/login/{shyft.api_key}
+shyft api_key= {shyft.api_key}
+/login/{shyft.api_key}
 private key = {shyft.private_key}
 public key = {shyft.public_key}
 '''.strip()
