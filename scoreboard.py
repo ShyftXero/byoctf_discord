@@ -292,7 +292,7 @@ def get_user(target):
 @db.db_session
 def login(api_key):
     user = db.get_user_by_api_key(api_key)
-    # logger.debug(f"api_key:{api_key}, user:{user}")
+    logger.debug(f"api_key:{api_key}, user:{user}")
     if user == None:
         return "invalid api key", 403
     resp = make_response(redirect(url_for("hud")))
