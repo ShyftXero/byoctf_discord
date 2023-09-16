@@ -70,7 +70,8 @@ with db_session:
     users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
     for u in users:
         rotate_keys(u)
-    shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+    
+    # shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
     # flags
     flag_seed = db.Flag(
         flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
