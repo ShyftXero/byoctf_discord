@@ -376,7 +376,7 @@ async def register(
 
         if user == None:
             user = db.User(name=username(ctx), team=unafilliated)
-            db.rotate_keys(user)
+            db.rotate_player_keys(user)
 
         if user.team.name != "__unaffiliated__":
             msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. talk to an admin to have your team changed..."
@@ -750,7 +750,7 @@ async def rotate_keys(ctx):
             await ctx.send("**Cancelling...**")
             return
         if resp.content == "confirm":
-            db.rotate_keys(user)
+            db.rotate_player_keys(user)
 
             await ctx.send('Keys updated. use `!whoami` to see them... ')
             return

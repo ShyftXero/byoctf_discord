@@ -200,7 +200,7 @@ def register_team(teamname:str, password:str, username:str) -> Team:
 
     if user == None:
         user = User(name=username, team=unafilliated)
-        rotate_keys(user)
+        rotate_player_keys(user)
 
 
 
@@ -219,7 +219,7 @@ def generate_keys(keysize:int=2048):
     return pub,priv
 
 @db_session
-def rotate_keys(user:User):
+def rotate_player_keys(user:User):
     user.api_key = str(uuid.uuid4())
     pub,priv = generate_keys()
     # priv =  PrivateKey.generate()
@@ -228,6 +228,18 @@ def rotate_keys(user:User):
     # user.public_key = pub._public_key.hex()
     user.private_key = priv
     user.public_key = pub
+
+@db_session
+def rotate_team_keys(team:Team):
+    
+    pub,priv = generate_keys()
+    # priv =  PrivateKey.generate()
+    # pub = priv.public_key
+    # user.private_key = priv._private_key.hex()
+    # user.public_key = pub._public_key.hex()
+    team.private_key = priv
+    team.public_key = pub
+
 
 
 @db_session
@@ -258,7 +270,7 @@ def ensure_bot_acct():
         bot = db.User.get(id=0)
         if bot == None:
             bot = db.User(id=0, name=SETTINGS["_botusername"], team=botteam)
-            rotate_keys(bot)
+            rotate_player_keys(bot)
 
         commit()
 
