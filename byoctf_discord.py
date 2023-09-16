@@ -547,10 +547,17 @@ async def byoc_stats(ctx):
         teammates = db.getTeammates(user)
 
     await ctx.send(
-        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\n"
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\nTeammates: {[t.name for t in teammates]}"
     )
-    await ctx.send(f"```Public Key:\n{user.public_key}```")
-    await ctx.send(f"```Private Key:\n{user.private_key}```")
+
+@bot.command(
+    name="mykeys", help="Show keys", aliases=["w"]
+)
+async def my_keys(ctx):
+    with db.db_session:
+        user = db.User.get(name=username(ctx))
+        await ctx.send(f"```Public Key:\n{user.public_key}```")
+        await ctx.send(f"```Private Key:\n{user.private_key}```")
 
 
 @bot.command(
