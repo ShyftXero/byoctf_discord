@@ -547,7 +547,7 @@ async def byoc_stats(ctx):
         teammates = db.getTeammates(user)
 
     await ctx.send(
-        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\nTeammates: {[t.name for t in teammates]}"
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\nTeammates: {[t.name for t in teammates]}\n\nuse `!mykeys` to see your pub/priv keys or `!rotate_keys` to generate new ones."
     )
 
 @bot.command(name="mykeys", help="Show public and private keys")
