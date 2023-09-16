@@ -246,9 +246,21 @@ def get_team(target):
         "uuid": team.uuid,
         "teamname": team.name,
         # 'teammembers': [ tm.name for tm in db.getTeammates(team)],
+        "public_key": team.public_key,
     }
     return ret
 
+@app.get('/api/all_pub_keys')
+@limiter.limit("100/second")
+@db.db_session
+def all_user_pub_keys():
+    users = db.select((u.name, u.public_key) for u in db.User)[:]
+    teams = db.select((t.name, t.uuid, t.public_key) for t in db.Team)[:]
+    ret = {
+        'users': [u for u in users], 
+        'teams': [t for t in teams],
+    }
+    return ret
 
 @app.get("/api/get_username/<target>")
 @limiter.limit("1/second")
@@ -270,6 +282,7 @@ def get_user(target):
         "teammates": [tm.name for tm in db.getTeammates(user)],
         "teamname": user.team.name,
         "id": user.id,
+        "public_key": user.public_key,
     }
     return ret
 

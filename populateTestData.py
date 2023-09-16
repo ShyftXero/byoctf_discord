@@ -36,6 +36,23 @@ with db_session:
         password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
     )
 
+    pub,priv = generate_keys()
+    bestteam.public_key = pub
+    bestteam.private_key = priv
+
+    pub,priv = generate_keys()
+    secondteam.public_key = pub
+    secondteam.private_key = priv
+
+    pub,priv = generate_keys()
+    thirdteam.public_key = pub
+    thirdteam.private_key = priv
+    
+    pub,priv = generate_keys()
+    fourthteam.public_key = pub
+    fourthteam.private_key = priv
+
+
     # users
     # bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
     bot = db.User.get(id=0)
