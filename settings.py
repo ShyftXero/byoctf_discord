@@ -18,7 +18,7 @@ def default_config():
         "_scoreboard_size": 3,  # how many teams to show
         "_team_size": 4,  # max team members
         "_show_mvp": True,  # whether or not to show high scoring
-        "_mvp_size": 4,  # how many top scoring players to show
+        "_mvp_size": 3,  # how many top scoring players to show
         "_debug": True,  # interactively enable/disable certain debugging messages
         "_debug_level": 1,  # allow for some degree of verbosity. 2 is highest so far.
         "status": "Operational",  # a generic message; can be updated during the game with ctrl_ctf.py,
