@@ -10,6 +10,7 @@ import datetime
 import time
 import json
 import pyfiglet
+import math
 
 from typing import Union
 
@@ -205,6 +206,13 @@ def renderChallenge(result: dict, preview=False):
         byoc_rate = SETTINGS.get("_byoc_reward_rate", 0)
         break_even_solves = (result["cost"] / byoc_rate) // 100
 
+        avg_flag_val = sum([f["flag_value"] for f in result["flags"]])/len(result["flags"])
+
+        break_even_solves = result["cost"] / avg_flag_val
+        
+        
+        # break_even_solves = result['cost'] / (avg_flag_val * byoc_rate)
+
         msg += f"{'-'*25}\n\n"
         msg += "Here's a preview:\n\n"
         msg += f"It will cost `{result['cost']}` points to post with `!byoc_commit`\n"
@@ -218,7 +226,7 @@ def renderChallenge(result: dict, preview=False):
 
     # byoc validation rendering
     if preview == True:
-        msg += f"Reward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even.\n\n"
+        msg += f"Average flag value `{avg_flag_val}`\n\nReward rate is currently `{byoc_rate}` of flag value which means about `{break_even_solves}` solves will be required to break even. _It's possible to break even or profit with enough of partial solves._\n\n"
 
     # normal rendering
     msg += f"**Description**:\n{result['challenge_description']}\n\n"
