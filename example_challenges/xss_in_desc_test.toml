@@ -1,0 +1,15 @@
+author = "shyft_xero"
+challenge_title = "xss in desc test"
+uuid = "b42881f8-284d-47aa-9a7e-e2fde4c25d7f"
+challenge_description = "<script> alert(document.cookie)</script>"
+tags = [ "hack",]
+depends_on = []
+[[flags]]
+flag_title = "123"
+flag_value = 123
+flag_flag = "FLAG{xss_me_daddy}"
+
+[[hints]]
+hint_cost = 1
+hint_text = "<script> alert(document.cookie)</script>"
+
