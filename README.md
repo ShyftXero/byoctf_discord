@@ -23,6 +23,9 @@ https://validator.byoctf.com/create
 ***Online challenge validator***
 https://validator.byoctf.com
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/h-BqeWsldj0?si=6TrG2-ys0K6XzFe6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_eD0DLc8fg4?si=0PJkgn4oobiqcgz-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 
 
 ---
