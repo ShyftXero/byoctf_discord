@@ -25,9 +25,13 @@ https://validator.byoctf.com
 
 
 Watch how to create a challenge on YouTube
+
 [<img src="https://i.ytimg.com/vi/h-BqeWsldj0/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=h-BqeWsldj0")
 
+
+
 Watch the teaser video on YouTube
+
 [<img src="https://i.ytimg.com/vi/_eD0DLc8fg4/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=_eD0DLc8fg4")
 
 ---
