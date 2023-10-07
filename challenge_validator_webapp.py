@@ -32,7 +32,7 @@ def validate():
     try:
         # breakpoint()
         # print(f'{request.form}')
-        challenge_object = toml.loads(request.form.get("challenge"))
+        challenge_object = toml.loads(request.form.get("toml"))
     except toml.TomlDecodeError as e:
         # print(request.form.get("challenge"))
         print(f"error decoding toml: {e}")
