@@ -40,6 +40,7 @@ class Flag(db.Entity):
     value = Required(float)
     unsolved = Optional(bool, default=True)
     bonus = Optional(bool, default=False)
+    flag_type = Optional(str, default='normal')
     tags = Set("Tag")
     author = Required("User")
     byoc = Optional(bool)
@@ -94,6 +95,10 @@ class Solve(db.Entity):
     transaction = Optional("Transaction")
     challenge = Optional(Challenge)
     flag_text = Optional(str)
+
+
+class DelayedSolve(Solve):
+    pass
 
 
 class Team(db.Entity):
