@@ -113,3 +113,56 @@ This multi-flag setup adds more dimension to the challenge and gives participant
 Just like with the single flag example, you can use the tool at [https://validator.byoctf.com/creator](https://validator.byoctf.com/creator) to help in creating these TOML files. This makes the challenge setup process much more straightforward and ensures everything is set up correctly.
 
 Multi-flag challenges can be a great way to test a wider range of skills and keep participants engaged for a longer period of time. Have fun creating your challenges!"
+
+
+----
+
+
+[BYOCTF Logo Fades In]
+
+Narrator: Hey there! Welcome to a quick walkthrough on creating your own challenge for BYOCTF. Today, we're going to craft a simple yet fun challenge together. No frills, just a good old-fashioned CTF puzzle.
+
+[Screen Transition to Challenge Creator Interface]
+
+Narrator: Alright, let's jump into the Challenge Creator App. This is where all the magic happens. Let's get cracking on our challenge, which we'll call "Log Sleuth."
+
+[Adding the Challenge Title]
+
+Narrator: First things first, the title. We want something catchy but clear. "Log Sleuth" sounds about right. It tells players they're going to do some detective work on logs.
+
+[Entering the Challenge Description]
+
+Narrator: Now for the description. This part's important — it's your chance to set the scene. Let's keep it simple: "Dive into the server logs and find the hidden message. Are you up for a bit of digital detective work?" There, that should do it.
+
+[Inputting Tags]
+
+Narrator: Tags are next. They're like hashtags for your challenge; they help people find your stuff. We'll go with "log-analysis" and "forensics" for this one.
+
+[Setting Up Flags]
+
+Narrator: Flags time! This is what players are hunting for. Our first flag is "hidden_user" and we'll make it worth 100 points. The second flag, "secret_access_code", is a bit trickier, so we'll value it at 200 points.
+
+[Crafting Hints]
+
+Narrator: Now, let's throw in some hints. We don't want to give the game away, but a little help can keep things fun. Hint one: "The user we're looking for starts with 'A'." That's for the first flag and will cost the player 10 points. For the second flag, we'll add: "Look for the entry after the system reboot." And that's a 20-pointer.
+
+[Validation and Submission]
+
+Narrator: Got everything in place? Cool. Hit the validate button to make sure your challenge plays nice with the BYOCTF rules. All good? Submit your challenge with the !byoc_commit command. It'll cost you a few points, but that's where the fun begins.
+
+[Explaining the Reward Mechanism]
+
+Narrator: Here's how the rewards work. You spend points to post your challenge, right? Well, every time someone solves a flag, you get a cut of the points based on its value. So, if someone cracks the "hidden_user" flag, you'll get a nice 25 points back. Solve rates for your challenge can actually earn you more points than what you spent. It's like getting a little "thank you" every time your puzzle gets solved.
+
+[Visual of Points and Solves]
+
+Narrator: Keep an eye on those solves. The first few will help you break even, and after that, it's all profit. Before you know it, you could be raking in more points than you put in.
+
+[Closing Remarks]
+
+Narrator: And there you have it — challenge creation on BYOCTF, demystified. "Log Sleuth" is ready to puzzle the minds of players, and you're all set to watch the points roll in.
+
+[End Screen with Call to Action]
+
+Narrator: Fancy making a challenge yourself? Head over to [website URL] and get started. If you've got any questions, or just want to chat puzzles and points, hit us up on the community channels. Catch you on the leaderboards!
+

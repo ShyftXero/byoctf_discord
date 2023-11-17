@@ -18,9 +18,9 @@ from vis import challs, trans, players
 
 app = Flask(__name__)
 limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["25 per second"],
+    get_remote_address,
+    app=app,
+    default_limits=["50 per second"],
     storage_uri="memory://",
 )
 
