@@ -205,25 +205,30 @@ def renderChallenge(result: dict, preview=False):
 
         byoc_rate = SETTINGS.get("_byoc_reward_rate", 0)
         break_even_solves = (result["cost"] / byoc_rate) // 100
+        logger.debug(result)
+        avg_flag_val= "invalid challenge"
+        try:
+            avg_flag_val = sum([f["flag_value"] for f in result["flags"]])/len(result["flags"])
+            
 
-        avg_flag_val = sum([f["flag_value"] for f in result["flags"]])/len(result["flags"])
+            flag_vals = [f["flag_value"] for f in result["flags"]]
+            num_flags = len(flag_vals)
+            flag_vals.sort()
+            
+            least_middle_most = flag_vals[num_flags//2 - 1]
+            
 
-        flag_vals = [f["flag_value"] for f in result["flags"]]
-        num_flags = len(flag_vals)
-        flag_vals.sort()
-        
-        least_middle_most = flag_vals[num_flags//2 - 1]
-        
+            # break_even_solves = result["cost"] / avg_flag_val
 
-        # break_even_solves = result["cost"] / avg_flag_val
+            # In [28]: vals = [100, 225, 250, 350, 400, 475, 600]
 
-        # In [28]: vals = [100, 225, 250, 350, 400, 475, 600]
-
-        # In [29]: vals.sort();vals[len(vals)//2 - 1]
-        # Out[29]: 250
-        
-        # This is the minimum number of solves of a obtainable flag to recoup cost.
-        break_even_solves = result["cost"] / least_middle_most
+            # In [29]: vals.sort();vals[len(vals)//2 - 1]
+            # Out[29]: 250
+            
+            # This is the minimum number of solves of a obtainable flag to recoup cost.
+            break_even_solves = result["cost"] / least_middle_most
+        except BaseException as e:
+            logger.debug(e)
 
         
         # break_even_solves = result['cost'] / (avg_flag_val * byoc_rate)

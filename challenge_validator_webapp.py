@@ -29,21 +29,19 @@ def create():
 @app.post("/validate")
 @limiter.limit("2/second", override_defaults=False)
 def validate():
+    chall = request.form.get("toml")
+    logger.debug(request.form)
     try:
-        # breakpoint()
-        # print(f'{request.form}')
-        challenge_object = toml.loads(request.form.get("toml"))
+        challenge_object = toml.loads(chall)
     except toml.TomlDecodeError as e:
-        # print(request.form.get("challenge"))
         print(f"error decoding toml: {e}")
         return f"error decoding toml: {e}", 500
     except TypeError as e:
-        # print(request.form.get("challenge"))
         print(f"error parsing toml: {e}")
         return f"error parsing toml: {e}", 500
 
     result = database.validateChallenge(challenge_object)
-    logger.debug(challenge_object)
+    
 
     ret = renderChallenge(result, preview=True)
 
