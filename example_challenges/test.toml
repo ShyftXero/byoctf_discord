@@ -1,8 +1,9 @@
 author = "Combaticus#8292"
 challenge_title = "r3d's child challenge"
 challenge_description = "good luck finding my flag"
+uuid = "e66622ea-ac8e-4bcd-a873-a485f4a3724a"
 tags = [ "pentest",]
-depends_on = [ 6, 7,]
+# depends_on = [ 6, 7,]
 [[flags]]
 flag_title = "r3d dependent flag "
 flag_value = 200
