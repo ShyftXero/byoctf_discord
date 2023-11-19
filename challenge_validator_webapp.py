@@ -12,8 +12,8 @@ import markdown2
 
 app = Flask(__name__)
 limiter = Limiter(
-    app,
-    key_func=get_remote_address,
+    get_remote_address,
+    app=app,
     default_limits=["3 per second"],
     storage_uri="memory://",
 )
