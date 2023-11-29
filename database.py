@@ -305,16 +305,18 @@ def get_user_by_id(target: str | int) -> User:
 
 @db_session
 def grant_points(
-    user: str,
+    requested_user: str,
     admin_user: db.User = None,
     amount: float = 0,
     msg: str = "admin granted points",
 ):
+    # logger.debug('granting', amount, requested_user, admin_user, msg)
     botuser = db.User.get(name=SETTINGS["_botusername"])
     if admin_user == None:
         admin_user = botuser
-    user = db.User.get(name=user)
-    if user:
+    # logger.debug(admin_user.name)
+    user = db.User.get(name=requested_user)
+    if user != None:
         t = db.Transaction(
             sender=botuser,
             recipient=user,
@@ -323,10 +325,10 @@ def grant_points(
             message=f"{admin_user.name}: {msg}",
         )
         db.commit()
-        print(f"granted {amount} points to {user.name}")
+        logger.debug(f"granted {amount} points to {user.name}")
         return True
     else:
-        print("invalid user")
+        logger.debug("invalid user", requested_user)
         return False
 
 
