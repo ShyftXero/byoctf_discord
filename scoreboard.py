@@ -197,18 +197,18 @@ def grant_points():
     target_user = payload.get("target_user")
 
     if target_user == None:
-        return "Invalid target_user in payload"
+        return "Invalid target_user in payload", 405
     points = payload.get("points")
     if points == None:
-        return "points missing from payload"
+        return "points missing from payload", 405
     points = float(points)
     message = payload.get("message")
     if message == None:
-        return "message missing from payload"
+        return "message missing from payload", 405
     # did they present one?
     api_key = payload.get("admin_api_key")
     if api_key == None:
-        return "admin_api_key missing from payload"
+        return "admin_api_key missing from payload", 405
     # did they present the correct one?
     admin_user = db.get_user_by_api_key(api_key)
     if admin_user == None:
@@ -216,14 +216,14 @@ def grant_points():
 
     # seems legit...
     res = db.grant_points(
-        user=target_user, admin_user=admin_user, amount=points, msg=message
+        requested_user=target_user, admin_user=admin_user, amount=points, msg=message
     )
 
     if res:
         return {"status": "sucess", "orig_request": payload}
 
     else:
-        return {"status": "db error", "orig_request": payload}
+        return {"status": "db error", "orig_request": payload}, 400
 
 
 @app.get("/api/get_team/<target>")
