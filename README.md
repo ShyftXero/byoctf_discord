@@ -7,11 +7,22 @@ People always want to help, but they can't play if they create challenges for us
 
 Discord provides the UI/UX for the game
 
-Players can create challenges and distribute them to other players and get rewarded for successful solves. (trivial challenges and schemes are addressed in detail below)
+I'm not a great developer so code is a hodge-podge, but 90% of the time it works 100% of the time.
 
-Players can trade points amongst themselves for favors, info, etc.
+The idea is good, I promise, but the code is questionable.
 
-I'm not a great dev so code is a hodge-podge, but 90% of the time it works 100% of the time.
+You can think of BYOCTF as kind of like a potluck. The host provides a central core dish for folks to eat and everyone else brings a little something extra to chew on. 
+
+#### The core features of the framework are 
+- inter-player transactions (in-game economy for facilitating real-world info exchange).  Players can trade points amongst themselves for favors, info, etc.
+- "challenges" don't have value; "flags" do have value. A challenge is a set of one or more flags. 
+- user-contributed challenges that reward the creator with a percentage of the value of the flag that was captured.
+- toml-based challenge description for "challenges as code" so you can hopefully just import this into any other framework that supports the idea in the future. 
+
+#### limitations or cons of the framework
+- it doesn't host files... you have to use some other file storage and provide a link to it (webserver, Google Drive, Dropbox, etc.)
+- it doesn't host any services. our implementation doesn't spin up a docker container or anything ( although we could do something like that) 
+- cognitive overhead compared to other jeopardy-style frameworks like ctfd (we're here for the real ones...) 
 
 People kept asking if fs2600 was going to host Shell On The Border again. My answer internally was 'not until the byoc framework is done.' Here we are... 
 
