@@ -309,7 +309,7 @@ async def unregister(ctx: discord.ext.commands.Context):
     ):
         return
 
-    await ctx.send("registration is disabled... you pesky hackers ruined it..")
+    await ctx.send("unregistration is disabled... you pesky hackers ruined it..")
     return  # this may be deprecated or removed in the future...
     if SETTINGS["registration"] == "disabled":
         await ctx.send("registration is disabled")
@@ -440,6 +440,10 @@ async def register(
             return
 
         user.team = team
+        if team.private_key == '':
+            pub,priv = db.generate_keys()
+            team.public_key = pub
+            team.private_key = priv
         db.commit()
 
     # give them the 'byoctf' channel on Arkansas hackers
@@ -1518,7 +1522,7 @@ async def byoc_commit(ctx):
         await ctx.send("**Cancelling...**")
         return
     if resp.content == "confirm":
-        chall_id = db.buildChallenge(result, byoc=True)
+        chall_id = db.buildChallenge(result, is_byoc_challenge=True)
         if chall_id == -1:
             if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
                 logger.debug(f"{username(ctx)} had insufficient funds.")

@@ -302,6 +302,63 @@ class Commands:
 
         cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
         print(f"killing bot via {cmd}")
+        with db_session:
+            # teams; These passwords are sha256 of teamname.
+            # botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
+            bestteam = db.Team(
+                name="bestteam",
+                password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
+            )
+            secondteam = db.Team(
+                name="secondteam",
+                password="4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f",
+            )
+            thirdteam = db.Team(
+                name="thirdteam",
+                password="7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b",
+            )
+            fourthteam = db.Team(
+                name="fourthteam",
+                password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
+            )
+
+            pub,priv = db.generate_keys()
+            bestteam.public_key = pub
+            bestteam.private_key = priv
+
+            pub,priv = db.generate_keys()
+            secondteam.public_key = pub
+            secondteam.private_key = priv
+
+            pub,priv = db.generate_keys()
+            thirdteam.public_key = pub
+            thirdteam.private_key = priv
+            
+            pub,priv = db.generate_keys()
+            fourthteam.public_key = pub
+            fourthteam.private_key = priv
+
+
+            # users
+            # bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
+            bot = db.User.get(id=0)
+            # print(bot)
+            # exit()
+            shyft = db.User(name="shyft_xero", team=bestteam, is_admin=True)
+            fie = db.User(name="fie311", team=bestteam, is_admin=True)
+            r3d = db.User(name="combaticus", team=secondteam)
+            malloc = db.User(name="blackcatt", team=thirdteam)
+            aykay = db.User(name="aykay", team=fourthteam)
+            jsm = db.User(name="jsm2191", team=bestteam)
+            moonkaptain = db.User(name="moonkaptain", team=secondteam, is_admin=True)
+            fractumseraph = db.User(name="fractumseraph", team=fourthteam)
+
+            users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
+            for u in users:
+                db.rotate_player_keys(u)
+            db.commit()
+            shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+            db.commit()
         os.system(cmd)
 
         # print('Deleting logs')
@@ -345,8 +402,8 @@ class Commands:
 
         self.reinit_config()
 
-        print("Populating test data")
-        os.system("python populateTestData.py")
+        # print("Populating test data")
+        # os.system("python populateTestData.py")
 
     def top_flags(self):
         solves = db.getMostCommonFlagSolves()
@@ -590,28 +647,23 @@ class Commands:
     def add_chall(self, toml_file, byoc=False):
         """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user."""
 
-        import json
-
+        print(f'trying {toml_file}')
         try:
             raw = open(toml_file).read()
             chall_obj = toml.loads(raw)
         except FileNotFoundError:
             print("Can't find file:", toml_file)
             return
-        except toml.TomlDecodeError:
-            print("Check TOML syntax in file:", toml_file)
+        except toml.TomlDecodeError as e:
+            print("Check TOML syntax in file:", toml_file, e)
             return
         result = db.validateChallenge(chall_obj, bypass_length=True)
 
         # for byoc loading of challenges. avoids them being tagged as BYOC ; ./ctrl_ctf.py add_chall chall.json byoc=True
-        if byoc:
-            result["byoc"] = True
-
-        else:
-            result["byoc"] = False
+        result["byoc"] = byoc
 
         if result["valid"] == True:
-            chall_id = db.buildChallenge(result, byoc=byoc)
+            chall_id = db.buildChallenge(result, is_byoc_challenge=byoc, bypass_cost=True)
             print(
                 f"Challenge ID {chall_id} created attributed to {result['author']} byoc mode was {byoc}."
             )
