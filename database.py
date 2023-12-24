@@ -107,8 +107,8 @@ class Team(db.Entity):
     name = Required(str)
     password = Required(str)
     uuid = Required(str, default=lambda: str(uuid.uuid4()))
-    public_key = Optional(str)
-    private_key = Optional(str)
+    public_key = Optional(str,default='')
+    private_key = Optional(str, default='')
 
 
 class Tag(db.Entity):
@@ -284,7 +284,8 @@ def is_valid_uuid(val):
         uuid.UUID(str(val))
         return True
     except ValueError:
-        return False
+        logger.debug(f'invalid uuid {val}')
+    return False
 
 
 @db_session  # TODO 02sep23 this isn't working...
@@ -1170,7 +1171,7 @@ def challengeComplete(chall: Challenge, user: User):
 
 
 @db_session()
-def validateChallenge(challenge_object, bypass_length=False):
+def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False):
     if SETTINGS["_debug"]:
         logger.debug(f"validating the challenge from {challenge_object.get('author')}")
         if SETTINGS["_debug_level"] >= 1:
@@ -1178,7 +1179,7 @@ def validateChallenge(challenge_object, bypass_length=False):
 
     result = {
         "valid": False,
-        "author": challenge_object.get("author"),
+        "author": challenge_object.get("author",''),
         "uuid": "",
         "tags": list(),
         "challenge_title": "",
@@ -1195,6 +1196,13 @@ def validateChallenge(challenge_object, bypass_length=False):
 
     # does the challenge_object have all of the fields we need?
     # title, description, tags, flags with at least one flag, hints
+
+    #user must exist
+    
+    author = User.get(name=result.get('author'))
+    if author == None:
+        result["fail_reason"] += f"; author '{challenge_object.get('author')}' doesn't exist (are they registered/in the DB)"
+        return result
 
     # unique uuid
 
@@ -1293,7 +1301,14 @@ def validateChallenge(challenge_object, bypass_length=False):
                 return result
 
             # collect all of the flags from the obj and sum the value then display the cost to post challenge to the user.
-            if flag.get("flag_value", -1) < 0:
+            flag_val = flag.get("flag_value", -1)
+            if type(flag_val) == str:
+                result[
+                    "fail_reason"
+                ] += "; failed flag_value datatype (not an int or float)"
+                return result
+            
+            if flag_val < 0:
                 result[
                     "fail_reason"
                 ] += "; failed flag individual value (missing or less than 0)"
@@ -1405,7 +1420,7 @@ def send_tip(
 
 
 @db_session()
-def buildChallenge(challenge_object, byoc=False):
+def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False):
     if SETTINGS["_debug"]:
         logger.debug(f"building the challenge from {challenge_object['author']}")
     result = challenge_object
@@ -1414,22 +1429,29 @@ def buildChallenge(challenge_object, byoc=False):
 
     if result.get("valid", False) == False:
         # result = validateChallenge(challenge_object)
+        if SETTINGS["_debug"]:
+            logger.debug(f'result_valid not valid', result)
         return -1
 
     author = User.get(name=result["author"])
+    if author == None:
+        if SETTINGS["_debug"]:
+            logger.debug(f'author does not exist', result)
+        return -1
 
     # if some one is short points to submit a challenge, GMs can grant points via ctrl_ctf.
-    if result["cost"] > getScore(author):
-        logger.debug("insufficient funds")
-        return -1
+    if bypass_cost == False:
+        if result["cost"] > getScore(author):
+            logger.debug("the author has insufficient funds to publish challenge")
+            return -1
 
-    if result["valid"] == False:
-        # something went wrong...
-        logger.debug(result)
-        logger.debug(result["fail_reason"])
-        return -1
+    # if result["valid"] == False:
+    #     # something went wrong...
+    #     logger.debug(result)
+    #     logger.debug(result["fail_reason"])
+    #     return -1
 
-    chall_uuid = result.get("uuid", "")
+    
 
     chall_obj_tags = set(
         [t.lower().strip() for t in result["tags"]]
@@ -1441,7 +1463,7 @@ def buildChallenge(challenge_object, byoc=False):
         tags.append(t)
 
     # add a tag for byoc
-    if byoc:
+    if is_byoc_challenge:
         byoc_tag = upsertTag("byoc")
 
         tags.append(byoc_tag)
@@ -1457,7 +1479,7 @@ def buildChallenge(challenge_object, byoc=False):
 
     parents = list()
     for parent in result.get("parent_ids", list()):
-        c = Challenge.get(id=parent)
+        c = Challenge.get(uuid=parent)
         parents.append(c)
     # breakpoint()
     chall = Challenge(
@@ -1482,7 +1504,9 @@ def buildChallenge(challenge_object, byoc=False):
         hints.append(ho)
 
     commit()
-
+    if bypass_cost == True:
+        return chall.id
+    
     bot = User.get(name=SETTINGS["_botusername"])
     fee = Transaction(
         sender=author,

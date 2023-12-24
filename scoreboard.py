@@ -405,7 +405,7 @@ def challenges():
                     ", ".join([t.name for t in c.tags]),
                 )
                 for c in available_challenges
-                if c.id > 0 and c.author not in teammates
+                if c.id > 0 and c.author not in teammates and c.title != '__bonus__'
             ]
     print(parsed)
     return render_template('scoreboard/challenges.html', parsed=parsed, available_challenges=available_challenges)

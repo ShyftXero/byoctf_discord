@@ -62,9 +62,45 @@
 				Validate Your Challenge
 			</button>
 		</form>
+		<div id="errormessages">
+		</div>
 		<div id="preview"></div>
 		<!-- <textarea id="results" disabled placeholder="submit your challenge above" cols="60" rows="15"></textarea> -->
 	</div>
-</body>
+	
+	<script>
+	htmx.on("htmx:responseError", function(evt) {
+		var errdiv = document.getElementById("errormessages");
+		errdiv.innerHTML = `
+			<div id="errormessagealert" class="container mt-3 mb-3 alert alert-danger" role="alert">
+				<h4>Request Error: ` + evt.detail.xhr.status + `
+					<span style="float:right;"><a onclick="errormessagealert_off()">Close [X]</a></span>
+				</h4>
+				<code>` + evt.detail.xhr.responseText + `</code>
+			</div>`;
+		errormessagealert_on();
+	});
 
+	function errormessagealert_on() {
+		document.getElementById("errormessagealert").style.display = "block";
+	}
+
+	function errormessagealert_off() {
+		document.getElementById("errormessagealert").style.display = "none";
+	}
+	</script>
+
+	<style>
+	#errormessagealert {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		-ms-transform: translate(-50%,-50%);
+		display: none; /* Hidden by default */
+		background-color: rgba(0,0,0,0.8); /* Black background with opacity */
+		z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+	}
+	</style>
+</body>
 </html>
