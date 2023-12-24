@@ -1479,6 +1479,7 @@ def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False)
 
     parents = list()
     for parent in result.get("parent_ids", list()):
+        # should be a list of strs
         c = Challenge.get(uuid=parent)
         parents.append(c)
     # breakpoint()
