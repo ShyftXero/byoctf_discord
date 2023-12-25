@@ -1199,7 +1199,7 @@ def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False):
 
     #user must exist
     
-    author = User.get(name=result.get('author',''))
+    author = User.get(name=result.get('author','invalid_user_name_here'))
 
     if author == None:
         result["fail_reason"] += f"; author '{challenge_object.get('author')}' doesn't exist (are they registered/in the DB)"
