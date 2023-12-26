@@ -586,15 +586,14 @@ def get_completed_challenges(user: User):
 
     completed = set()
     for chall in unlocked_challs:
+        if len(chall.flags) == 0: #this shouldn't occur
+            continue 
         flags_subbed_by_team = select(
             solve.flag
             for solve in Solve
             if solve.user in teammates and solve.flag in chall.flags
-        )[
-            :
-        ]  # optimized query
-        if len(chall.flags) == 0:
-            continue
+        )[:]  # optimized query
+        
 
         chall_percent = len(flags_subbed_by_team) / len(chall.flags)
         if chall_percent == 1:
@@ -1188,7 +1187,7 @@ def challengeComplete(chall: Challenge, user: User):
 
 
 @db_session()
-def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False):
+def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False, is_byoc_challenge=True):
     if SETTINGS["_debug"]:
         logger.debug(f"validating the challenge '{challenge_object.get('challenge_title','')}' from {challenge_object.get('author')}")
         if SETTINGS["_debug_level"] >= 2:
@@ -1208,7 +1207,7 @@ def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False):
         "cost": 0,
         "fail_reason": "",
         "external_validation": False,
-        "byoc": True,
+        "byoc": is_byoc_challenge,
     }
 
     # does the challenge_object have all of the fields we need?
@@ -1508,7 +1507,7 @@ def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False)
         flags=flags,
         tags=tags,
         parent=parents,
-        byoc=result.get("byoc", result.get("byoc", False)),
+        byoc=result.get("byoc", False),
         byoc_ext_url=result.get("external_validation_url"),
         byoc_ext_value=result.get("value", 0),
         uuid=result.get("uuid", ""),

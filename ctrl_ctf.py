@@ -294,6 +294,26 @@ class Commands:
         self.subs()
         self.users()
 
+    @db.db_session
+    def HARD_RESET(self):
+        msg = """this will drop all data in the database"""
+        print(msg)
+        confirm = input("are you sure? [y/N]")
+        if confirm.lower() != "y":
+            print("aborting... ")
+            return
+        db.db.drop_all_tables(with_all_data=True)
+        # db.User.select().delete(bulk=True)
+        # db.Challenge.select().delete(bulk=True)
+        # db.Flag.select().delete(bulk=True)
+        
+        # db.Transaction.select().delete(bulk=True)
+        # db.Solve.select().delete(bulk=True)
+        print("Done.")
+        self.trans()
+        self.subs()
+        self.users()
+
     def INIT(self):
         """this will create tables in db with no test data"""
         confirm = input("are you sure? [y/N]")
@@ -699,7 +719,7 @@ class Commands:
         except toml.TomlDecodeError as e:
             print("Check TOML syntax in file:", toml_file, e)
             return
-        result = db.validateChallenge(chall_obj, bypass_length=True)
+        result = db.validateChallenge(chall_obj, bypass_length=True, is_byoc_challenge=byoc)
 
         # for byoc loading of challenges. avoids them being tagged as BYOC ; ./ctrl_ctf.py add_chall chall.json byoc=True
         result["byoc"] = byoc
