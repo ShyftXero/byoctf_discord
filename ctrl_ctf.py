@@ -7,9 +7,13 @@ from pony.orm.core import commit, db_session
 from settings import *
 import toml
 
+
 if is_initialized() == False:
     init_config()
 
+from loguru import logger
+
+logger.add(SETTINGS.get("_logfile"))
 
 from terminaltables import AsciiTable as mdTable
 
@@ -302,7 +306,10 @@ class Commands:
 
         cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
         print(f"killing bot via {cmd}")
+        import database as db
+        
         with db_session:
+
             # teams; These passwords are sha256 of teamname.
             # botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
             bestteam = db.Team(
@@ -356,9 +363,9 @@ class Commands:
             users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
             for u in users:
                 db.rotate_player_keys(u)
-            db.commit()
+            db.db.commit()
             shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
-            db.commit()
+            db.db.commit()
         os.system(cmd)
 
         # print('Deleting logs')
@@ -390,17 +397,16 @@ class Commands:
         print(f"killing bot via {cmd}")
         os.system(cmd)
 
-        
-
         print("Deleting logs")
         os.remove(SETTINGS["_logfile"])
 
         print("Deleting and recreating database")
         if SETTINGS["_db_type"] == "sqlite":
             os.remove(SETTINGS["_db_database"])
-        from database import db
+        
 
         self.reinit_config()
+        
 
         # print("Populating test data")
         # os.system("python populateTestData.py")
@@ -672,13 +678,14 @@ class Commands:
         chall_files = self._find_chall_files(start_path)
         for chall in chall_files:
             self.add_chall(chall, byoc=False, bypass_cost=True) 
+            print('-'*30)
 
 
 
     def add_chall(self, toml_file, byoc=False, bypass_cost=True):
         """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user."""
 
-        print(f'trying {toml_file}')
+        logger.debug(f'trying {toml_file}')
         try:
             raw = open(toml_file).read()
             chall_obj = toml.loads(raw)

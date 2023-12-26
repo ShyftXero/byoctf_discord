@@ -21,6 +21,7 @@ logger.add(SETTINGS.get("_logfile"))
 
 from datetime import datetime
 from pony.orm import *
+from pony.orm.core import BindingError
 
 # https://editor.ponyorm.com/user/shyft/byoctf/designer
 # this is probably a bit of an overcomplicated db architecture.
@@ -153,42 +154,46 @@ class Rating(db.Entity):
 
 def generateMapping():
     # https://docs.ponyorm.org/database.html
-    if SETTINGS["_db_type"] == "sqlite":
-        db.bind(provider="sqlite", filename=SETTINGS["_db_database"], create_db=True)
-    
-    elif SETTINGS["_db_type"] == "postgres":
-        print("postgres is tested less than sqlite... good luck...")
-        db.bind(
-            provider="postgres",
-            user=SETTINGS["_db_user"],
-            password=SETTINGS["_db_pass"],
-            host=SETTINGS["_db_host"],
-            database=SETTINGS["_db_database"],
-            port=SETTINGS["_db_port"]
-        )
-    
-    elif SETTINGS["_db_type"] == "mysql":
-        print("mysql is untested... good luck...")
-        db.bind(
-            provider="mysql",
-            user=SETTINGS["_db_user"],
-            password=SETTINGS["_db_pass"],
-            host=SETTINGS["_db_host"],
-            database=SETTINGS["_db_database"],
-        )
-    # elif SETTINGS['_db_type'] == 'cockroach':
-    #     print('using cockroachdb')
-    #     db.bind(
-    #         provider='cockroach',
-    #         user=SETTINGS["_db_user"],
-    #         password=SETTINGS["_db_pass"],
-    #         host=SETTINGS["_db_host"],
-    #         database=SETTINGS["_db_database"],
-    #         sslmode='require'
-    #     )
+    try:
+        if SETTINGS["_db_type"] == "sqlite":
+            db.bind(provider="sqlite", filename=SETTINGS["_db_database"], create_db=True)
+        
+        elif SETTINGS["_db_type"] == "postgres":
+            print("postgres is tested less than sqlite... good luck...")
+            db.bind(
+                provider="postgres",
+                user=SETTINGS["_db_user"],
+                password=SETTINGS["_db_pass"],
+                host=SETTINGS["_db_host"],
+                database=SETTINGS["_db_database"],
+                port=SETTINGS["_db_port"]
+            )
+        
+        elif SETTINGS["_db_type"] == "mysql":
+            print("mysql is untested... good luck...")
+            db.bind(
+                provider="mysql",
+                user=SETTINGS["_db_user"],
+                password=SETTINGS["_db_pass"],
+                host=SETTINGS["_db_host"],
+                database=SETTINGS["_db_database"],
+            )
+        # elif SETTINGS['_db_type'] == 'cockroach':
+        #     print('using cockroachdb')
+        #     db.bind(
+        #         provider='cockroach',
+        #         user=SETTINGS["_db_user"],
+        #         password=SETTINGS["_db_pass"],
+        #         host=SETTINGS["_db_host"],
+        #         database=SETTINGS["_db_database"],
+        #         sslmode='require'
+        #     )
 
-    # db.create_tables()
-    db.generate_mapping(create_tables=True)
+        # db.create_tables()
+        
+        db.generate_mapping(create_tables=True)
+    except BindingError as e:
+        print(e)
 
 def set_custom_methods():
     ...
@@ -1185,7 +1190,7 @@ def challengeComplete(chall: Challenge, user: User):
 @db_session()
 def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False):
     if SETTINGS["_debug"]:
-        logger.debug(f"validating the challenge from {challenge_object.get('author')}")
+        logger.debug(f"validating the challenge '{challenge_object.get('challenge_title','')}' from {challenge_object.get('author')}")
         if SETTINGS["_debug_level"] >= 2:
             logger.debug(f"Got challenge object: { challenge_object}")
 
