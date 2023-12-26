@@ -155,6 +155,7 @@ def generateMapping():
     # https://docs.ponyorm.org/database.html
     if SETTINGS["_db_type"] == "sqlite":
         db.bind(provider="sqlite", filename=SETTINGS["_db_database"], create_db=True)
+    
     elif SETTINGS["_db_type"] == "postgres":
         print("postgres is tested less than sqlite... good luck...")
         db.bind(
@@ -165,6 +166,7 @@ def generateMapping():
             database=SETTINGS["_db_database"],
             port=SETTINGS["_db_port"]
         )
+    
     elif SETTINGS["_db_type"] == "mysql":
         print("mysql is untested... good luck...")
         db.bind(
@@ -174,6 +176,16 @@ def generateMapping():
             host=SETTINGS["_db_host"],
             database=SETTINGS["_db_database"],
         )
+    # elif SETTINGS['_db_type'] == 'cockroach':
+    #     print('using cockroachdb')
+    #     db.bind(
+    #         provider='cockroach',
+    #         user=SETTINGS["_db_user"],
+    #         password=SETTINGS["_db_pass"],
+    #         host=SETTINGS["_db_host"],
+    #         database=SETTINGS["_db_database"],
+    #         sslmode='require'
+    #     )
 
     # db.create_tables()
     db.generate_mapping(create_tables=True)
@@ -1174,7 +1186,7 @@ def challengeComplete(chall: Challenge, user: User):
 def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False):
     if SETTINGS["_debug"]:
         logger.debug(f"validating the challenge from {challenge_object.get('author')}")
-        if SETTINGS["_debug_level"] >= 1:
+        if SETTINGS["_debug_level"] >= 2:
             logger.debug(f"Got challenge object: { challenge_object}")
 
     result = {

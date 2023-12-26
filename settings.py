@@ -35,6 +35,13 @@ def default_config():
         # "_db_port": custom_secrets.postgres_db_port, # database port
         # "_db_user": custom_secrets.postgres_db_user,  # db username
         # "_db_pass": custom_secrets.postgres_db_pass,  # db password ; the old password will be a flag... just remind me and show where you got it. --shyft
+        # # cockroachdb config
+        # "_db_type": "cockroach",  #
+        # "_db_host": custom_secrets.cockroach_db_host,  # database host
+        # "_db_port": custom_secrets.cockroach_db_port, # database port
+        # "_db_user": custom_secrets.cockroach_db_user,  # db username
+        # "_db_pass": custom_secrets.cockroach_db_pass,  # db password 
+        
         # "_db_database": custom_secrets.postgres_db_database,  # if using mysql or postgres, this is the db to utilize. If using sqlite, this is the file to store stuff in.
         "_ctf_guild_id": 618912342385885198,  # your discord server. user right-click copy ID to get these
         "_ctf_channel_id": 735581872259727435,  # channel ID to give to users once they register.

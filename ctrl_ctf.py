@@ -644,7 +644,38 @@ class Commands:
             return
         print("Cancelling...")
 
-    def add_chall(self, toml_file, byoc=False):
+    def _find_chall_files(self, start_path:str='.'):
+        valid_toml_files = []
+
+        # Walk through the directory
+        from pathlib import Path
+        start_path = Path(start_path)
+    
+        # List to hold all valid TOML files
+        valid_toml_files = []
+
+        # Walk through the directory
+        for file_path in start_path.rglob('*.toml'):  # Recursive glob for .toml files
+            try:
+                # Parse the TOML file
+                data = toml.load(file_path)
+                
+                # Check if the required keys are in the file
+                if all(key in data for key in ['author', 'challenge_title', 'challenge_description']):
+                    valid_toml_files.append(str(file_path))
+            except (toml.TomlDecodeError, IOError) as e:
+                print(f"Error reading or parsing file {file_path}: {e}")
+
+        return valid_toml_files
+
+    def bulk_add_chall(self, start_path:str='.'):
+        chall_files = self._find_chall_files(start_path)
+        for chall in chall_files:
+            self.add_chall(chall, byoc=False, bypass_cost=True) 
+
+
+
+    def add_chall(self, toml_file, byoc=False, bypass_cost=True):
         """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user."""
 
         print(f'trying {toml_file}')
@@ -663,7 +694,7 @@ class Commands:
         result["byoc"] = byoc
 
         if result["valid"] == True:
-            chall_id = db.buildChallenge(result, is_byoc_challenge=byoc, bypass_cost=True)
+            chall_id = db.buildChallenge(result, is_byoc_challenge=byoc, bypass_cost=bypass_cost)
             print(
                 f"Challenge ID {chall_id} created attributed to {result['author']} byoc mode was {byoc}."
             )
