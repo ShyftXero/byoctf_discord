@@ -524,6 +524,14 @@ def challegeUnlocked(user: User, chall):
 
     return False
 
+@db_session()
+def get_challs_by_player(player:User) -> list[Challenge]:
+    if player == None:
+        return list()
+    
+    challs = Challenge.select(c for c in Challenge if c.author == player.name)[:]
+
+    return challs
 
 @db_session()
 def rate(user: User, chall: Challenge, user_rating: int|float):

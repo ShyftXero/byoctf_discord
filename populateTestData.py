@@ -18,7 +18,7 @@ AMOUNT_OF_DATA = 10
 
 with db_session:
     # teams; These passwords are sha256 of teamname.
-    # botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
+    botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
     bestteam = db.Team(
         name="bestteam",
         password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
