@@ -88,3 +88,4 @@ supervisorctl update
 
 # Start all programs (only start those that are not already running)
 supervisorctl start all
+supervisorctl status
