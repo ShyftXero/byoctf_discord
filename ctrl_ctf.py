@@ -328,6 +328,10 @@ class Commands:
                 name="fourthteam",
                 password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
             )
+            unafilliated = db.Team(
+                name="__unaffiliated__", 
+                password='unaffiliated'
+            )
 
             pub,priv = db.generate_keys()
             bestteam.public_key = pub
