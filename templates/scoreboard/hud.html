@@ -102,7 +102,7 @@
 					<h2>Solved Challenges:</h2>
 					<h5>There may still be some flags in the challenge if it's showing as incomplete.</h5>
 					<div class="challenge_grid">
-							{% for chall in unsolved_challs %}	
+							{% for chall in solved_challs %}	
 								<div class="card">
 									<a href="/chall/{{chall.uuid}}" class="href">
 										<h3>"{{ chall.title }}"</h3>
