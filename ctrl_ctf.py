@@ -331,7 +331,8 @@ class Commands:
         with db_session:
 
             # teams; These passwords are sha256 of teamname.
-            # botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
+            botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
+            
             bestteam = db.Team(
                 name="bestteam",
                 password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
@@ -354,6 +355,10 @@ class Commands:
             )
 
             pub,priv = db.generate_keys()
+            botteam.public_key = pub
+            botteam.private_key = priv
+
+            pub,priv = db.generate_keys()
             bestteam.public_key = pub
             bestteam.private_key = priv
 
@@ -371,8 +376,8 @@ class Commands:
 
 
             # users
-            # bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
-            bot = db.User.get(id=0)
+            bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
+            # bot = db.User.get(id=0)
             # print(bot)
             # exit()
             shyft = db.User(name="shyft_xero", team=bestteam, is_admin=True)
@@ -389,6 +394,14 @@ class Commands:
                 db.rotate_player_keys(u)
             db.db.commit()
             shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+
+            byoc_tag = db.upsertTag(name="byoc")
+            web_tag = db.upsertTag(name="web")
+            pentest_tag = db.upsertTag(name="pentest")
+            forensics_tag = db.upsertTag(name="forensics")
+            reversing_tag = db.upsertTag(name="reversing")
+            puzzle_tag = db.upsertTag(name="puzzle")
+            crypto_tag = db.upsertTag(name="crypto")
             db.db.commit()
         os.system(cmd)
 

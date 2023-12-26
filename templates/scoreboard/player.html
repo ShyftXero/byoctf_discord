@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+	<link rel="stylesheet" type="text/css" href="/static/glitch.css">
+	
+
+    <title>SOTB HUD</title>
+        <script src="https://unpkg.com/htmx.org@1.8.0"
+        integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
+        crossorigin="anonymous"></script>
+
+		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+		<script src="/static/script.js"></script>
+</head>
+<body>
+        <div class='container' hx-get="/hud" hx-trigger="every 2m" hx-swap="outerHTML">
+				<h1>SOTB PLAYER </h1>
+							 
+				
+                
+                <div class="incomplete card">
+					<h2>{{player.name}}'s' Challenges:</h2>
+					
+					<div class="challenge_grid">
+						{% for chall in player_challs %}	
+							<div class="card inner-card">
+								<a href="/chall/{{chall.uuid}}" class="href">
+									<h3>"{{ chall.title }}"</h3>
+								</a>
+								By <a href="/player/{{chall.author.id}}">{{chall.author.name}}</a>
+								<br>
+								Tags: {% for t in chall.tags %}{{t.name}} {% endfor %}
+								<br>
+								Rating {{"⭐" * chall.get_rating()}}
+							</div>
+							
+						{% endfor %}
+					</div>
+		
+
+				</div>
+
+                
+                
+        </div>
+</body>
+</html>

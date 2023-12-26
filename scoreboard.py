@@ -62,6 +62,25 @@ def scoreboard():
             top_players=top_players,
         )
 
+@app.post("/player/<id>")
+@limiter.limit("1/second")
+@db.db_session
+def get_player(id):
+    try:
+        player = db.User.get(id=int(id))
+    except ValueError as e:
+        return e, 405
+    if player == None:
+        return "player not found", 404 
+    
+    player_challs = db.get_challs_by_player(player)
+    return render_template(
+        'scoreboard/player.html', 
+        player=player, 
+        player_challs=player_challs
+    )
+    
+    
 
 # @app.get('/api/all_info')
 # @limiter.limit('6/min')
