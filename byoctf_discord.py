@@ -326,7 +326,7 @@ async def unregister(ctx: discord.ext.commands.Context):
             logger.debug(f"{user.name} left team {user.team.name}")
 
         await ctx.send(f"Leaving team {user.team.name}... bye.")
-        unaffiliated = db.Team.get(name="__unaffiliated__")
+        unaffiliated = db.Team.get(name="__unaffilliated__")
         user.team = unaffiliated
         db.commit()
 
@@ -399,14 +399,14 @@ async def register(
         hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
         team = db.Team.get(name=teamname)
-        unafilliated = db.Team.get(name="__unaffiliated__")
+        unafilliated = db.Team.get(name="__unaffilliated__")
         user = db.User.get(name=username(ctx))
 
         if user == None:
             user = db.User(name=username(ctx), team=unafilliated)
             db.rotate_player_keys(user)
-
-        if user.team.name != "__unaffiliated__":
+        user.team = unafilliated
+        if user.team.name != "__unaffilliated__":
             msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. talk to an admin to have your team changed..."
             await ctx.send(msg)
             if SETTINGS["_debug"]:
