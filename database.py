@@ -1445,7 +1445,7 @@ def send_tip(
 
 
 @db_session()
-def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False):
+def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False, upsert_author=False):
     if SETTINGS["_debug"]:
         logger.debug(f"building the challenge from {challenge_object['author']}")
     result = challenge_object
@@ -1458,11 +1458,20 @@ def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False)
             logger.debug(f'result_valid not valid', result)
         return -1
 
+        
+
     author = User.get(name=result["author"])
-    if author == None:
+    
+    if author == None and upsert_author == False:
         if SETTINGS["_debug"]:
             logger.debug(f'author does not exist', result)
         return -1
+    
+    if upsert_author == True:
+        unaffiliated = Team.get(name='__unaffiliated__')
+        author = User(name=result['author'], team=unaffiliated)
+        db.commit()
+        bypass_cost = True # they were just born so they don't have the money
 
     # if some one is short points to submit a challenge, GMs can grant points via ctrl_ctf.
     if bypass_cost == False:
