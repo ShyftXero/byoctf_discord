@@ -662,6 +662,20 @@ class Commands:
                     return
                 print("cancelled")
 
+    # @db.db_session()
+    # def bulk_add_user(self, txt_file:str):
+    #     try:
+    #         with open(txt_file) as f: 
+    #             for idx,line in enumerate(f.readlines()): 
+
+    #                 try:
+    #                     self.add_flag(row[1].strip().replace('"',''), float(row[0]), 'BYOCTF_Automaton#7840')
+    #                 except IndexError as e:
+    #                     pass
+    #     except BaseException as e:
+    #         print(e, row)
+    #     print('done')    
+
     def bulk_add_bonus_flag(self, csv_file:str):
         import csv 
         
@@ -725,6 +739,18 @@ class Commands:
             return
         print("Cancelling...")
 
+    @db.db_session
+    def add_user(self, username:str): #, teamname:str):
+        # import hashlib
+        # team = db.Team.get(name=teamname.strip())
+        team = db.Team.get(name='__unaffilliated__')
+        if team == None:
+            team = db.Team(name='__unaffilliated__', password='unaffiliated')
+        user = db.User(name=username, team=team)
+        db.commit()
+        print(f'added {user.name} with team {team.name}')
+
+
     def _find_chall_files(self, start_path:str='.'):
         valid_toml_files = []
 
@@ -749,10 +775,10 @@ class Commands:
 
         return valid_toml_files
 
-    def bulk_add_chall(self, start_path:str='.'):
+    def bulk_add_chall(self, start_path:str='.', byoc:bool=False):
         chall_files = self._find_chall_files(start_path)
         for chall in chall_files:
-            self.add_chall(chall, byoc=False, bypass_cost=True) 
+            self.add_chall(chall, byoc=byoc, bypass_cost=True) 
             print('-'*30)
 
 
