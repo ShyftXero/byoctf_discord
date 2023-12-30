@@ -86,6 +86,8 @@ fi
 supervisorctl reread
 supervisorctl update
 
+supervisorctl stop all
+
 # Start all programs (only start those that are not already running)
 supervisorctl start all
 supervisorctl status
