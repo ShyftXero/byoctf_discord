@@ -121,12 +121,18 @@ class Commands:
         with db.db_session:
             user = db.User.get(name=username)
             team = db.Team.get(name=team)
-            if user and team:
-                print(f"{user.name} is currently on team {user.team.name}.")
-                res = input(f"Update to {team.name}? [y/N]")
-                if res.lower() == "y":
-                    user.team = team
-                    db.commit()
+            if user == None: 
+                print('user does not exist')
+                return 
+            if team == None: 
+                print('team does not exist')
+                return 
+            
+            print(f"{user.name} is currently on team {user.team.name}.")
+            res = input(f"Update to {team.name}? [y/N]")
+            if res.lower() == "y":
+                user.team = team
+                db.commit()
 
     @db.db_session
     def grant_points(self, user: str, amount: float):
@@ -166,19 +172,17 @@ class Commands:
     def sub_as(self, struser: str, strflag: str):
         """submit a flag on behalf of a user. useful in case a user can't submit (but you know they should be able to) or for testing and development."""
         # print(f'{user}, {flag}')
-        dbuser = db.User.get(name=struser)
-        dbflag = db.Flag.get(flag=strflag)
+        dbuser = db.User.get(name=struser.strip())
+        dbflag = db.Flag.get(flag=strflag.strip())
 
         # prevent double solve is now handled in createSolve()
         print(f"{dbuser}, {dbflag} <- Neither of these should be None")
-        if dbuser and dbflag:
-            # print(f"submiting {dbflag.flag} as {dbuser.name}")
-
-            db.createSolve(user=dbuser, flag=dbflag, points_override=None)
+        if dbuser == None or  dbflag == None:
+            print(f"Error submitting {strflag} as {struser}")
             return
-
-        print(f"Error submitting {strflag} as {struser}")
-
+        # print(f"submiting {dbflag.flag} as {dbuser.name}")
+        db.createSolve(user=dbuser, flag=dbflag, points_override=None)
+            
     @db.db_session
     def subs(self):
         """dumps time that a flag was submitted. useful to prove who submitted fastest?"""
@@ -393,7 +397,7 @@ class Commands:
             for u in users:
                 db.rotate_player_keys(u)
             db.db.commit()
-            shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+            # shyft.api_key = 'FLAG{644fccfc-2c12-4fa1-8e05-2aa40c4ef756}' # to make testing and development easier. # sure... why not. that'll be worth points too. # 29DEC2023
 
             byoc_tag = db.upsertTag(name="byoc")
             web_tag = db.upsertTag(name="web")
@@ -402,6 +406,13 @@ class Commands:
             reversing_tag = db.upsertTag(name="reversing")
             puzzle_tag = db.upsertTag(name="puzzle")
             crypto_tag = db.upsertTag(name="crypto")
+            bonus_challenge = db.Challenge(
+                id=0,
+                title="__bonus__",
+                description="this is the description for all bonus challenges...",
+                author=bot,
+            )
+
             db.db.commit()
         os.system(cmd)
 
@@ -641,10 +652,27 @@ class Commands:
                     return
                 print("cancelled")
 
+    def bulk_add_bonus_flag(self, csv_file:str):
+        import csv 
+        
+        try:
+            with open(csv_file) as file_obj: 
+                reader_obj = csv.reader(file_obj, quotechar='"') 
+                for idx,row in enumerate(reader_obj): 
+                    if idx == 0: 
+                        continue
+                    try:
+                        self.add_flag(row[1].strip().replace('"',''), float(row[0]), 'BYOCTF_Automaton#7840')
+                    except IndexError as e:
+                        pass
+        except BaseException as e:
+            print(e, row)
+        print('done')    
+
     @db.db_session
     def add_flag(self, submitted_flag: str, value: float, author: str | None = None):
         """Useful for adhoc or bonus flag creation. not associated with a challenge."""
-        print(f"Got flag '{submitted_flag}' for {value} points")
+        # print(f"Got flag '{submitted_flag}' for {value} points")
 
         # is the flag unique?
         flag = db.Flag.get(flag=submitted_flag)
@@ -669,7 +697,7 @@ class Commands:
 
         flag = db.Flag(flag=submitted_flag, value=value, author=db_author, byoc=False)
         db.commit()
-        print(f"Flag {flag.id} created: '{flag.flag}' by author '{db_author.name}'")
+        print(f"Flag {flag.id} created: '{flag.flag}' by author '{db_author.name}' for {flag.value}")
 
     @db.db_session
     def del_flag(self, flag_id: int):
