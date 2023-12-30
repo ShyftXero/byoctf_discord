@@ -354,7 +354,7 @@ class Commands:
             #     password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
             # )
             unafilliated = db.Team(
-                name="__unaffiliated__", 
+                name="__unaffilliated__", 
                 password='unaffiliated'
             )
 
@@ -387,7 +387,7 @@ class Commands:
             shyft = db.User(name="shyft_xero", team=bestteam, is_admin=True)
             fie = db.User(name="fie311", team=bestteam, is_admin=True)
             # r3d = db.User(name="combaticus", team=secondteam)
-            # blackcatt = db.User(name="blackcatt", team=thirdteam)
+            blackcatt = db.User(name="blackcatt", team=bestteam)
             aykay = db.User(name="aykay", team=bestteam, is_admin=True)
             # jsm = db.User(name="jsm2191", team=bestteam)
             moonkaptain = db.User(name="moonkaptain", team=bestteam, is_admin=True)
@@ -743,9 +743,9 @@ class Commands:
     def add_user(self, username:str): #, teamname:str):
         # import hashlib
         # team = db.Team.get(name=teamname.strip())
-        team = db.Team.get(name='__unaffilliated__')
+        team = db.Team.get(name='__unaffiliated__')
         if team == None:
-            team = db.Team(name='__unaffilliated__', password='unaffiliated')
+            team = db.Team(name='__unaffiliated__', password='unaffiliated')
         user = db.User(name=username, team=team)
         db.commit()
         print(f'added {user.name} with team {team.name}')
