@@ -889,7 +889,8 @@ async def list_unsolved(ctx):
     # logger.debug("discord",challs)\
     msg = f"Showing all unsolved challenges```{table.table}```"
 
-    await ctx.send(msg)
+    await sendBigMessage(ctx, msg)
+    # await ctx.send(msg)
 
 
 def anyIn(list1, list2):
