@@ -335,24 +335,24 @@ class Commands:
         with db_session:
 
             # teams; These passwords are sha256 of teamname.
-            botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
+            botteam = db.Team(name='botteam', password='no')
             
             bestteam = db.Team(
-                name="bestteam",
+                name="fs2600/SOTBcrew",
                 password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
             )
-            secondteam = db.Team(
-                name="secondteam",
-                password="4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f",
-            )
-            thirdteam = db.Team(
-                name="thirdteam",
-                password="7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b",
-            )
-            fourthteam = db.Team(
-                name="fourthteam",
-                password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
-            )
+            # secondteam = db.Team(
+            #     name="secondteam",
+            #     password="4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f",
+            # )
+            # thirdteam = db.Team(
+            #     name="thirdteam",
+            #     password="7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b",
+            # )
+            # fourthteam = db.Team(
+            #     name="fourthteam",
+            #     password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
+            # )
             unafilliated = db.Team(
                 name="__unaffiliated__", 
                 password='unaffiliated'
@@ -362,21 +362,21 @@ class Commands:
             botteam.public_key = pub
             botteam.private_key = priv
 
-            pub,priv = db.generate_keys()
-            bestteam.public_key = pub
-            bestteam.private_key = priv
+            # pub,priv = db.generate_keys()
+            # bestteam.public_key = pub
+            # bestteam.private_key = priv
 
-            pub,priv = db.generate_keys()
-            secondteam.public_key = pub
-            secondteam.private_key = priv
+            # pub,priv = db.generate_keys()
+            # secondteam.public_key = pub
+            # secondteam.private_key = priv
 
-            pub,priv = db.generate_keys()
-            thirdteam.public_key = pub
-            thirdteam.private_key = priv
+            # pub,priv = db.generate_keys()
+            # thirdteam.public_key = pub
+            # thirdteam.private_key = priv
             
-            pub,priv = db.generate_keys()
-            fourthteam.public_key = pub
-            fourthteam.private_key = priv
+            # pub,priv = db.generate_keys()
+            # fourthteam.public_key = pub
+            # fourthteam.private_key = priv
 
 
             # users
@@ -386,14 +386,24 @@ class Commands:
             # exit()
             shyft = db.User(name="shyft_xero", team=bestteam, is_admin=True)
             fie = db.User(name="fie311", team=bestteam, is_admin=True)
-            r3d = db.User(name="combaticus", team=secondteam)
-            malloc = db.User(name="blackcatt", team=thirdteam)
-            aykay = db.User(name="aykay", team=fourthteam)
-            jsm = db.User(name="jsm2191", team=bestteam)
-            moonkaptain = db.User(name="moonkaptain", team=secondteam, is_admin=True)
-            fractumseraph = db.User(name="fractumseraph", team=fourthteam)
+            # r3d = db.User(name="combaticus", team=secondteam)
+            # blackcatt = db.User(name="blackcatt", team=thirdteam)
+            aykay = db.User(name="aykay", team=bestteam, is_admin=True)
+            # jsm = db.User(name="jsm2191", team=bestteam)
+            moonkaptain = db.User(name="moonkaptain", team=bestteam, is_admin=True)
+            # fractumseraph = db.User(name="fractumseraph", team=fourthteam)
 
-            users = [shyft, fie, r3d, malloc, aykay, jsm, moonkaptain, fractumseraph]
+            users = [
+                shyft, 
+                fie, 
+                # r3d, 
+                # blackcatt, 
+                aykay, 
+                # jsm, 
+                moonkaptain, 
+                # fractumseraph
+                ]
+
             for u in users:
                 db.rotate_player_keys(u)
             db.db.commit()
