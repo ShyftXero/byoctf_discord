@@ -10,7 +10,7 @@ markdown2==2.4.5
 pynacl
 networkx==3.2.1
 pony==0.7.16
-pycryptodome==3.18.0
+pycryptodome==3.19.1
 pyfiglet==0.8.post1
 pyodide==0.0.2
 pyodide_http==0.2.1
