@@ -41,7 +41,7 @@ class Flag(db.Entity):
     value = Required(float)
     unsolved = Optional(bool, default=True)
     bonus = Optional(bool, default=False)
-    flag_type = Optional(str, default='normal')
+    flag_type = Optional(str, default="normal")
     tags = Set("Tag")
     author = Required("User")
     byoc = Optional(bool)
@@ -108,8 +108,8 @@ class Team(db.Entity):
     name = Required(str)
     password = Required(str)
     uuid = Required(str, default=lambda: str(uuid.uuid4()))
-    public_key = Optional(str,default='')
-    private_key = Optional(str, default='')
+    public_key = Optional(str, default="")
+    private_key = Optional(str, default="")
 
 
 class Tag(db.Entity):
@@ -150,14 +150,14 @@ class Rating(db.Entity):
     time = Optional(datetime, default=lambda: datetime.now())
 
 
-
-
 def generateMapping():
     # https://docs.ponyorm.org/database.html
     try:
         if SETTINGS["_db_type"] == "sqlite":
-            db.bind(provider="sqlite", filename=SETTINGS["_db_database"], create_db=True)
-        
+            db.bind(
+                provider="sqlite", filename=SETTINGS["_db_database"], create_db=True
+            )
+
         elif SETTINGS["_db_type"] == "postgres":
             print("postgres is tested less than sqlite... good luck...")
             db.bind(
@@ -166,9 +166,9 @@ def generateMapping():
                 password=SETTINGS["_db_pass"],
                 host=SETTINGS["_db_host"],
                 database=SETTINGS["_db_database"],
-                port=SETTINGS["_db_port"]
+                port=SETTINGS["_db_port"],
             )
-        
+
         elif SETTINGS["_db_type"] == "mysql":
             print("mysql is untested... good luck...")
             db.bind(
@@ -190,28 +190,34 @@ def generateMapping():
         #     )
 
         # db.create_tables()
-        
+
         db.generate_mapping(create_tables=True)
     except BindingError as e:
         print(e)
 
+
 def set_custom_methods():
     ...
+
     def get_chall_value(self):
         flags = list(select(c.flags for c in Challenge if c.id == self.id))
         return sum([flag.value for flag in flags])
-    setattr(Challenge, 'get_value', get_chall_value)
+
+    setattr(Challenge, "get_value", get_chall_value)
 
     def get_chall_rating(self):
         return int(avg(r.value for r in Rating if r.challenge == self) or 0)
-    setattr(Challenge, 'get_rating', get_chall_rating)
+
+    setattr(Challenge, "get_rating", get_chall_rating)
+
+
 generateMapping()
 set_custom_methods()
 #########
 
 
 @db_session
-def register_team(teamname:str, password:str, username:str) -> Team:
+def register_team(teamname: str, password: str, username: str) -> Team:
     teamname = teamname.strip()
     password = password.strip()
     hashed_pass = hashlib.sha256(password.encode()).hexdigest()
@@ -225,25 +231,24 @@ def register_team(teamname:str, password:str, username:str) -> Team:
         rotate_player_keys(user)
 
 
-
 @db_session
 def average_score() -> float:
     all_scores = [getScore(u) for u in User.select(lambda u: u.id != 0)[:]]
     return sum(all_scores) / len(all_scores)
 
-def generate_keys(keysize:int=2048):
-    """returns pub,private keys in PKCS8 PEM format
-    
-    """
+
+def generate_keys(keysize: int = 2048):
+    """returns pub,private keys in PKCS8 PEM format"""
     key = RSA.generate(keysize)
-    priv = key.export_key('PEM', pkcs=8).decode()
+    priv = key.export_key("PEM", pkcs=8).decode()
     pub = key.publickey().export_key().decode()
-    return pub,priv
+    return pub, priv
+
 
 @db_session
-def rotate_player_keys(user:User):
+def rotate_player_keys(user: User):
     user.api_key = str(uuid.uuid4())
-    pub,priv = generate_keys()
+    pub, priv = generate_keys()
     # priv =  PrivateKey.generate()
     # pub = priv.public_key
     # user.private_key = priv._private_key.hex()
@@ -251,10 +256,10 @@ def rotate_player_keys(user:User):
     user.private_key = priv
     user.public_key = pub
 
+
 @db_session
-def rotate_team_keys(team:Team):
-    
-    pub,priv = generate_keys()
+def rotate_team_keys(team: Team):
+    pub, priv = generate_keys()
     # priv =  PrivateKey.generate()
     # pub = priv.public_key
     # user.private_key = priv._private_key.hex()
@@ -263,20 +268,20 @@ def rotate_team_keys(team:Team):
     team.public_key = pub
 
 
-
 @db_session
-def render_variables(user:User, msg:str) -> str:
-    """this will replace the variables '{{PLAYERNAME}}' '{{TEAMNAME}}' AND '{{TEAMUUID}}' with appropriate values for a given player. This is mainly used in challenge descriptions. """
+def render_variables(user: User, msg: str) -> str:
+    """this will replace the variables '{{PLAYERNAME}}' '{{TEAMNAME}}' AND '{{TEAMUUID}}' with appropriate values for a given player. This is mainly used in challenge descriptions."""
     variables = {
-        '{{PLAYERNAME}}':user.name,
-        '{{TEAMNAME}}':user.team.name,
-        '{{TEAMUUID}}':user.team.uuid,
+        "{{PLAYERNAME}}": user.name,
+        "{{TEAMNAME}}": user.team.name,
+        "{{TEAMUUID}}": user.team.uuid,
     }
 
-    for k,v in variables.items():
-        msg = msg.replace(k,v)
-    
+    for k, v in variables.items():
+        msg = msg.replace(k, v)
+
     return msg
+
 
 def ensure_bot_acct():
     # ensure the built in accounts for bot an botteam exist; remove from populateTestdata.py
@@ -296,12 +301,13 @@ def ensure_bot_acct():
 
         commit()
 
+
 def is_valid_uuid(val):
     try:
         uuid.UUID(str(val))
         return True
     except ValueError:
-        logger.debug(f'invalid uuid {val}')
+        logger.debug(f"invalid uuid {val}")
     return False
 
 
@@ -491,9 +497,7 @@ def challegeUnlocked(user: User, chall):
         solve.flag
         for solve in Solve
         if solve.user in teammates and solve.flag in chall.parent.flags
-    )[
-        :
-    ]  # optimized query
+    )[:]  # optimized query
     # for tm in teammates:
     #     flags_subbed_by_team.append(
     #         select(solve.flag for solve in Solve if tm == solve.user)[:]
@@ -524,17 +528,19 @@ def challegeUnlocked(user: User, chall):
 
     return False
 
+
 @db_session()
-def get_challs_by_player(player:User) -> list[Challenge]:
+def get_challs_by_player(player: User) -> list[Challenge]:
     if player == None:
         return list()
-    
+
     challs = Challenge.select(c for c in Challenge if c.author == player.name)[:]
 
     return challs
 
+
 @db_session()
-def rate(user: User, chall: Challenge, user_rating: int|float):
+def rate(user: User, chall: Challenge, user_rating: int | float):
     if chall == None or challegeUnlocked(user, chall) == False:
         return -1
 
@@ -564,7 +570,9 @@ def get_unlocked_challenges(user: User):
     # show only challenges which are not hidden (dependencies resolved and released)
     teammates = getTeammates(user)
 
-    solvable = list(select(c for c in Challenge if c.visible == True and c.author not in teammates))  # type: ignore ; # visible means GMs want it to be solved...
+    solvable = list(
+        select(c for c in Challenge if c.visible == True and c.author not in teammates)
+    )  # type: ignore ; # visible means GMs want it to be solved...
 
     visible_and_unlocked = [
         c for c in solvable if challegeUnlocked(user, c)
@@ -594,14 +602,13 @@ def get_completed_challenges(user: User):
 
     completed = set()
     for chall in unlocked_challs:
-        if len(chall.flags) == 0: #this shouldn't occur
-            continue 
+        if len(chall.flags) == 0:  # this shouldn't occur
+            continue
         flags_subbed_by_team = select(
             solve.flag
             for solve in Solve
             if solve.user in teammates and solve.flag in chall.flags
         )[:]  # optimized query
-        
 
         chall_percent = len(flags_subbed_by_team) / len(chall.flags)
         if chall_percent == 1:
@@ -1195,15 +1202,19 @@ def challengeComplete(chall: Challenge, user: User):
 
 
 @db_session()
-def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False, is_byoc_challenge=True):
+def validateChallenge(
+    challenge_object, bypass_length=False, bypass_cost=False, is_byoc_challenge=True
+):
     if SETTINGS["_debug"]:
-        logger.debug(f"validating the challenge '{challenge_object.get('challenge_title','')}' from {challenge_object.get('author')}")
+        logger.debug(
+            f"validating the challenge '{challenge_object.get('challenge_title','')}' from {challenge_object.get('author')}"
+        )
         if SETTINGS["_debug_level"] >= 2:
             logger.debug(f"Got challenge object: { challenge_object}")
 
     result = {
         "valid": False,
-        "author": challenge_object.get("author",''),
+        "author": challenge_object.get("author", ""),
         "uuid": "",
         "tags": list(),
         "challenge_title": "",
@@ -1221,12 +1232,14 @@ def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False, 
     # does the challenge_object have all of the fields we need?
     # title, description, tags, flags with at least one flag, hints
 
-    #user must exist
-    
-    author = User.get(name=result.get('author','invalid_user_name_here'))
+    # user must exist
+
+    author = User.get(name=result.get("author", "invalid_user_name_here"))
 
     if author == None:
-        result["fail_reason"] += f"; author '{challenge_object.get('author')}' doesn't exist (are they registered/in the DB)"
+        result[
+            "fail_reason"
+        ] += f"; author '{challenge_object.get('author')}' doesn't exist (are they registered/in the DB)"
         return result
 
     # unique uuid
@@ -1259,9 +1272,12 @@ def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False, 
 
     if type(challenge_object.get("challenge_description")) == None or (
         len(challenge_object.get("challenge_description", "")) < 1
-        or len(challenge_object.get("challenge_description", "")) > 1500 and bypass_length == False
+        or len(challenge_object.get("challenge_description", "")) > 1500
+        and bypass_length == False
     ):
-        result["fail_reason"] += f"; failed description length (too long or too short?) len = {len(challenge_object.get('challenge_description', ''))} "
+        result[
+            "fail_reason"
+        ] += f"; failed description length (too long or too short?) len = {len(challenge_object.get('challenge_description', ''))} "
         return result
     result["challenge_description"] = challenge_object["challenge_description"]
 
@@ -1332,7 +1348,7 @@ def validateChallenge(challenge_object, bypass_length=False, bypass_cost=False, 
                     "fail_reason"
                 ] += "; failed flag_value datatype (not an int or float)"
                 return result
-            
+
             if flag_val < 0:
                 result[
                     "fail_reason"
@@ -1398,7 +1414,7 @@ def upsertTag(name: str):
         commit()
     except pony.orm.core.TransactionIntegrityError:
         t = Tag.get(name=name)
-    
+
     return t
 
 
@@ -1445,7 +1461,9 @@ def send_tip(
 
 
 @db_session()
-def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False, upsert_author=False):
+def buildChallenge(
+    challenge_object, is_byoc_challenge=False, bypass_cost=False, upsert_author=False
+):
     if SETTINGS["_debug"]:
         logger.debug(f"building the challenge from {challenge_object['author']}")
     result = challenge_object
@@ -1455,23 +1473,21 @@ def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False,
     if result.get("valid", False) == False:
         # result = validateChallenge(challenge_object)
         if SETTINGS["_debug"]:
-            logger.debug(f'result_valid not valid', result)
+            logger.debug(f"result_valid not valid", result)
         return -1
-
-        
 
     author = User.get(name=result["author"])
-    
+
     if author == None and upsert_author == False:
         if SETTINGS["_debug"]:
-            logger.debug(f'author does not exist', result)
+            logger.debug(f"author does not exist", result)
         return -1
-    
+
     if upsert_author == True:
-        unaffiliated = Team.get(name='__unaffiliated__')
-        author = User(name=result['author'], team=unaffiliated)
+        unaffiliated = Team.get(name="__unaffiliated__")
+        author = User(name=result["author"], team=unaffiliated)
         db.commit()
-        bypass_cost = True # they were just born so they don't have the money
+        bypass_cost = True  # they were just born so they don't have the money
 
     # if some one is short points to submit a challenge, GMs can grant points via ctrl_ctf.
     if bypass_cost == False:
@@ -1484,8 +1500,6 @@ def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False,
     #     logger.debug(result)
     #     logger.debug(result["fail_reason"])
     #     return -1
-
-    
 
     chall_obj_tags = set(
         [t.lower().strip() for t in result["tags"]]
@@ -1541,7 +1555,7 @@ def buildChallenge(challenge_object, is_byoc_challenge=False, bypass_cost=False,
     commit()
     if bypass_cost == True:
         return chall.id
-    
+
     bot = User.get(name=SETTINGS["_botusername"])
     fee = Transaction(
         sender=author,

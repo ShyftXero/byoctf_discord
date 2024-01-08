@@ -206,17 +206,17 @@ def renderChallenge(result: dict, preview=False):
         byoc_rate = SETTINGS.get("_byoc_reward_rate", 0)
         break_even_solves = (result["cost"] / byoc_rate) // 100
         logger.debug(result)
-        avg_flag_val= "invalid challenge"
+        avg_flag_val = "invalid challenge"
         try:
-            avg_flag_val = sum([f["flag_value"] for f in result["flags"]])/len(result["flags"])
-            
+            avg_flag_val = sum([f["flag_value"] for f in result["flags"]]) / len(
+                result["flags"]
+            )
 
             flag_vals = [f["flag_value"] for f in result["flags"]]
             num_flags = len(flag_vals)
             flag_vals.sort()
-            
-            least_middle_most = flag_vals[num_flags//2 - 1]
-            
+
+            least_middle_most = flag_vals[num_flags // 2 - 1]
 
             # break_even_solves = result["cost"] / avg_flag_val
 
@@ -224,13 +224,12 @@ def renderChallenge(result: dict, preview=False):
 
             # In [29]: vals.sort();vals[len(vals)//2 - 1]
             # Out[29]: 250
-            
+
             # This is the minimum number of solves of a obtainable flag to recoup cost.
             break_even_solves = result["cost"] / least_middle_most
         except BaseException as e:
             logger.debug(e)
 
-        
         # break_even_solves = result['cost'] / (avg_flag_val * byoc_rate)
 
         msg += f"{'-'*25}\n\n"
@@ -391,7 +390,7 @@ async def register(
         )
         return
 
-    # db.register_team(teamname, password, username(ctx)) 
+    # db.register_team(teamname, password, username(ctx))
     # # TODO move over to using this function to separate discord from business logic 16SEP23
     with db.db_session:
         teamname = teamname.strip()
@@ -416,7 +415,7 @@ async def register(
         # does the team exist?
         if team == None:
             team = db.Team(name=teamname, password=hashed_pass)
-            pub,priv = db.generate_keys()
+            pub, priv = db.generate_keys()
             team.public_key = pub
             team.private_key = priv
 
@@ -440,8 +439,8 @@ async def register(
             return
 
         user.team = team
-        if team.private_key == '':
-            pub,priv = db.generate_keys()
+        if team.private_key == "":
+            pub, priv = db.generate_keys()
             team.public_key = pub
             team.private_key = priv
         db.commit()
@@ -466,7 +465,6 @@ async def register(
 
     msg = f"Registered as `{username(ctx)}` on team `{teamname}`. Check the {channel.mention} channel"
     await ctx.send(msg)
-    
 
 
 @bot.command(
@@ -582,13 +580,13 @@ async def byoc_stats(ctx):
         f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\nTeammates: {[t.name for t in teammates]}\n\nuse `!mykeys` to see your pub/priv keys or `!rotate_keys` to generate new ones."
     )
 
+
 @bot.command(name="mykeys", help="Show public and private keys")
 async def my_keys(ctx):
     with db.db_session:
         user = db.User.get(name=username(ctx))
         await ctx.send(f"```Public Key:\n{user.public_key}```")
         await ctx.send(f"```Private Key:\n{user.private_key}```")
-
 
 
 @bot.command(
@@ -744,6 +742,7 @@ async def submit(ctx: discord.ext.commands.Context, submitted_flag: str = None):
         # logger.debug(msg)
         await ctx.send(msg)
 
+
 @bot.command(
     name="rotate_keys",
     help="generate new api_key, public_key, and private_key",
@@ -760,11 +759,11 @@ async def rotate_keys(ctx):
         msg=f"Hey, <@{ctx.author.id}>, send that command in a DM to the bot...",
     ):
         return
-    
+
     def check(msg):
         return msg.content == "confirm" and msg.channel == ctx.channel
         # TODO  https://discordpy.readthedocs.io/en/latest/api.html#discord.Client.wait_for
-    
+
     await ctx.send(
         "\n\n\n***Reply with `confirm` in the next 20 seconds to rotate your api, pub/priv keys***"
     )
@@ -774,7 +773,7 @@ async def rotate_keys(ctx):
         if user == None:
             await ctx.send("invalid user somehow...")
             return
-        
+
         resp = None
         try:
             resp = await ctx.bot.wait_for("message", check=check, timeout=20)
@@ -784,11 +783,9 @@ async def rotate_keys(ctx):
         if resp.content == "confirm":
             db.rotate_player_keys(user)
 
-            await ctx.send('Keys updated. use `!whoami` to see them... ')
+            await ctx.send("Keys updated. use `!whoami` to see them... ")
             return
-        await ctx.send('invalid response')
-
-
+        await ctx.send("invalid response")
 
 
 @bot.command(

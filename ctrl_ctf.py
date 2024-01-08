@@ -88,7 +88,8 @@ class Commands:
     def reinit_config(self):
         """This will repopulate the diskcache with the default config provided in settings.py"""
         import os
-        os.system('rm -rf __diskcache__')
+
+        os.system("rm -rf __diskcache__")
         import settings  # force a recreation fo the settings obj and feed it a default config
 
         settings.init_config()
@@ -121,13 +122,13 @@ class Commands:
         with db.db_session:
             user = db.User.get(name=username)
             team = db.Team.get(name=team)
-            if user == None: 
-                print('user does not exist')
-                return 
-            if team == None: 
-                print('team does not exist')
-                return 
-            
+            if user == None:
+                print("user does not exist")
+                return
+            if team == None:
+                print("team does not exist")
+                return
+
             print(f"{user.name} is currently on team {user.team.name}.")
             res = input(f"Update to {team.name}? [y/N]")
             if res.lower() == "y":
@@ -177,12 +178,12 @@ class Commands:
 
         # prevent double solve is now handled in createSolve()
         print(f"{dbuser}, {dbflag} <- Neither of these should be None")
-        if dbuser == None or  dbflag == None:
+        if dbuser == None or dbflag == None:
             print(f"Error submitting {strflag} as {struser}")
             return
         # print(f"submiting {dbflag.flag} as {dbuser.name}")
         db.createSolve(user=dbuser, flag=dbflag, points_override=None)
-            
+
     @db.db_session
     def subs(self):
         """dumps time that a flag was submitted. useful to prove who submitted fastest?"""
@@ -310,7 +311,7 @@ class Commands:
         # db.User.select().delete(bulk=True)
         # db.Challenge.select().delete(bulk=True)
         # db.Flag.select().delete(bulk=True)
-        
+
         # db.Transaction.select().delete(bulk=True)
         # db.Solve.select().delete(bulk=True)
         print("Done.")
@@ -331,12 +332,11 @@ class Commands:
         cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
         print(f"killing bot via {cmd}")
         import database as db
-        
-        with db_session:
 
+        with db_session:
             # teams; These passwords are sha256 of teamname.
-            botteam = db.Team(name='botteam', password='no')
-            
+            botteam = db.Team(name="botteam", password="no")
+
             bestteam = db.Team(
                 name="fs2600/SOTBcrew",
                 password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
@@ -353,12 +353,9 @@ class Commands:
             #     name="fourthteam",
             #     password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
             # )
-            unafilliated = db.Team(
-                name="__unaffilliated__", 
-                password='unaffiliated'
-            )
+            unafilliated = db.Team(name="__unaffilliated__", password="unaffiliated")
 
-            pub,priv = db.generate_keys()
+            pub, priv = db.generate_keys()
             botteam.public_key = pub
             botteam.private_key = priv
 
@@ -373,14 +370,13 @@ class Commands:
             # pub,priv = db.generate_keys()
             # thirdteam.public_key = pub
             # thirdteam.private_key = priv
-            
+
             # pub,priv = db.generate_keys()
             # fourthteam.public_key = pub
             # fourthteam.private_key = priv
 
-
             # users
-            bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
+            bot = db.User(id=0, name="BYOCTF_Automaton#7840", team=botteam)
             # bot = db.User.get(id=0)
             # print(bot)
             # exit()
@@ -394,15 +390,15 @@ class Commands:
             # fractumseraph = db.User(name="fractumseraph", team=fourthteam)
 
             users = [
-                shyft, 
-                fie, 
-                # r3d, 
-                # blackcatt, 
-                aykay, 
-                # jsm, 
-                moonkaptain, 
+                shyft,
+                fie,
+                # r3d,
+                # blackcatt,
+                aykay,
+                # jsm,
+                moonkaptain,
                 # fractumseraph
-                ]
+            ]
 
             for u in users:
                 db.rotate_player_keys(u)
@@ -461,10 +457,8 @@ class Commands:
         print("Deleting and recreating database")
         if SETTINGS["_db_type"] == "sqlite":
             os.remove(SETTINGS["_db_database"])
-        
 
         self.reinit_config()
-        
 
         # print("Populating test data")
         # os.system("python populateTestData.py")
@@ -665,8 +659,8 @@ class Commands:
     # @db.db_session()
     # def bulk_add_user(self, txt_file:str):
     #     try:
-    #         with open(txt_file) as f: 
-    #             for idx,line in enumerate(f.readlines()): 
+    #         with open(txt_file) as f:
+    #             for idx,line in enumerate(f.readlines()):
 
     #                 try:
     #                     self.add_flag(row[1].strip().replace('"',''), float(row[0]), 'BYOCTF_Automaton#7840')
@@ -674,24 +668,28 @@ class Commands:
     #                     pass
     #     except BaseException as e:
     #         print(e, row)
-    #     print('done')    
+    #     print('done')
 
-    def bulk_add_bonus_flag(self, csv_file:str):
-        import csv 
-        
+    def bulk_add_bonus_flag(self, csv_file: str):
+        import csv
+
         try:
-            with open(csv_file) as file_obj: 
-                reader_obj = csv.reader(file_obj, quotechar='"') 
-                for idx,row in enumerate(reader_obj): 
-                    if idx == 0: 
+            with open(csv_file) as file_obj:
+                reader_obj = csv.reader(file_obj, quotechar='"')
+                for idx, row in enumerate(reader_obj):
+                    if idx == 0:
                         continue
                     try:
-                        self.add_flag(row[1].strip().replace('"',''), float(row[0]), 'BYOCTF_Automaton#7840')
+                        self.add_flag(
+                            row[1].strip().replace('"', ""),
+                            float(row[0]),
+                            "BYOCTF_Automaton#7840",
+                        )
                     except IndexError as e:
                         pass
         except BaseException as e:
             print(e, row)
-        print('done')    
+        print("done")
 
     @db.db_session
     def add_flag(self, submitted_flag: str, value: float, author: str | None = None):
@@ -721,7 +719,9 @@ class Commands:
 
         flag = db.Flag(flag=submitted_flag, value=value, author=db_author, byoc=False)
         db.commit()
-        print(f"Flag {flag.id} created: '{flag.flag}' by author '{db_author.name}' for {flag.value}")
+        print(
+            f"Flag {flag.id} created: '{flag.flag}' by author '{db_author.name}' for {flag.value}"
+        )
 
     @db.db_session
     def del_flag(self, flag_id: int):
@@ -740,53 +740,54 @@ class Commands:
         print("Cancelling...")
 
     @db.db_session
-    def add_user(self, username:str): #, teamname:str):
+    def add_user(self, username: str):  # , teamname:str):
         # import hashlib
         # team = db.Team.get(name=teamname.strip())
-        team = db.Team.get(name='__unaffiliated__')
+        team = db.Team.get(name="__unaffiliated__")
         if team == None:
-            team = db.Team(name='__unaffiliated__', password='unaffiliated')
+            team = db.Team(name="__unaffiliated__", password="unaffiliated")
         user = db.User(name=username, team=team)
         db.commit()
-        print(f'added {user.name} with team {team.name}')
+        print(f"added {user.name} with team {team.name}")
 
-
-    def _find_chall_files(self, start_path:str='.'):
+    def _find_chall_files(self, start_path: str = "."):
         valid_toml_files = []
 
         # Walk through the directory
         from pathlib import Path
+
         start_path = Path(start_path)
-    
+
         # List to hold all valid TOML files
         valid_toml_files = []
 
         # Walk through the directory
-        for file_path in start_path.rglob('*.toml'):  # Recursive glob for .toml files
+        for file_path in start_path.rglob("*.toml"):  # Recursive glob for .toml files
             try:
                 # Parse the TOML file
                 data = toml.load(file_path)
-                
+
                 # Check if the required keys are in the file
-                if all(key in data for key in ['author', 'challenge_title', 'challenge_description']):
+                if all(
+                    key in data
+                    for key in ["author", "challenge_title", "challenge_description"]
+                ):
                     valid_toml_files.append(str(file_path))
             except (toml.TomlDecodeError, IOError) as e:
                 print(f"Error reading or parsing file {file_path}: {e}")
 
         return valid_toml_files
 
-    def bulk_add_chall(self, start_path:str='.', byoc:bool=False):
+    def bulk_add_chall(self, start_path: str = ".", byoc: bool = False):
         chall_files = self._find_chall_files(start_path)
         for chall in chall_files:
-            self.add_chall(chall, byoc=byoc, bypass_cost=True) 
-            print('-'*30)
-
-
+            self.add_chall(chall, byoc=byoc, bypass_cost=True)
+            print("-" * 30)
 
     def add_chall(self, toml_file, byoc=False, bypass_cost=True):
         """load a challenge via the BYOC mechanism. If byoc is True, it will be marked as a byoc challenge and points will be awarded to the author of the challenge and the solver. Add a challenge on behalf of a user."""
 
-        logger.debug(f'trying {toml_file}')
+        logger.debug(f"trying {toml_file}")
         try:
             raw = open(toml_file).read()
             chall_obj = toml.loads(raw)
@@ -796,13 +797,17 @@ class Commands:
         except toml.TomlDecodeError as e:
             print("Check TOML syntax in file:", toml_file, e)
             return
-        result = db.validateChallenge(chall_obj, bypass_length=True, is_byoc_challenge=byoc)
+        result = db.validateChallenge(
+            chall_obj, bypass_length=True, is_byoc_challenge=byoc
+        )
 
         # for byoc loading of challenges. avoids them being tagged as BYOC ; ./ctrl_ctf.py add_chall chall.json byoc=True
         result["byoc"] = byoc
 
         if result["valid"] == True:
-            chall_id = db.buildChallenge(result, is_byoc_challenge=byoc, bypass_cost=bypass_cost)
+            chall_id = db.buildChallenge(
+                result, is_byoc_challenge=byoc, bypass_cost=bypass_cost
+            )
             print(
                 f"Challenge ID {chall_id} created attributed to {result['author']} byoc mode was {byoc}."
             )
