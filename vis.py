@@ -101,7 +101,12 @@ Num of recv transactions: {db.select(t for t in db.Transaction if t.recipient ==
 			""".strip()
             # print(f'trans id {trans.id} - sender "{trans.sender.name}" recipient "{trans.recipient.name}" amount {trans.value}')
             nxGraph.add_node(trans.sender.name, title=title)
-            nxGraph.add_edge(trans.sender.name, trans.recipient.name, weight=min(avg_trans / trans.value, 20), type=trans.type)  # type: ignore
+            nxGraph.add_edge(
+                trans.sender.name,
+                trans.recipient.name,
+                weight=min(avg_trans / trans.value, 20),
+                type=trans.type,
+            )  # type: ignore
 
             # nxGraph.add_node(trans.sender.name, sender=trans.sender.name, )
             # nxGraph.add_node(trans.recipient.name, sender=trans.recipient.name)

@@ -62,6 +62,7 @@ def scoreboard():
             top_players=top_players,
         )
 
+
 @app.post("/player/<id>")
 @limiter.limit("1/second")
 @db.db_session
@@ -71,16 +72,13 @@ def get_player(id):
     except ValueError as e:
         return e, 405
     if player == None:
-        return "player not found", 404 
-    
+        return "player not found", 404
+
     player_challs = db.get_challs_by_player(player)
     return render_template(
-        'scoreboard/player.html', 
-        player=player, 
-        player_challs=player_challs
+        "scoreboard/player.html", player=player, player_challs=player_challs
     )
-    
-    
+
 
 # @app.get('/api/all_info')
 # @limiter.limit('6/min')
@@ -101,6 +99,7 @@ def get_admin_api_key(func):
 
     return check
 
+
 def get_api_key(func):
     @wraps(func)
     def check(*args, **kwargs):
@@ -112,7 +111,9 @@ def get_api_key(func):
             if user == None:
                 return "user not found", 403
         return func(*args, **kwargs)
+
     return check
+
 
 @app.get("/admin/net/challenges")
 @get_admin_api_key
@@ -269,17 +270,19 @@ def get_team(target):
     }
     return ret
 
-@app.get('/api/all_pub_keys')
+
+@app.get("/api/all_pub_keys")
 @limiter.limit("100/second")
 @db.db_session
 def all_user_pub_keys():
     users = db.select((u.name, u.public_key) for u in db.User)[:]
     teams = db.select((t.name, t.uuid, t.public_key) for t in db.Team)[:]
     ret = {
-        'users': [u for u in users], 
-        'teams': [t for t in teams],
+        "users": [u for u in users],
+        "teams": [t for t in teams],
     }
     return ret
+
 
 @app.get("/api/get_username/<target>")
 @limiter.limit("1/second")
@@ -318,14 +321,21 @@ def login(api_key):
     resp.set_cookie("api_key", api_key)
     return resp
 
-@app.get('/transactions')
+
+@app.get("/transactions")
 @limiter.limit("100/second")
 @db.db_session
 def get_public_transactions():
-    public_transactions = db.select( t for t in db.Transaction).sort_by(lambda t: db.desc(t.time)).limit(500)[:]
-        
-    return render_template('scoreboard/public_transactions.html', public_transactions=public_transactions)
-         
+    public_transactions = (
+        db.select(t for t in db.Transaction)
+        .sort_by(lambda t: db.desc(t.time))
+        .limit(500)[:]
+    )
+
+    return render_template(
+        "scoreboard/public_transactions.html", public_transactions=public_transactions
+    )
+
 
 @app.get("/hud")
 @app.get("/hud/")
@@ -399,7 +409,7 @@ def transactions():
     )
 
 
-@app.get('/challenges')
+@app.get("/challenges")
 @limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def challenges():
@@ -409,26 +419,29 @@ def challenges():
     user = db.User.get(api_key=api_key)
     if user == None:
         return "invalid user api_key", 403
-    
+
     available_challenges = db.get_unlocked_challenges(user)
     teammates = db.getTeammates(user)
     parsed = [
-                (
-                    c.id,
-                    c.uuid,
-                    c.author.name,
-                    c.title,
-                    db.challValue(c),
-                    f"{db.percentComplete(c, user)}%",
-                    "*" * int(db.avg(r.value for r in db.Rating if r.challenge == c) or 0),
-                    ", ".join([t.name for t in c.tags]),
-                )
-                for c in available_challenges
-                if c.id > 0 and c.author not in teammates and c.title != '__bonus__'
-            ]
+        (
+            c.id,
+            c.uuid,
+            c.author.name,
+            c.title,
+            db.challValue(c),
+            f"{db.percentComplete(c, user)}%",
+            "*" * int(db.avg(r.value for r in db.Rating if r.challenge == c) or 0),
+            ", ".join([t.name for t in c.tags]),
+        )
+        for c in available_challenges
+        if c.id > 0 and c.author not in teammates and c.title != "__bonus__"
+    ]
     print(parsed)
-    return render_template('scoreboard/challenges.html', parsed=parsed, available_challenges=available_challenges)
-    
+    return render_template(
+        "scoreboard/challenges.html",
+        parsed=parsed,
+        available_challenges=available_challenges,
+    )
 
 
 @app.get("/chall/<chall_uuid>")
@@ -460,7 +473,7 @@ def chall(chall_uuid):
         team_owned_challenge = True
     else:
         team_owned_challenge = False
-    
+
     rendered_chall_description = db.render_variables(user, chall.description)
 
     return render_template(

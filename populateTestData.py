@@ -18,7 +18,10 @@ AMOUNT_OF_DATA = 10
 
 with db_session:
     # teams; These passwords are sha256 of teamname.
-    botteam = db.Team(name='botteam', password='c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f')
+    botteam = db.Team(
+        name="botteam",
+        password="c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f",
+    )
     bestteam = db.Team(
         name="bestteam",
         password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
@@ -36,22 +39,21 @@ with db_session:
         password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
     )
 
-    pub,priv = generate_keys()
+    pub, priv = generate_keys()
     bestteam.public_key = pub
     bestteam.private_key = priv
 
-    pub,priv = generate_keys()
+    pub, priv = generate_keys()
     secondteam.public_key = pub
     secondteam.private_key = priv
 
-    pub,priv = generate_keys()
+    pub, priv = generate_keys()
     thirdteam.public_key = pub
     thirdteam.private_key = priv
-    
-    pub,priv = generate_keys()
+
+    pub, priv = generate_keys()
     fourthteam.public_key = pub
     fourthteam.private_key = priv
-
 
     # users
     # bot = db.User(id=0, name='BYOCTF_Automaton#7840', team=botteam)
@@ -71,7 +73,7 @@ with db_session:
     for u in users:
         rotate_player_keys(u)
     db.commit()
-    shyft.api_key = '644fccfc-2c12-4fa1-8e05-2aa40c4ef756' # to make testing and development easier. 
+    shyft.api_key = "644fccfc-2c12-4fa1-8e05-2aa40c4ef756"  # to make testing and development easier.
     db.commit()
     exit()
     # flags
@@ -163,7 +165,7 @@ with db_session:
 
     c8 = db.Challenge(
         title="chall 8 - variables",
-        uuid='b83c07a9-69f9-44b0-855e-ac02514214fd',
+        uuid="b83c07a9-69f9-44b0-855e-ac02514214fd",
         description="""
 chall 8 uses _variables_ AND markdown *in* the **description**.
 hello, {{PLAYERNAME}}. You are on team '{{TEAMNAME}}'
@@ -258,10 +260,10 @@ print("code block here")
     # # show()
     commit()
 
-    msg = f'''
+    msg = f"""
 shyft api_key= {shyft.api_key}
 /login/{shyft.api_key}
 private key = {shyft.private_key}
 public key = {shyft.public_key}
-'''.strip()
+""".strip()
     print(msg)

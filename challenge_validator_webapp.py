@@ -40,10 +40,9 @@ def validate():
         print(f"error parsing toml: {e}")
         return f"error parsing toml: {e}", 500
     except BaseException as e:
-        return f'{e}', 500
+        return f"{e}", 500
 
     result = database.validateChallenge(challenge_object)
-    
 
     ret = renderChallenge(result, preview=True)
 
