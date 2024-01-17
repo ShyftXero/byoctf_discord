@@ -1,19 +1,19 @@
 # Setup
 
-Running this software requires a Discord bot. Create one before proceeding.
+Running this software requires a Discord bot. Create one with the following instructions:
 
-- Visit `https://discord.com/developers/applications/`
+- Login to Discord and visit https://discord.com/developers/applications/
 - Click "New Application" and give it a name
     ![Name your Discord bot](images/discord_name_bot.png)
 - Provide a redirect URL - for our purposes it can be a dummy URL (e.g. `https://google.com`)
     ![Oauth settings](images/discord_oauth_settings.png)
-- Select appropriate permissions.
+- Select appropriate permissions for the default link (optional).
     ![Bot permissions](images/discord_bot_permissions.png)
-- Select bot permissions again on this page and generate a URL
+- Select bot permissions again on this page and generate an invite URL
     ![Generate url](images/discord_gen_bot_url.png)
 - Login to Discord and visit the URL to authorize your bot
 - Create a channel to be used for your byoctf event. We will collect its ID later on.
-- Create a byoctf role. Users will obtain this upon registering. Again, we will collect its ID later on.
+- Create a byoctf role. Users will obtain this upon registering for the CTF. Again, we will collect its ID later on.
 - Edit settings.py
     - Right click in Discord to get these.
     ```bash
@@ -44,7 +44,7 @@ Running this software requires a Discord bot. Create one before proceeding.
 - Note: You must repeat the `INIT` command above after making changes to `settings.py`
 - Run it! `python byoctf_discord.py`
 ![Alt text](images/byoctf-first-startup.png)
-- Make sure to direct message bot to interact with it. Avoid public channels. Here are some good initial commands to test things out:
+- Make sure to send your commands via a direct message to the bot. Avoid public channels. Here are some good initial commands to test out and confirm your setup.
     - `!help`
     - `!reg TEAM TEAMPASS`
     
