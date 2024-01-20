@@ -223,11 +223,11 @@ def register_team(teamname: str, password: str, username: str) -> Team:
     hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
     team = Team.get(name=teamname)
-    unafilliated = Team.get(name="__unaffiliated__")
+    unaffiliated = Team.get(name="__unaffiliated__")
     user = User.get(name=username)
 
     if user == None:
-        user = User(name=username, team=unafilliated)
+        user = User(name=username, team=unaffiliated)
         rotate_player_keys(user)
 
 

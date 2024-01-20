@@ -398,14 +398,15 @@ async def register(
         hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
         team = db.Team.get(name=teamname)
-        unafilliated = db.Team.get(name="__unaffilliated__")
+        unaffiliated = db.Team.get(name="__unaffiliated__")
         user = db.User.get(name=username(ctx))
 
         if user == None:
-            user = db.User(name=username(ctx), team=unafilliated)
+            logger.debug("User not yet created. Assigning to team \"__unaffiliated__\" for now")
+            user = db.User(name=username(ctx), team=unaffiliated)
             db.rotate_player_keys(user)
-        user.team = unafilliated
-        if user.team.name != "__unaffilliated__":
+        user.team = unaffiliated
+        if user.team.name != "__unaffiliated__":
             msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. talk to an admin to have your team changed..."
             await ctx.send(msg)
             if SETTINGS["_debug"]:
