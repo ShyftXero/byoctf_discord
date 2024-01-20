@@ -353,7 +353,7 @@ class Commands:
             #     name="fourthteam",
             #     password="f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c",
             # )
-            unafilliated = db.Team(name="__unaffilliated__", password="unaffiliated")
+            unaffiliated = db.Team(name="__unaffiliated__", password="__unaffiliated__")
 
             pub, priv = db.generate_keys()
             botteam.public_key = pub
@@ -745,7 +745,7 @@ class Commands:
         # team = db.Team.get(name=teamname.strip())
         team = db.Team.get(name="__unaffiliated__")
         if team == None:
-            team = db.Team(name="__unaffiliated__", password="unaffiliated")
+            team = db.Team(name="__unaffiliated__", password="__unaffiliated__")
         user = db.User(name=username, team=team)
         db.commit()
         print(f"added {user.name} with team {team.name}")
