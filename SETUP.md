@@ -27,11 +27,15 @@ Now you will need to edit a few files and install some dependencies.
     "_ctf_channel_id": "" # Channel given to users after registration
     "_ctf_channel_role_id": "" # Role giver to users after registration
     ```
+- `sudo su`
+- `cd /root`
 - `git clone https://github.com/ShyftXero/byoctf_discord`
 - `cd byoctf_discord`
 - Add Discord bot token - take necessary precautions
     - `echo "DISCORD_TOKEN='asdfasdfasdf'" > custom_secrets.py`
 - Use rye to install dependencies (https://rye-up.com/guide/)
+    - `sudo su`
+    - `cd /root`
 	- `curl -sSf https://rye-up.com/get | bash`
 	- `source "$HOME/.rye/env"`
 	- `rye sync`
