@@ -12,8 +12,14 @@ Running this software requires a Discord bot. Create one with the following inst
 - Select bot permissions again on this page and generate an invite URL
     ![Generate url](images/discord_gen_bot_url.png)
 - Login to Discord and visit the URL to authorize your bot
+
+After creating your bot, create a channel and a role for your CTF.
+
 - Create a channel to be used for your byoctf event. We will collect its ID later on.
 - Create a byoctf role. Users will obtain this upon registering for the CTF. Again, we will collect its ID later on.
+
+Now you will need to edit a few files and install some dependencies.
+
 - Edit settings.py
     - Right click in Discord to get these.
     ```bash
@@ -21,11 +27,15 @@ Running this software requires a Discord bot. Create one with the following inst
     "_ctf_channel_id": "" # Channel given to users after registration
     "_ctf_channel_role_id": "" # Role giver to users after registration
     ```
+- `sudo su`
+- `cd /root`
 - `git clone https://github.com/ShyftXero/byoctf_discord`
 - `cd byoctf_discord`
 - Add Discord bot token - take necessary precautions
     - `echo "DISCORD_TOKEN='asdfasdfasdf'" > custom_secrets.py`
 - Use rye to install dependencies (https://rye-up.com/guide/)
+    - `sudo su`
+    - `cd /root`
 	- `curl -sSf https://rye-up.com/get | bash`
 	- `source "$HOME/.rye/env"`
 	- `rye sync`
