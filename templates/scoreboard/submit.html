@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+	<link rel="stylesheet" type="text/css" href="/static/glitch.css">
+	
+
+    <title>SOTB HUD</title>
+        <script src="https://unpkg.com/htmx.org@1.8.0"
+        integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
+        crossorigin="anonymous"></script>
+
+		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+
+		<script src="/static/script.js"></script>
+</head>
+<body>
+        <div class='container' hx-get="/hud" hx-trigger="every 2m" hx-swap="outerHTML">
+				<h1>SOTB PLAYER HUD</h1>
+				 
+				<div class="header_links">
+					<div class="private_stuff">
+						<h2><a href="/">Scoreboard</a></h2>
+						<h2><a href="/hud/transactions">Team Transactions</a></h2>
+
+						{% if is_admin %}
+						<h3>
+							<a href="/admin/net/transactions"> Admin Graph - Transactions</a><br>
+							<a href="/admin/net/players"> Admin Graph - Players and Teams</a><br>
+							<a href="/admin/net/challenges"> Admin Graph - Challenges</a><br>
+						</h3>
+						{% endif %}
+					</div>
+
+					<div class="public_stuff">
+						<h2><a href="/challenges">All Challenges</a></h2>
+						<h2><a href="/transactions">Public Transactions</a></h2>
+					</div>
+				</div>
+				<div class='flag_submission'>
+					<form>
+						<input name="flag" />
+						<button 
+						  type="submit" 
+						  hx-post="/sub"
+						  hx-target="#result"
+						  placeholder="FLAG{here}">
+						  Submit Flag
+						</button>
+					</form>
+					<div id='result'></div>
+				</div>
+        </div>
+</body>
+</html>
