@@ -986,6 +986,20 @@ def createExtSolve(user: User, chall: Challenge, submitted_flag: str):
 
 
 @db_session
+def submit_flag(user_str:str=None, flag_str:str=None) -> bool|str:
+    """allows a user to submit a flag. trying to fully encapsulate the business logic of the date within database.py"""
+    print(f'got "{flag_str=}"', type(flag_str))
+    user = User.get(name=user_str)
+    # if len(flag_str) == 0:
+    #     flag_str = "-__INCORRECT__INVALID__NOT_A_REAL_FLAG__"
+    flag = Flag.get(flag=flag_str)
+    if user in ['', None] or flag in ['', None]:
+        return False
+    print('after')    
+    msg = createSolve(user=user, flag=flag)
+    return msg
+
+@db_session
 def createSolve(
     user: User = None,
     flag: Flag = None,
@@ -1163,7 +1177,7 @@ def createSolve(
             )
 
     commit()
-    msg = f"{solve.user.name} solved {solve.flag_text}"
+    msg = f"{solve.user.name} solved {solve.flag_text} for {solve.value} points"
     if SETTINGS["_debug"] and SETTINGS["_debug_level"] >= 1:
         logger.debug(msg)
     return msg

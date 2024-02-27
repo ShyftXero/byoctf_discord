@@ -284,3 +284,30 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
     /* font-weight:300; */
     font-display: block;
 }
+
+
+.flag_submission * {
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+    font-size: 22pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    font-family: "Space Mono", monospace;
+    
+}
+
+
+@import url("https://fonts.googleapis.com/css?family=Barlow|Tomorrow:400,700&display=swap");
+
+:root {
+  --yellow-color: #fcee09; 
+  --red-color: #ff003c;
+  --black-color: #050a0e;
+  --blue-color: #00f0ff;
+}
+
+button {
+
+}

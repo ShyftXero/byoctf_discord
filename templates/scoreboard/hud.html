@@ -37,6 +37,20 @@
 						<h2><a href="/transactions">Public Transactions</a></h2>
 					</div>
 				</div>
+
+				<div class='flag_submission'>
+					<form>
+						<input name="flag" placeholder="FLAG{here}"/>
+						<button 
+						  type="submit" 
+						  hx-post="/sub"
+						  hx-target="#result">
+						  Submit Flag
+						</button>
+					</form>
+					<div id='result'></div>
+				</div>
+
 				<div class="team_info card card-body">
 					<h2>
 						Team <code>{{teamname}}</code> 
