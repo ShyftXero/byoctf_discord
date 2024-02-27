@@ -6,3 +6,6 @@ __diskcache__/
 __pycache__/
 .vscode/
 venv
+byoctf.db.after_event
+byoctf.db.after_event_redacted
+byoctf.db.after_event.orig
