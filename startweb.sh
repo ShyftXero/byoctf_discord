@@ -30,6 +30,7 @@ fi
 # Supervisord configuration content (replace with your actual configuration)
 SUPERVISORD_CONF="[unix_http_server]
 file=/tmp/supervisor.sock   ; (the path to the socket file)
+chmod=0765
 
 [supervisord]
 logfile=$LOG_DIR/supervisord.log ; (main log file path)
@@ -66,6 +67,7 @@ programs=challenge_validator_webapp,scoreboard"
 
 # Check if the configuration file already exists and matches the desired state
 CONF_FILE="/etc/supervisor/conf.d/byoctf_discord.conf"
+rm "$CONF_FILE"
 if [ -f "$CONF_FILE" ]; then
     # Check if the existing file content matches the desired configuration
     if ! echo "$SUPERVISORD_CONF" | diff - "$CONF_FILE" > /dev/null; then

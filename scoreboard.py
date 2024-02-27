@@ -2,7 +2,7 @@ import uuid
 from rich import print
 import database as db
 from settings import SETTINGS
-from flask import Flask, request, render_template, make_response, url_for, redirect
+from flask import Flask, request, render_template, make_response, url_for, redirect, flash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
@@ -27,6 +27,35 @@ limiter = Limiter(
 CORS(app)
 app.secret_key = "thisisasecret"
 
+
+def get_admin_api_key(func):
+    @wraps(func)
+    def check(*args, **kwargs):
+        api_key = request.cookies.get("api_key")
+        if api_key == None:
+            return "api_key not set; visit HUD first...", 403
+        with db.db_session:
+            user = db.get_user_by_api_key(api_key)
+            if user == None or user.is_admin == False:
+                return "user not found or is not admin", 403
+        return func(*args, **kwargs)
+
+    return check
+
+
+def get_api_key(func):
+    @wraps(func)
+    def check(*args, **kwargs):
+        api_key = request.cookies.get("api_key")
+        if api_key == None:
+            return "api_key not set; visit HUD first...", 403
+        with db.db_session:
+            user = db.get_user_by_api_key(api_key)
+            if user == None:
+                return "user not found", 403
+        return func(*args, **kwargs)
+
+    return check
 
 @app.get("/scores")
 @limiter.limit("100/second", override_defaults=False)
@@ -84,35 +113,6 @@ def get_player(id):
 # @limiter.limit('6/min')
 # @db.db_session
 
-
-def get_admin_api_key(func):
-    @wraps(func)
-    def check(*args, **kwargs):
-        api_key = request.cookies.get("api_key")
-        if api_key == None:
-            return "api_key not set; visit HUD first...", 403
-        with db.db_session:
-            user = db.get_user_by_api_key(api_key)
-            if user == None or user.is_admin == False:
-                return "user not found or is not admin", 403
-        return func(*args, **kwargs)
-
-    return check
-
-
-def get_api_key(func):
-    @wraps(func)
-    def check(*args, **kwargs):
-        api_key = request.cookies.get("api_key")
-        if api_key == None:
-            return "api_key not set; visit HUD first...", 403
-        with db.db_session:
-            user = db.get_user_by_api_key(api_key)
-            if user == None:
-                return "user not found", 403
-        return func(*args, **kwargs)
-
-    return check
 
 
 @app.get("/admin/net/challenges")
@@ -488,6 +488,30 @@ def chall(chall_uuid):
         rendered_chall_description=rendered_chall_description,
     )
 
+
+
+@app.route("/sub", methods=['GET','POST'])
+@limiter.limit("100/second", override_defaults=False)
+@db.db_session
+@get_api_key
+def submit_flag():
+    if request.method == 'POST':
+        user:db.User = db.get_user_by_api_key(request.cookies.get('api_key'))
+        flag = request.form.get('flag')
+        if flag == None or user == None:
+            return "flag or user missing from request; try setting api_key cookie", 405
+        
+        submisssion_result = db.submit_flag(user_str=user.name, flag_str=flag)
+        if submisssion_result == False:
+            return "incorrect flag", 404
+        
+        if submisssion_result == '':
+            submisssion_result = "invalid submission"
+            
+        return f'{submisssion_result}'
+
+        
+    return render_template('scoreboard/submit.html')
 
 @app.get("/")
 def index():
