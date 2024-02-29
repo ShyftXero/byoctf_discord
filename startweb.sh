@@ -46,7 +46,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 [supervisorctl]
 serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL for a unix socket
 
-[program:cvalidator]
+[program:challenge_validator_webapp]
 command=/root/byoctf_discord/.venv/bin/python -m gunicorn --bind 127.0.0.1:5000 challenge_validator_webapp:app
 directory=$APP_DIR
 autostart=true
