@@ -161,6 +161,15 @@ h2 {
     margin: 1rem;
 }
 
+.card-solved {
+
+    /* height: 90%; */
+    background-color: rgba(0, 255, 153, 0.4);
+    padding: .5rem;
+    border-radius: 1rem;
+    margin: 1rem;
+}
+
 .card-body {
     flex: 1 1 auto;
     /* padding: 1rem; */

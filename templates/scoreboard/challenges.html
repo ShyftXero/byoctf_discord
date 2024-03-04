@@ -41,7 +41,7 @@
 		<!-- <h1>User Challenges and Hints</h1> -->
 		<div class="container">
 			<h2>Available Challenges:</h2>
-			<div class="challenge_grid">
+			<!-- <div class="challenge_grid">
 				{% for chall in available_challenges %}	
 					<div class="card">
 						<a href="/chall/{{chall.uuid}}" class="href">
@@ -55,11 +55,11 @@
 					</div>
 					
 				{% endfor %}
-			</div>
+			</div> -->
 
-			<!-- <div class="challenge_grid">
+			<div class="challenge_grid">
 				{% for chall in parsed %}	
-					<div class="card">
+					<div class="{{ 'card-solved' if chall[8] else 'card'}}">
 						<a href="/chall/{{chall[1]}}" class="href">
 							<h3>"{{ chall[3] }}"</h3>
 						</a>
@@ -68,10 +68,12 @@
 						<strong>{{chall[5]}} Complete</strong>
 						<br>
 						Tags: {{chall[7]}}
+						<br>
+						Solved: <span>{{ '&#10003;' | safe if chall[8] else '&#10005;' | safe }}</span>
 					</div>
 					
 				{% endfor %}
-			</div> -->
+			</div>
 
 			<!-- <table class="table">
 				<thead>
@@ -100,8 +102,8 @@
 					</tr>
 				{% endfor %}
 				</tbody>
-			</table> -->
-		</div>
+			</table>
+		</div> -->
 
 </body>
 </html>
