@@ -1219,6 +1219,7 @@ def challengeComplete(chall: Challenge, user: User):
 def validateChallenge(
     challenge_object, bypass_length=False, bypass_cost=False, is_byoc_challenge=True
 ):
+    print('in validateChallenge')
     if SETTINGS["_debug"]:
         logger.debug(
             f"validating the challenge '{challenge_object.get('challenge_title','')}' from {challenge_object.get('author')}"
@@ -1228,7 +1229,7 @@ def validateChallenge(
 
     result = {
         "valid": False,
-        "author": challenge_object.get("author", ""),
+        "author": challenge_object.get("author", "__AUTHOR_MISSING__"),
         "uuid": "",
         "tags": list(),
         "challenge_title": "",
@@ -1495,7 +1496,7 @@ def buildChallenge(
     if author == None and upsert_author == False:
         if SETTINGS["_debug"]:
             logger.debug(f"author does not exist", result)
-        return -1
+        return -2
 
     if upsert_author == True:
         unaffiliated = Team.get(name="__unaffiliated__")
@@ -1507,7 +1508,7 @@ def buildChallenge(
     if bypass_cost == False:
         if result["cost"] > getScore(author):
             logger.debug("the author has insufficient funds to publish challenge")
-            return -1
+            return -3
 
     # if result["valid"] == False:
     #     # something went wrong...
