@@ -227,6 +227,8 @@ def renderChallenge(result: dict, preview=False):
 
             # This is the minimum number of solves of a obtainable flag to recoup cost.
             break_even_solves = result["cost"] / least_middle_most
+        except ZeroDivisionError as e:
+            logger.debug(e)
         except BaseException as e:
             logger.debug(e)
 

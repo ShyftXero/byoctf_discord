@@ -7,9 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>BYOCTF Challenge Builder</title>
 
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css"/>
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script> 
+    <!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css"/>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>  -->
    
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.3/core.css">
+    <!-- This script tag bootstraps PyScript -->
+    <script type="module" src="https://pyscript.net/releases/2024.1.3/core.js"></script>
+
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
@@ -25,7 +29,9 @@
         packages = ["toml","requests","pyodide-http"]
     </py-config>
     
-    <py-script src="./static/challenge_builder.py"></py-script>
+    <!-- mpy uses micropython rather than pyodide -->
+    <!-- <script type="mpy" src="./static/challenge_builder.py"></script> -->
+    <script type="py" src="./static/challenge_builder.py"></script>
 
     
     <div class="container">
@@ -88,11 +94,11 @@
                 </div>
 
                 <p>
-                    <button id='add_flag_btn'  py-click="add_flag()" class="py-button">Add a flag</button>
-                    <button id='add_hint_btn'  py-click="add_hint()" class="py-button">Add a hint</button>
-                    <button id='build_btn'  py-click="build_challenge()" class="py-button">Build</button>
-                    <button id='validate_btn'  py-click="validate_challenge()" class="py-button">Validate</button>
-                    <button id='download_btn'  py-click="download_challenge()" class="py-button">Download Challenge File</button>
+                    <button id='add_flag_btn'  py-click="add_flag" class="py-button">Add a flag</button>
+                    <button id='add_hint_btn'  py-click="add_hint" class="py-button">Add a hint</button>
+                    <button id='build_btn'  py-click="build_challenge" class="py-button">Build</button>
+                    <button id='validate_btn'  py-click="validate_challenge" class="py-button">Validate</button>
+                    <button id='download_btn'  py-click="download_challenge" class="py-button">Download Challenge File</button>
                 </p>
                 
             
@@ -110,10 +116,11 @@
         
 
     </div>
-    <py-script>
-        add_flag()
-        add_hint()
-    </py-script>
+    <!-- <py-script>
+        #migrated to the __main__ of the challenge_builder.py  
+        #add_flag()
+        #add_hint()
+    </py-script> -->
     <script>
     function copy_text() {
         // Get the text field

@@ -58,10 +58,19 @@
 			<textarea name="toml" id="toml" cols="60" rows="20"
 				placeholder="Paste your challenge toml here..."></textarea>
 			<br>
+			
+			<!-- API Key to commit challenge <input type="text" placeholder="api key here (for commiting your challenge)" name="api_key" id="api_key"> -->
+
+			<br>
 			<button hx-post="/validate" hx-target="#preview">
 				Validate Your Challenge
 			</button>
+			<button hx-post="/commit_challenge" hx-target="#preview" hx-confirm="Are you sure you wish to post this challenge?">
+				Commit Your Challenge (No take-backs...)
+			</button>
+		
 		</form>
+		
 		<div id="errormessages">
 		</div>
 		<div id="preview"></div>
