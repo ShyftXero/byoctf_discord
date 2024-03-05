@@ -53,15 +53,24 @@
 		<marquee behavior="scroll" direction="">
 			<h1>SoTB2023 BYOCTF Challenge Validator</h1>
 		</marquee>
-		<h3>checkout the new <a href="/create">byoctf challenge creator</a></h3>
+		<h3>Checkout the new <a href="/create">byoctf challenge creator</a><br>or go back to the <a href='/'>scoreboard</a></h3>
 		<form>
 			<textarea name="toml" id="toml" cols="60" rows="20"
 				placeholder="Paste your challenge toml here..."></textarea>
 			<br>
+			
+			<!-- API Key to commit challenge <input type="text" placeholder="api key here (for commiting your challenge)" name="api_key" id="api_key"> -->
+
+			<br>
 			<button hx-post="/validate" hx-target="#preview">
 				Validate Your Challenge
 			</button>
+			<button hx-post="/commit_challenge" hx-target="#preview" hx-confirm="Are you sure you wish to post this challenge?">
+				Commit Your Challenge (No take-backs...)
+			</button>
+		
 		</form>
+		
 		<div id="errormessages">
 		</div>
 		<div id="preview"></div>

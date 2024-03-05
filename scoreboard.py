@@ -1,20 +1,29 @@
 import uuid
-from rich import print
-import database as db
-from settings import SETTINGS
-from flask import Flask, request, render_template, make_response, url_for, redirect, flash
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_cors import CORS
-
-from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
-
-import markdown2
-
-from loguru import logger
 from functools import wraps
 
-from vis import challs, trans, players
+import markdown2
+import toml
+from flask import (
+    Flask,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from loguru import logger
+from rich import print
+from terminaltables import AsciiTable, GithubFlavoredMarkdownTable
+
+import database
+import database as db
+from byoctf_discord import renderChallenge
+from settings import SETTINGS
+from vis import challs, players, trans
 
 app = Flask(__name__)
 limiter = Limiter(
@@ -56,6 +65,7 @@ def get_api_key(func):
         return func(*args, **kwargs)
 
     return check
+
 
 @app.get("/scores")
 @limiter.limit("100/second", override_defaults=False)
@@ -112,7 +122,6 @@ def get_player(id):
 # @app.get('/api/all_info')
 # @limiter.limit('6/min')
 # @db.db_session
-
 
 
 @app.get("/admin/net/challenges")
@@ -492,33 +501,123 @@ def chall(chall_uuid):
     )
 
 
-
-@app.route("/sub", methods=['GET','POST'])
+@app.route("/sub", methods=["GET", "POST"])
 @limiter.limit("100/second", override_defaults=False)
 @db.db_session
 @get_api_key
 def submit_flag():
-    if request.method == 'POST':
-        user:db.User = db.get_user_by_api_key(request.cookies.get('api_key'))
-        flag = request.form.get('flag')
+    if request.method == "POST":
+        user: db.User = db.get_user_by_api_key(request.cookies.get("api_key"))
+        flag = request.form.get("flag")
         if flag == None or user == None:
             return "flag or user missing from request; try setting api_key cookie", 405
-        
+
         submisssion_result = db.submit_flag(user_str=user.name, flag_str=flag)
         if submisssion_result == False:
             return "incorrect flag", 404
-        
-        if submisssion_result == '':
-            submisssion_result = "invalid submission"
-            
-        return f'{submisssion_result}'
 
-        
-    return render_template('scoreboard/submit.html')
+        if submisssion_result == "":
+            submisssion_result = "invalid submission"
+
+        return f"{submisssion_result}"
+
+    return render_template("scoreboard/submit.html")
+
 
 @app.get("/")
-def index():
+def scoreboard_index():
     return render_template("scoreboard/index.html")
+
+
+@app.get("/create")
+def create():
+    return render_template("creator/creator.html")
+
+
+def parse_chall(chall):
+    try:
+        return toml.loads(chall)
+    except toml.TomlDecodeError as e:
+        print(f"error decoding toml: {e}")
+        return f"error decoding toml: {e}", 500
+    except TypeError as e:
+        print(f"error parsing toml: {e}")
+        return f"error parsing toml: {e}", 500
+    except BaseException as e:
+        print(e)
+        return f"{e}", 500
+
+
+@app.post("/validate")
+# @limiter.limit("4/second", override_defaults=False)
+def validate():
+    print("before")
+    logger.debug(request.form)
+    chall = request.form.get("toml")
+    print(chall)
+    print("after")
+    challenge_object = parse_chall(chall)
+    if type(challenge_object) != dict:
+        return challenge_object
+
+    result = database.validateChallenge(challenge_object)
+
+    ret = renderChallenge(result, preview=True)
+
+    return markdown2.markdown(ret)
+
+
+@app.post("/commit_challenge")
+@limiter.limit("4/second", override_defaults=False)
+def commit_chall():
+    logger.debug(request.form)
+    chall = request.form.get("toml")
+    api_key = request.cookies.get("api_key")
+    if api_key == None:
+        return "api_key not set; set it in the form field", 401
+    submitting_user = database.get_user_by_api_key(api_key)
+    if submitting_user == None:
+        return "user/api_key association not found", 404
+    submitting_user = submitting_user.name
+    challenge_object = parse_chall(chall)
+    if type(challenge_object) != dict:
+        return challenge_object
+
+    if submitting_user != challenge_object.get("author"):
+        return (
+            "Not authorized to submit a challenge on behalf of another user; api_key and username don't match",
+            403,
+        )
+
+    result = database.validateChallenge(challenge_object)
+    if result.get('valid') == False:
+        return f"invalid challenge_object; {result}", 400
+
+    chall_id = database.buildChallenge(result, is_byoc_challenge=True)
+    if chall_id == -3:
+        msg = f"Insufficient funds for {submitting_user}..."
+        return msg, 403
+    elif chall_id == -2:
+        msg = f'author does not exist: {submitting_user}' # shouldn't ever get here because of line 575 
+    elif chall_id == -1:
+        msg = f'challenge itself not valid for somereason; {result}'
+    if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
+        logger.debug(msg)
+
+    if SETTINGS["_debug"] and SETTINGS["_debug_level"] > 1:
+        logger.debug(f"{submitting_user} created  chall id {chall_id}")
+
+
+    with database.db_session:
+        chall_uuid = (database.Challenge[chall_id]).uuid
+        chall_url = f"/chall/{chall_uuid}"
+    ret = f"cool. here's your challenge -> <a href='{chall_url}'>{chall_uuid}</a>"
+    return ret
+
+
+@app.get("/validator")
+def validator_index():
+    return render_template("validator/index.html")
 
 
 if __name__ == "__main__":

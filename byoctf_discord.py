@@ -227,6 +227,8 @@ def renderChallenge(result: dict, preview=False):
 
             # This is the minimum number of solves of a obtainable flag to recoup cost.
             break_even_solves = result["cost"] / least_middle_most
+        except ZeroDivisionError as e:
+            logger.debug(e)
         except BaseException as e:
             logger.debug(e)
 
@@ -578,7 +580,7 @@ async def byoc_stats(ctx):
         teammates = db.getTeammates(user)
 
     await ctx.send(
-        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: https://scoreboard.byoctf.com/login/{user.api_key}\nTeamName: {user.team.name}\nTeammates: {[t.name for t in teammates]}\n\nuse `!mykeys` to see your pub/priv keys or `!rotate_keys` to generate new ones."
+        f"AuthorID:  <@{ctx.author.id}>\nUserName:   {user.name}\napi key:    {user.api_key}\nHUD Link: {SETTINGS['scoreboard_url']}/login/{user.api_key}\nTeamName: {user.team.name}\nTeammates: {[t.name for t in teammates]}\n\nuse `!mykeys` to see your pub/priv keys or `!rotate_keys` to generate new ones."
     )
 
 
