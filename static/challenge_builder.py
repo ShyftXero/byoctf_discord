@@ -4,15 +4,14 @@ import toml
 
 # import js
 import uuid
-from pyscript import Element
 from js import document
 
 # import base64
 
 import pyodide_http
-
 pyodide_http.patch_all()
 import requests
+
 from js import Uint8Array, File, URL, document
 import io
 from pyodide.ffi.wrappers import add_event_listener
@@ -61,9 +60,9 @@ def collect_flags():
     for i in range(1, 1000):
         # print(i)
         try:  # these divs may not exists if they were deleted
-            title = Element(f"flag_{i}_title")
-            value = Element(f"flag_{i}_value")
-            flag = Element(f"flag_{i}_flag")
+            title = document.getElementById(f"flag_{i}_title")
+            value = document.getElementById(f"flag_{i}_value")
+            flag = document.getElementById(f"flag_{i}_flag")
         except AttributeError as e:
             continue  # carry on
         # print('flag values', title.value, value.value, flag.value)
@@ -94,8 +93,8 @@ def collect_hints():
     for i in range(1, 1000):
         # print(i)
         try:
-            cost = Element(f"hint_{i}_cost")
-            text = Element(f"hint_{i}_text")
+            cost = document.getElementById(f"hint_{i}_cost")
+            text = document.getElementById(f"hint_{i}_text")
         except AttributeError as e:
             continue
         # print('hint values', cost.value, text.value)
@@ -114,7 +113,7 @@ def collect_hints():
     return list(set(hints))
 
 
-def add_flag():
+def add_flag(event):
     global num_flags
     # print(f'adding a flag, {num_flags} total' )
 
@@ -126,7 +125,7 @@ def add_flag():
     num_flags += 1
 
 
-def add_hint():
+def add_hint(event):
     global num_hints
     # print(f'adding a hint, {num_hints} total' )
 
@@ -138,27 +137,15 @@ def add_hint():
     num_hints += 1
 
 
-def validate_challenge():
-    chall_toml = build_challenge()
-
-    payload = {"toml": chall_toml}
-
-    # print(chall_toml)
-    # resp = requests.post('http://localhost:5000/validate', data=payload) # dev
-    resp = requests.post("https://validator.byoctf.com/validate", data=payload)  # prod
-    # print('sent post')
-    output = Element("validateDiv")
-    output.element.innerHTML = resp.text
-    # print(resp.text)
-    return
 
 
-def build_challenge():
+def build_challenge(event):
+
     tags = list(
         set(
             [
                 x
-                for x in Element("tags").value.replace(" ", "").lower().split(",")
+                for x in document.getElementById('tags').value.replace(" ", "").lower().split(",")
                 if x != ""
             ]
         )
@@ -167,17 +154,17 @@ def build_challenge():
         set(
             [
                 x
-                for x in Element("depends_on").value.replace(" ", "").lower().split(",")
+                for x in document.getElementById("depends_on").value.replace(" ", "").lower().split(",")
                 if x != ""
             ]
         )
     )
 
     challenge_object = {
-        "author": Element("author").value.strip(),
-        "challenge_title": Element("challenge_title").value.strip(),
+        "author": document.getElementById("author").value.strip(),
+        "challenge_title": document.getElementById("challenge_title").value.strip(),
         "uuid": str(uuid.uuid4()),
-        "challenge_description": Element("challenge_description").value.strip(),
+        "challenge_description": document.getElementById("challenge_description").value.strip(),
         "tags": tags,
         "depends_on": depends_on,
         "flags": collect_flags(),
@@ -187,21 +174,42 @@ def build_challenge():
     ret = toml.dumps(challenge_object)
     # print('successfully dumped')
 
-    output = Element("tomlDiv")
-    output.element.innerHTML = ret
+    output = document.getElementById("tomlDiv")
+    output.innerHTML = ret
 
     return ret
 
+def validate_challenge(event):
+    chall_toml = build_challenge(None)
 
-def download_challenge():
-    data = build_challenge()
+    payload = {"toml": chall_toml}
+
+    raw = document.location.href.split('/')
+    current_url = f'{raw[0]}//{raw[2]}'
+    print(f'{current_url=}')
+
+    # print(chall_toml)
+    # resp = requests.post('http://localhost:5000/validate', data=payload) # dev
+    resp = requests.post(f"{current_url}/validate", data=payload)  # prod
+    # print('sent post')
+    output = document.getElementById("validateDiv")
+    output.innerHTML = resp.text
+    # print(resp.text)
+    output = document.getElementById("tomlDiv")
+    output.innerHTML = ''
+    return
+
+
+
+def download_challenge(event):
+    data = build_challenge(None)
     encoded_data = data.encode("utf-8")
     my_stream = io.BytesIO(encoded_data)
 
     js_array = Uint8Array.new(len(encoded_data))
     js_array.assign(my_stream.getbuffer())
 
-    title = "_".join(Element("challenge_title").value.strip().split(" "))
+    title = "_".join(document.getElementById("challenge_title").value.strip().split(" "))
     if title == "":
         title = "challenge"
     file_name = f"{title}.toml"
@@ -212,3 +220,8 @@ def download_challenge():
     hidden_link.setAttribute("download", file_name)
     hidden_link.setAttribute("href", url)
     hidden_link.click()
+
+
+if __name__ == '__main__':
+    add_flag(None)
+    add_hint(None)

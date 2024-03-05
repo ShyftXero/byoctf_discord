@@ -39,7 +39,8 @@ Now you will need to edit a few files and install some dependencies.
 	- `curl -sSf https://rye-up.com/get | bash`
 	- `source "$HOME/.rye/env"`
 	- `rye sync`
-
+- Create `settings.py`
+    - `cp settings_template.py settings.py`
 - Edit `settings.py`
     ```bash
     "_ctf_guild_id": 1023627643804975135, # your discord server. user right-click copy ID to get these
