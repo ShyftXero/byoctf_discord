@@ -75,7 +75,7 @@ with db_session:
     db.commit()
     shyft.api_key = "644fccfc-2c12-4fa1-8e05-2aa40c4ef756"  # to make testing and development easier.
     db.commit()
-    exit()
+
     # flags
     flag_seed = db.Flag(
         flag="FLAG{seedmoney}", value=1000, author=bot, unsolved=False
@@ -97,7 +97,7 @@ with db_session:
     reversing_tag = upsertTag(name="reversing")
     puzzle_tag = upsertTag(name="puzzle")
     crypto_tag = upsertTag(name="crypto")
-    commit()
+    db.commit()
 
     # challenges
     bonus_challenge = db.Challenge(
@@ -208,7 +208,7 @@ print("code block here")
         sender=bot, recipient=jsm, value=1337, type="seed"
     )
 
-    commit()
+    db.commit()
 
     # hint buys
 
@@ -258,7 +258,7 @@ print("code block here")
     res, tip6 = send_tip(sender=jsm, recipient=shyft, tip_amount=50)
 
     # # show()
-    commit()
+    db.commit()
 
     msg = f"""
 shyft api_key= {shyft.api_key}
