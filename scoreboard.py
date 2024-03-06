@@ -1,5 +1,6 @@
 import uuid
 from functools import wraps
+import hashlib
 
 import markdown2
 import toml
@@ -208,6 +209,84 @@ def create_solve():
     )
 
     return {"status": res}
+
+@app.post("/api/manual_reg")
+@limiter.limit("100/second")
+@db.db_session
+def manual_register():
+    """
+    register a user manually
+
+    this is the json payload to create a user.
+    {
+        "username": "TestUser",
+        "teamname": "TeamAwesome",
+        "teampass": "$0m3L33tPa55",
+    }"""
+    api_key = request.cookies.get("api_key")
+    current_user = db.User.get(api_key=api_key)
+    if not current_user:
+        msg = "No valid token provided."
+        logger.debug(msg)
+        return { "status": False, "msg": msg}
+    
+    if not current_user.is_admin:
+        msg = "You must be an admin to call this endpoint."
+        logger.debug(msg)
+        return { "status": False, "msg": msg}
+
+    payload = request.get_json()
+    username = payload.get("username")
+    teamname = payload.get("teamname")
+    teampass = payload.get("teampass")
+
+    if not username:
+        return { "status": False, "msg": f"username not set" }
+
+    if not teamname:
+        return { "status": False, "msg": f"teamname not set" }
+
+    if not teampass:
+        return { "status": False, "msg": f"teampass not set" }
+
+    hashed_teampass = hashlib.sha256(teampass.encode()).hexdigest()
+
+    user = db.User.get(name=username)
+    if user:
+        msg = f"Target user=({user}) already exists!"
+        logger.debug(msg)
+        return { "status": False, "msg": msg }
+    
+    # does the team exist?
+    team = db.Team.get(name=teamname)
+    if team == None:
+        team = db.Team(name=teamname, password=hashed_teampass)
+        pub, priv = db.generate_keys()
+        team.public_key = pub
+        team.private_key = priv
+
+    if len(team.members) == SETTINGS["_team_size"]:
+        msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
+        logger.debug(msg)
+        return { "status": False, "msg": msg}
+
+    if (hashed_teampass != team.password):  # if it's a new team, these should match automatically..
+        msg = f"Password incorrect for team {team.name}"
+        logger.debug(f"{username} failed registration; Team {teamname} pass {teampass} hashed {hashed_teampass}")
+        return { "status": False, "msg": msg}
+
+    user = db.User(name=username, team=team)
+    if team.private_key == "":
+        pub, priv = db.generate_keys()
+        team.public_key = pub
+        team.private_key = priv
+    db.commit()
+    logger.debug(f"New user=({user.name}) added!")
+
+    with db.db_session:
+        user = db.User.get(name=username)
+        login_link = f"{SETTINGS['scoreboard_url']}/login/{user.api_key}"
+    return {"status": True, "msg": login_link}
 
 
 @app.post("/api/grant_points")
