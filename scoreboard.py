@@ -211,6 +211,7 @@ def create_solve():
     return {"status": res}
 
 @app.post("/api/manual_reg")
+@get_admin_api_key
 @limiter.limit("100/second")
 @db.db_session
 def manual_register():
@@ -227,11 +228,6 @@ def manual_register():
     current_user = db.User.get(api_key=api_key)
     if not current_user:
         msg = "No valid token provided."
-        logger.debug(msg)
-        return { "status": False, "msg": msg}
-    
-    if not current_user.is_admin:
-        msg = "You must be an admin to call this endpoint."
         logger.debug(msg)
         return { "status": False, "msg": msg}
 
