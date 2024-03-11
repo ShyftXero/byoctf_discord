@@ -407,7 +407,8 @@ async def register(
             logger.debug("User not yet created. Assigning to team \"__unaffiliated__\" for now")
             user = db.User(name=username(ctx), team=unaffiliated)
             db.rotate_player_keys(user)
-        user.team = unaffiliated
+        if not user.team:
+            user.team = unaffiliated
         if user.team.name != "__unaffiliated__":
             msg = f"already registered as `{username(ctx)}` on team `{user.team.name}`. talk to an admin to have your team changed..."
             await ctx.send(msg)

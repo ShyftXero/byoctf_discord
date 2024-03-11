@@ -35,7 +35,20 @@
 						<h2><a href="/challenges">All Challenges</a></h2>
 						<h2><a href="/transactions">Public Transactions</a></h2>
 					</div>
-				</div>               
+				</div>
+				
+				<div class='flag_submission'>
+					<form>
+						<input name="flag" placeholder="FLAG{here}"/>
+						<button 
+						  type="submit" 
+						  hx-post="/sub"
+						  hx-target="#result">
+						  Submit Flag
+						</button>
+					</form>
+					<div id='result'></div>
+				</div>
 
                 <div class="purchased_hints card card-body">
 					<h2>Transactions for team <code>{{teamname}}</code></h2>
