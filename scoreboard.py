@@ -327,7 +327,7 @@ def login(api_key):
     if user == None:
         return "invalid api key", 403
     resp = make_response(redirect(url_for("hud")))
-    resp.set_cookie("api_key", api_key)
+    resp.set_cookie("api_key", api_key, domain=SETTINGS['ctf_base_domain'])
     return resp
 
 
@@ -430,8 +430,6 @@ def challenges():
         return "invalid user api_key", 403
 
     available_challenges = db.get_unlocked_challenges(user)
-    unsolved_challenges = db.get_incomplete_challenges(user)
-    unsolved_challenge_ids = [ c.id for c in unsolved_challenges ]
     teammates = db.getTeammates(user)
     parsed = [
         (
@@ -443,7 +441,6 @@ def challenges():
             f"{db.percentComplete(c, user)}%",
             "*" * int(db.avg(r.value for r in db.Rating if r.challenge == c) or 0),
             ", ".join([t.name for t in c.tags]),
-            True if c.id not in unsolved_challenge_ids else False
         )
         for c in available_challenges
         if c.id > 0 and c.author not in teammates and c.title != "__bonus__"
