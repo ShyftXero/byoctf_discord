@@ -66,7 +66,7 @@ def validate():
 def commit_chall():
     logger.debug(request.form)
     chall = request.form.get("toml")
-    api_key = request.form.get("api_key")
+    api_key = request.cookies.get("api_key")
     if api_key == None:
         return "api_key not set; set it in the form field", 403
     submitting_user = database.get_user_by_api_key(api_key)
