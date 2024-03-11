@@ -36,6 +36,19 @@
 						<h2><a href="/transactions">Public Transactions</a></h2>
 					</div>
 				</div>
+				<div class='flag_submission'>
+					<form>
+						<input name="flag" />
+						<button 
+						  type="submit" 
+						  hx-post="/sub"
+						  hx-target="#result"
+						  placeholder="FLAG{here}">
+						  Submit Flag
+						</button>
+					</form>
+					<div id='result'></div>
+				</div>
                 
                 <div class="public_log card card-body">
 					<h2>Public Transactions:</h2>
