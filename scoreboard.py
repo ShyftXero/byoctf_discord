@@ -285,6 +285,25 @@ def manual_register():
     return {"status": True, "msg": login_link}
 
 
+@app.get("/api/buy_hint/<hint_uuid>")
+@db.db_session
+@get_api_key
+def buy_hint(hint_uuid):
+    """"""
+    user = db.get_user_by_api_key(request.cookies.get("api_key",''))
+    if user == None:
+        return "user api_key not found", 403
+    chall = db.Challenge.get(uuid=hint_uuid)
+    if chall == None:
+        return 'challenge not found', 404
+
+    db.buyHint(user, chall.id)
+    
+    # resp = make_response(redirect(f'/chall/{hint_uuid}'))
+    resp = make_response()
+    resp.headers['HX-Refresh'] = 'true'
+    return resp
+
 @app.post("/api/grant_points")
 @db.db_session
 def grant_points():
@@ -402,7 +421,8 @@ def login(api_key):
     if user == None:
         return "invalid api key", 403
     resp = make_response(redirect(url_for("hud")))
-    resp.set_cookie("api_key", api_key, domain=SETTINGS['ctf_base_domain'])
+    resp.set_cookie("api_key", api_key)
+    # resp.set_cookie("api_key", api_key, domain=SETTINGS['ctf_base_domain'])
     return resp
 
 
@@ -559,6 +579,7 @@ def chall(chall_uuid):
         team_owned_challenge = False
 
     rendered_chall_description = db.render_variables(user, chall.description)
+    next_hint_cost = db.getHintCost(user, chall.id)
 
     return render_template(
         "scoreboard/chall.html",
@@ -568,6 +589,7 @@ def chall(chall_uuid):
         chall_value=chall_value,
         captured_flags=captured_flags,
         purchased_hints=purchased_hints,
+        next_hint_cost=next_hint_cost,
         solves=solves,
         rendered_chall_description=rendered_chall_description,
     )
