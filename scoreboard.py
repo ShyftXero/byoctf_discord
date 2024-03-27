@@ -67,6 +67,40 @@ def get_api_key(func):
 
     return check
 
+@app.post('/send_tip')
+@limiter.limit("100/second", override_defaults=False)
+@db.db_session
+def send_tip():
+    print('send_tip', request.form)
+    sender = db.User.get(api_key=request.cookies.get("api_key",'__invalid_api_key__'))
+    if sender == None:
+        return "api_key invalid", 404
+    recipient = db.User.get(name=request.form.get('recipient',"__invalid_recipient__"))
+    if recipient == None:
+        return "recipient name not found", 404
+    amount = float(request.form.get('amount',-1))
+    # sender_points = db.getScore(sender)
+    # if amount < 0 or amount > sender_points : 
+    #     return 'invalid tip amount; too much or too little', 403
+    
+    res = db.send_tip(sender, recipient, tip_amount=amount, msg=request.form.get('msg'))
+    print('db.send_tip returned', res)
+    if res[0] == True:
+        return f"ok, {res}"
+    return str(res)
+
+@app.get("/tip")
+@limiter.limit("100/second", override_defaults=False)
+@db.db_session
+def tip():
+    
+    user = db.User.get(api_key=request.cookies.get("api_key",'__invalid_api_key__'))
+    if user == None:
+        return "user not found", 404
+    usernames = db.select(u.name for u in db.User if u.name != SETTINGS['_botusername'])[:]
+    return render_template('scoreboard/tip.html', users=usernames)
+
+
 
 @app.get("/scores")
 @limiter.limit("100/second", override_defaults=False)
@@ -468,7 +502,7 @@ def hud():
     total = sum([x[1] for x in scores])
 
     team_byoc_stats = db.get_team_byoc_stats(user)
-
+    usernames = db.select(u.name for u in db.User if u.name != SETTINGS['_botusername'])[:]
     resp = make_response(
         render_template(
             "scoreboard/hud.html",
@@ -482,6 +516,7 @@ def hud():
             api_key=api_key,
             is_admin=user.is_admin,
             team_byoc_stats=team_byoc_stats,
+            users=usernames,
         )
     )
 

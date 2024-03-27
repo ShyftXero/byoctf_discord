@@ -12,6 +12,12 @@
 
 		<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
 
+
+		<!--for select2 -->
+		<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+		<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 		<script src="/static/script.js"></script>
 </head>
 <body>
@@ -36,6 +42,28 @@
 					<div class="public_stuff">
 						<h2><a href="/challenges">All Challenges</a></h2>
 						<h2><a href="/transactions">Public Transactions</a></h2>
+						<div>
+							<h2><a href="/tip">Send a Tip</a></h2>
+							<form>
+							<select name="recipient" id="recipient">
+								<option value="__invalid_recipient__"></option>
+								{% for username in users %}
+									<option value="{{username}}">{{username}}</option>
+								{% endfor %}
+							</select>
+							<input type="text" id="msg" name="msg" placeholder="nice message here">
+							<input type="number" id="amount" name="amount" placeholder="how much to send here">
+							<button hx-post="/send_tip" hx-confirm="Are you sure you want to send this tip?" hx-swap="innerHTML settle:3s"
+							hx-target="#toast">Send tip</button>
+							<br>
+							<span id="toast"></span>
+							</form>
+							<script>
+								$(document).ready(function() {
+									$('#recipient').select2({ width: '25%' });
+								});
+							</script>
+						</div>
 					</div>
 				</div>
 

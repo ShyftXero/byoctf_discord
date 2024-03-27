@@ -397,7 +397,7 @@ def getSubmittedChallFlags(chall: Challenge, user: User):
 
 
 @db_session
-def getScore(user: User):
+def getScore(user: User) -> float:
     if type(user) == str:  # for use via cmdline in ctrl_ctf.py
         # logger.debug(f'looking for user {user}')
         user = User.get(name=user)
@@ -1445,6 +1445,8 @@ def send_tip(
 
     if current_points < tip_amount:
         return False, current_points
+    if tip_amount < 0: 
+        return False, tip_amount
 
     if msg == None:
         funny_thank_you_phrases = [

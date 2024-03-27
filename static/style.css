@@ -321,3 +321,13 @@ button {
   font-family: pixeland;
   font-size: xx-large;
 }
+
+#toast.htmx-settling {
+    opacity: 100;
+  }
+  
+  #toast {
+    background: #E1F0DA;
+    opacity: 0;
+    transition: opacity 3s ease-out;
+  }
