@@ -156,7 +156,7 @@ class Commands:
 
     def get_score(self, user: str):
         """dumps score for a user by name. username should be discord username without the @"""
-        # print(f'User {user} has {db.getScore(user)} points')
+        print(f'User {user} has {db.getScore(user)} points')
 
     @db.db_session
     def toggle_byoc_reward(self, chall_id: int):
@@ -326,7 +326,7 @@ class Commands:
             print("aborting... ")
             return
         self.reinit_config()
-
+        return
         import os
 
         cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
@@ -460,8 +460,8 @@ class Commands:
 
         self.reinit_config()
 
-        # print("Populating test data")
-        # os.system("python populateTestData.py")
+        print("Populating test data")
+        os.system("python populateTestData.py")
 
     def top_flags(self):
         solves = db.getMostCommonFlagSolves()
