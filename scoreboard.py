@@ -3,6 +3,7 @@ from functools import wraps
 import hashlib
 
 import markdown2
+import time
 import toml
 from flask import (
     Flask,
@@ -37,6 +38,16 @@ limiter = Limiter(
 CORS(app)
 app.secret_key = "thisisasecret"
 
+def ctfRunning():
+    if SETTINGS["ctf_paused"]:
+        return False
+
+    if (SETTINGS["ctf_start"] == -1 or SETTINGS["ctf_start"] <= time.time()) and (
+        SETTINGS["ctf_end"] == -1 or SETTINGS["ctf_end"] >= time.time()
+    ):
+        return True
+
+    return False
 
 def get_admin_api_key(func):
     @wraps(func)
@@ -552,6 +563,13 @@ def transactions():
 @limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def challenges():
+    if not ctfRunning():
+        return render_template(
+            "scoreboard/challenges.html",
+            parsed=[],
+            available_challenges=[],
+        )
+
     api_key = request.cookies.get("api_key")
     if api_key == None:
         return "api_key not set; visit HUD first...", 403
@@ -575,7 +593,6 @@ def challenges():
         for c in available_challenges
         if c.id > 0 and c.author not in teammates and c.title != "__bonus__"
     ]
-    print(parsed)
     return render_template(
         "scoreboard/challenges.html",
         parsed=parsed,
@@ -635,6 +652,9 @@ def chall(chall_uuid):
 @db.db_session
 @get_api_key
 def submit_flag():
+    if not ctfRunning():
+        return "ctf not running."
+
     if request.method == "POST":
         user: db.User = db.get_user_by_api_key(request.cookies.get("api_key"))
         flag = request.form.get("flag")
