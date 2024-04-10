@@ -386,7 +386,7 @@ class Commands:
                 json_users = json.load(default_user_json)
                 team = admin_team
                 for user in json_users:
-                    name = {user["name"]}
+                    name = user["name"]
                     print(f"adding user {name}...")
                     if user["isAdmin"]:
                         team = admin_team
