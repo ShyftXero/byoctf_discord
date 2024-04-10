@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 og_print = print
+import json
 import time
 from rich import print
 import fire
@@ -337,8 +338,8 @@ class Commands:
             # teams; These passwords are sha256 of teamname.
             botteam = db.Team(name="botteam", password="no")
 
-            bestteam = db.Team(
-                name="fs2600/SOTBcrew",
+            admin_team = db.Team(
+                name="byoctf_admins",
                 password="af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785",
             )
             # secondteam = db.Team(
@@ -376,32 +377,31 @@ class Commands:
             # fourthteam.private_key = priv
 
             # users
-            bot = db.User(id=0, name="BYOCTF_Automaton#7840", team=botteam)
-            # bot = db.User.get(id=0)
-            # print(bot)
-            # exit()
-            shyft = db.User(name="shyft_xero", team=bestteam, is_admin=True)
-            fie = db.User(name="fie311", team=bestteam, is_admin=True)
-            # r3d = db.User(name="combaticus", team=secondteam)
-            blackcatt = db.User(name="blackcatt", team=bestteam)
-            aykay = db.User(name="aykay", team=bestteam, is_admin=True)
-            # jsm = db.User(name="jsm2191", team=bestteam)
-            moonkaptain = db.User(name="moonkaptain", team=bestteam, is_admin=True)
-            # fractumseraph = db.User(name="fractumseraph", team=fourthteam)
+            bot = db.User.get(id=0)
+            if not bot:
+                bot = db.User(id=0, name="BYOCTF_Automaton#7840", team=botteam)
 
-            users = [
-                shyft,
-                fie,
-                # r3d,
-                # blackcatt,
-                aykay,
-                # jsm,
-                moonkaptain,
-                # fractumseraph
-            ]
-
+            users = []
+            with open("default_users.json", "r") as default_user_json:
+                json_users = json.load(default_user_json)
+                team = admin_team
+                for user in json_users:
+                    name = {user["name"]}
+                    print(f"adding user {name}...")
+                    if user["isAdmin"]:
+                        team = admin_team
+                    else:
+                        # put them on their own team if not admins
+                        team = db.Team(name=user["name"], password=user["name"])
+                    users.append(db.User(
+                        name=user["name"],
+                        team=team,
+                        is_admin=user["isAdmin"])
+                    )
+ 
             for u in users:
                 db.rotate_player_keys(u)
+                print(f"{u.name}\t{SETTINGS['scoreboard_url']}/login/{u.api_key}")
             db.db.commit()
             # shyft.api_key = 'FLAG{644fccfc-2c12-4fa1-8e05-2aa40c4ef756}' # to make testing and development easier. # sure... why not. that'll be worth points too. # 29DEC2023
 

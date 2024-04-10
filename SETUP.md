@@ -35,10 +35,9 @@ Now you will need to edit a few files and install some dependencies.
     - `echo "DISCORD_TOKEN='asdfasdfasdf'" > custom_secrets.py`
 - Use rye to install dependencies (https://rye-up.com/guide/)
     - `sudo su`
-    - `cd /root`
-	- `curl -sSf https://rye-up.com/get | bash`
-	- `source "$HOME/.rye/env"`
-	- `rye sync`
+    - `cd  /root/byoctf_discord/`
+    - `python3 -m venv .venv`
+    - `pip install -r requirements.lock`
 - Create `settings.py`
     - `cp settings_template.py settings.py`
 - Edit `settings.py`
