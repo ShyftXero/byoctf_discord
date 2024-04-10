@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 og_print = print
 import json
+import os
 import time
 from rich import print
 import fire
@@ -88,7 +89,6 @@ class Commands:
 
     def reinit_config(self):
         """This will repopulate the diskcache with the default config provided in settings.py"""
-        import os
 
         os.system("rm -rf __diskcache__")
         import settings  # force a recreation fo the settings obj and feed it a default config
@@ -109,7 +109,6 @@ class Commands:
 
     def shell(self):
         """drop into an ipython shell with five users loaded (user1-5); mainly for development or answering questions by interrogating the db. You should be able to prototype your db code here."""
-        import os
 
         # os.system("""ipython -i -c 'from database import *; user1=User.get(id=1); user2=User.get(id=2)'""")
         os.system(
@@ -328,8 +327,6 @@ class Commands:
             return
         self.reinit_config()
 
-        import os
-
         cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
         print(f"killing bot via {cmd}")
         import database as db
@@ -444,8 +441,6 @@ class Commands:
         if confirm.lower() != "y":
             print("aborting... ")
             return
-
-        import os
 
         cmd = """kill -9 `ps -ef |grep byoctf_discord.py |grep -v grep  | awk {'print $2'}`"""
         print(f"killing bot via {cmd}")
