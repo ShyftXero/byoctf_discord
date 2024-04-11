@@ -1,0 +1,197 @@
+# Users and Transactions
+# The framework is "user centric" meaning that everything is a transaction between two users (the bot/scoreboard is technically a user)
+
+./ctrl_ctf.py teams
++------------------+-----------------------------+------------------------------------------------------------------+
+| Team             | Members                     | Team Password Hash                                               |
++------------------+-----------------------------+------------------------------------------------------------------+
+| __unaffiliated__ |                             | __unaffiliated__                                                 |
++------------------+-----------------------------+------------------------------------------------------------------+
+| __botteam__      | BYOCTF_Automaton#7840       | __botteam__                                                      |
++------------------+-----------------------------+------------------------------------------------------------------+
+| botteam          |                             | c588d8717b7c6a898889864d588dbe73b123e751814e8fb7e02ca9a08727fd2f |
++------------------+-----------------------------+------------------------------------------------------------------+
+| bestteam         | fie311, jsm2191, shyft_xero | af871babe0c44001d476554bd5c4f24a7dfdffc5f5b3da9e81a30cc5bb124785 |
++------------------+-----------------------------+------------------------------------------------------------------+
+| secondteam       | moonkaptain, combaticus     | 4a91b2d386e9c22a1cefdfdc94f97aee2b0ecc727f9365def3aeb1cddb99a75f |
++------------------+-----------------------------+------------------------------------------------------------------+
+| thirdteam        | blackcatt                   | 7d58bb2ef493e764d1092db4c9baa380a9b7ff4c709aeb658e0c4daa616e7d8b |
++------------------+-----------------------------+------------------------------------------------------------------+
+| fourthteam       | fractumseraph, aykay        | f565deb27bf8fb653958ee6fb625ede79885c6968f23ab2d9b736daed7de677c |
++------------------+-----------------------------+------------------------------------------------------------------+
+
+./ctrl_ctf.py users
++----+-----------------------+-------------+---------+--------------------------------------+
+| ID | Name                  | Team        | Score   | API key                              |
++----+-----------------------+-------------+---------+--------------------------------------+
+| 0  | BYOCTF_Automaton#7840 | __botteam__ | -8460.0 | 58c0ae26-4688-4f87-a001-fabc498afdf9 |
+| 1  | shyft_xero            | bestteam    | 1148.65 | 644fccfc-2c12-4fa1-8e05-2aa40c4ef756 |
+| 2  | fie311                | bestteam    | 1447.0  | 43d84537-2cea-4c12-99f5-9118eeacd6f7 |
+| 3  | combaticus            | secondteam  | 1921.9  | 9a099a0a-9b10-4ed8-bd7c-023a2764a64e |
+| 4  | blackcatt             | thirdteam   | 1128.0  | 4722d55d-619a-4c1c-8492-974ac383a5be |
+| 5  | aykay                 | fourthteam  | 1532.45 | 1c180f66-e31f-4213-bc2a-5888ab7283f1 |
+| 6  | jsm2191               | bestteam    | 1259.0  | 85b867b2-ea28-490d-a568-3b51484905f1 |
+| 7  | moonkaptain           | secondteam  | 0       | b0d40567-754c-4312-bf81-cd2f5ec43518 |
+| 8  | fractumseraph         | fourthteam  | 23.0    | a8184d0d-6979-4bc9-a95c-579a6d4bb1de |
++----+-----------------------+-------------+---------+--------------------------------------+
+
+# the api_key is a secret that only the users should have; shouldn't be shared. it identifies them to the scoreboard via cookies. 
+
+
+
+# challenges
+
+./ctrl_ctf.py add-chall ~/sotb2023/sotb2023_challenges_production_repo/locally_based/geese_gone_wild/geese_gone_wild.toml # add a single challenge
+
+./ctrl_ctf.py bulk_add_chall ~/sotb2023/sotb2023_challenges_production_repo                                                          
+./ctrl_ctf.py bulk_add_chall --help                                                                                       
+./ctrl_ctf.py bulk_add_chall ~/sotb2023/sotb2023_challenges_production_repo/locally_based/from_blackcatt
+
+
+./ctrl_ctf.py bulk_add_bonus_flag ~/sotb2023/sotb2023_challenges_production_repo/bonus_flags.csv # add bonus flags ; flags that aren't necessarily part of a spelled out challenge with a description and whatnot ("found a flag under a chair" kind of thing)
+
+# cat ~/sotb2023/sotb2023_challenges_production_repo/bonus_flags.csv
+# "Value", "Flag", "note"
+# "20", "FLAG{participants_not_participates}", "typo on the site 20230817 for LasagnaLad"
+
+# "100","FLAG{SOTB_behind_the_scenes_lighting}", "https://sotb.site/spooky_ghosts.html points to https://www.youtube.com/watch?v=hJXI49P6YmI for Arkansec and JOLT; removed from description after 20231009 and made public"
+
+# "50", "FLAG{THIS_IS_NOT_A_FLAG}", "don't put this in the db.. or do"
+# "20", "FLAG{GRIDFLAG4U}", "Someone asked for flag on the grid page on 20231011 after JOLT"
+
+# "69", "FLAG{BLANK_IS_BEAUTIFUL}", "https://www.youtube.com/watch?v=x5H5yg7zs8c SOTB2 FLASHBACK"
+
+# "50", "FLAG{G-3-T-L-U-C-K-Y}", "golden 4 leaf clover"
+# "150", "FLAG{Y0u_FounD_A_F4LG}", "hacker pass flag"
+# "200", "FLAG{CU-@-the-ARCADE-SOTB2023}", "Arcade Poster Level 1"
+# "250", "FLAG{i-u53d-ipfs-2023}", "Arcade Poster Level 2"
+# "300", "FLAG{tH3_inT3rpl4n3tary_TrAiL}", "Arcade Poster Level 3"
+# "150", "FLAG{simple_wooden_puzzle}", "laser burned qr puzzle."
+# "150", "FLAG{huhuhuhuh_smell_my_network}", "badgenet spam message"%          
+
+
+
+
+# Challenges and Flags
+# the framework is also "flag-centric" in that challenges are defined by the set of flags attached to them. players can not submit a challenge with zero flags. 
+
+
+
+./ctrl_ctf.py challs # This dumps the all the challenges and flags for it. 
+# use quick reference for if someone has the flag or not
+
++----+---------------------+-----------------------------------------------------------------+------------------------+--------------------------+---------+-------+---------------+--------------------------------------+
+| ID | Title               | Description                                                     | Flags                  | Tags                     | Visible | BYOC  | BYOC_External | UUID                                 |
++----+---------------------+-----------------------------------------------------------------+------------------------+--------------------------+---------+-------+---------------+--------------------------------------+
+| 0  | __bonus__           | this is the description for all bonus challenges...             |                        |                          | True    | False | None          | 0e303e39-5a87-436c-a1ed-3f376212f4b4 |
+| 1  | challenge 1         | challenge 1 description                                         | FLAG{ASDF}; FLAG{asdf} | puzzle,byoc,forensics    | True    | True  | None          | f900b8c7-b78f-4679-97e9-7e608f32c9a2 |
+| 2  | challenge 2         | challenge 2 description; unlocks c3                             | FLAG{qwer}             | pentest,forensics,crypto | True    | False | None          | 9ff20256-d57f-44b4-a536-1265eac6f069 |
+| 3  | challenge 3         | challenge 3 description; requires c2                            | FLAG{qwer}             | crypto                   | True    | False | None          | d1914949-52d1-4243-b102-058f4c534e28 |
+| 4  | challenge 4         | challenge 4 description;DONT SOLVE                              | FLAG{DONT_SOLVE}       |                          | True    | False | None          | ecbb59de-6961-4e09-aada-888328db385a |
+
+./ctrl_ctf.py toggle_chall 4 # toggle availability of a challenge (can't submit a flag for it if it's not "visible" )
+Challenge id 4 "challenge 4" visible set to True
+./ctrl_ctf.py toggle_chall 4
+Challenge id 4 "challenge 4" visible set to False
+
+
+./ctrl_ctf.py subs # dumps time that a flag was submitted. useful to prove who submitted fastest?
+
++----------------------------+------------+------------+-------+
+| Time                       | Flag       | User       | Value |
++----------------------------+------------+------------+-------+
+| 2024-03-26 11:21:39.220231 | FLAG{asdf} | combaticus | 110.0 |
+| 2024-03-26 11:21:39.253282 | FLAG{asdf} | fie311     | 100.0 |
+| 2024-03-26 11:21:39.275551 | FLAG{ASDF} | combaticus | 220.0 |
+| 2024-03-26 11:21:39.299343 | FLAG{zxcv} | fie311     | 330.0 |
+| 2024-03-26 11:21:39.317716 | FLAG{asdf} | aykay      | 100.0 |
+
+
+# admin functions
+./ctrl_ctf.py pause_ctf # should preven flag submission
+./ctrl_ctf.py unpause_ctf
+
+cp  byoctf.db $(date +%s)_byoctf.db # copy the sqlite database for a backup
+
+# points
+#
+./ctrl_ctf.py grant_points shyft_xero 1000 # giveth ; shows up as "admin grant points" in transactions
+./ctrl_ctf.py grant_points shyft_xero -100 # taketh away
+
+./ctrl_ctf.py sub_as shyft_xero "FLAG{ABC123}" # attempt a submission on a user; useful to see if what they're submitting is valid; if it is valid, then the solve and transactions flow as if they had submitted it via the normal user interface. 
+
+
+./ctrl_ctf.py bstat    # BYOC stats for all players. useful for the awards ceremony
++----------+---------------------+----------+-----------------------+--------+
+| Chall ID | Title               | # Solves | Author                | Payout |
++----------+---------------------+----------+-----------------------+--------+
+| 0        | __bonus__           | 2        | BYOCTF_Automaton#7840 | 150.0  |
+| 1        | challenge 1         | 5        | blackcatt             | 175.0  |
+| 2        | challenge 2         | 1        | fie311                | 50.0   |
+| 3        | challenge 3         | 0        | fie311                | 0.0    |
+| 4        | challenge 4         | 0        | combaticus            | 0.0    |
+| 5        | challenge 5         | 0        | combaticus            | 0.0    |
+| 6        | challenge 6         | 1        | blackcatt             | 50.0   |
+| 7        | chall 7             | 0        | aykay                 | 0.0    |
+| 8        | chall 8 - variables | 0        | aykay                 | 0.0    |
++----------+---------------------+----------+-----------------------+--------+
+./ctrl_ctf.py top_flags
++------------------+-------------+------------+-------+
+| Number of solves | Description | Flag       | Value |
++------------------+-------------+------------+-------+
+| 1                |             | FLAG{asdf} | 100.0 |
+| 1                |             | FLAG{ASDF} | 200.0 |
+| 1                |             | FLAG{qwer} | 200.0 |
++------------------+-------------+------------+-------+
+
+
+
+
+./ctrl_ctf.py trans # list of ALL transactions. I think we had 100k transactions at sotb
+# you can use this to troubleshoot or partially undo certain things (successful flag submissions will also have a "solve" table entry which will need to be deleted if trying to undo that)
++----------+--------+------------------+-----------------------+-----------------------+-------------------------------------------------------------------------------+----------------------------+
+| Trans ID | Value  | Type             | Sender                | Recipient             | Message                                                                       | Time                       |
++----------+--------+------------------+-----------------------+-----------------------+-------------------------------------------------------------------------------+----------------------------+
+| 1        | 1000.0 | seed             | BYOCTF_Automaton#7840 | shyft_xero            |                                                                               | 2024-03-26 11:21:39.154892 |
+| 2        | 1000.0 | seed             | BYOCTF_Automaton#7840 | fie311                |                                                                               | 2024-03-26 11:21:39.155002 |
+| 3        | 1000.0 | seed             | BYOCTF_Automaton#7840 | combaticus            |                                                                               | 2024-03-26 11:21:39.155093 |
+| 4        | 1000.0 | seed             | BYOCTF_Automaton#7840 | blackcatt             |                                                                               | 2024-03-26 11:21:39.155190 |
+| 5        | 1337.0 | seed             | BYOCTF_Automaton#7840 | jsm2191               |                                                                               | 2024-03-26 11:21:39.155278 |
+| 6        | 10.0   | hint buy         | shyft_xero            | BYOCTF_Automaton#7840 | bought hint ID 2 for challenge ID 1                                           | 2024-03-26 11:21:39.184878 |
+| 7        | 1.0    | byoc hint reward | BYOCTF_Automaton#7840 | blackcatt             | hint buy from shyft_xero                                                      | 2024-03-26 11:21:39.185422 |
+| 8        | 10.0   | hint buy         | combaticus            | BYOCTF_Automaton#7840 | bought hint ID 2 for challenge ID 1                                           | 2024-03-26 11:21:39.195918 |
+| 9        | 1.0    | byoc hint reward | BYOCTF_Automaton#7840 | blackcatt             | hint buy from combaticus                                                      | 2024-03-26 11:21:39.196361 |
+| 10       | 50.0   | hint buy         | fie311                | BYOCTF_Automaton#7840 | bought hint ID 5 for challenge ID 5                                           | 2024-03-26 11:21:39.199907 |
+| 11       | 5.0    | byoc hint reward | BYOCTF_Automaton#7840 | combaticus            | hint buy from fie311                                                          | 2024-03-26 11:21:39.200235 |
+| 12       | 30.0   | hint buy         | combaticus            | BYOCTF_Automaton#7840 | bought hint ID 4 for challenge ID 2                                           | 2024-03-26 11:21:39.203529 |
+| 13       | 110.0  | solve            | BYOCTF_Automaton#7840 | combaticus            | FLAG{asdf} is part of: challenge 1                                            | 2024-03-26 11:21:39.220486 |
+| 14       | 25.0   | byoc reward      | BYOCTF_Automaton#7840 | blackcatt             | combaticus of secondteam submitted FLAG{asdf} for challenge challenge 1       | 2024-03-26 11:21:39.230008 |
+| 15       | 100.0  | solve            | BYOCTF_Automaton#7840 | fie311                | FLAG{asdf} is part of: challenge 1                                            | 2024-03-26 11:21:39.253489 |
+| 16       | 25.0   | byoc reward      | BYOCTF_Automaton#7840 | blackcatt             | fie311 of bestteam submitted FLAG{asdf} for challenge challenge 1             | 2024-03-26 11:21:39.261435 |
+| 17       | 220.0  | solve            | BYOCTF_Automaton#7840 | combaticus            | FLAG{ASDF} is part of: challenge 1                                            | 2024-03-26 11:21:39.275755 |
+| 18       | 50.0   | byoc reward      | BYOCTF_Automaton#7840 | blackcatt             | combaticus of secondteam submitted FLAG{ASDF} for challenge challenge 1       | 2024-03-26 11:21:39.284939 |
+| 19       | 330.0  | solve            | BYOCTF_Automaton#7840 | fie311                | FLAG{zxcv} is part of:                                                        | 2024-03-26 11:21:39.299541 |
+| 20       | 75.0   | byoc reward      | BYOCTF_Automaton#7840 | combaticus            | fie311 of bestteam submitted FLAG{zxcv} for challenge __bonus__               | 2024-03-26 11:21:39.307892 |
+| 21       | 100.0  | solve            | BYOCTF_Automaton#7840 | aykay                 | FLAG{asdf} is part of: challenge 1                                            | 2024-03-26 11:21:39.317909 |
+| 22       | 25.0   | byoc reward      | BYOCTF_Automaton#7840 | blackcatt             | aykay of fourthteam submitted FLAG{asdf} for challenge challenge 1            | 2024-03-26 11:21:39.324841 |
+| 23       | 200.0  | solve            | BYOCTF_Automaton#7840 | aykay                 | FLAG{ASDF} is part of: challenge 1                                            | 2024-03-26 11:21:39.334394 |
+| 24       | 50.0   | byoc reward      | BYOCTF_Automaton#7840 | blackcatt             | aykay of fourthteam submitted FLAG{ASDF} for challenge challenge 1            | 2024-03-26 11:21:39.343102 |
+| 25       | 220.0  | solve            | BYOCTF_Automaton#7840 | aykay                 | FLAG{qwer} is part of: challenge 3                                            | 2024-03-26 11:21:39.354573 |
+|          |        |                  |                       |                       | challenge 2                                                                   |                            |
+| 26       | 50.0   | byoc reward      | BYOCTF_Automaton#7840 | fie311                | aykay of fourthteam submitted FLAG{qwer} for challenge challenge 2            | 2024-03-26 11:21:39.363519 |
+| 27       | 300.0  | solve            | BYOCTF_Automaton#7840 | aykay                 | FLAG{zxcv} is part of:                                                        | 2024-03-26 11:21:39.374571 |
+| 28       | 75.0   | byoc reward      | BYOCTF_Automaton#7840 | combaticus            | aykay of fourthteam submitted FLAG{zxcv} for challenge __bonus__              | 2024-03-26 11:21:39.383057 |
+| 29       | 220.0  | solve            | BYOCTF_Automaton#7840 | aykay                 | FLAG{jkl} is part of: challenge 6                                             | 2024-03-26 11:21:39.393189 |
+| 30       | 50.0   | byoc reward      | BYOCTF_Automaton#7840 | blackcatt             | aykay of fourthteam submitted FLAG{jkl} for challenge challenge 6             | 2024-03-26 11:21:39.405521 |
+| 31       | 12.0   | tip              | shyft_xero            | fie311                | from populateTestData                                                         | 2024-03-26 11:21:39.412809 |
+| 32       | 10.0   | tip              | combaticus            | fie311                | Gratitude level: Over 9000! Thanks for being in my friend-zone!               | 2024-03-26 11:21:39.421275 |
+| 33       | 17.0   | tip              | fie311                | jsm2191               | from populateTestData                                                         | 2024-03-26 11:21:39.428
+
+# you can delete a transaction but you will often have to delete a second, related transaction. 
+# a solve for a player generates a byoc reward for the challenge creator (if it's a byoc )
+./ctrl_ctf.py del_trans 56
+./ctrl_ctf.py del_trans 55
+./ctrl_ctf.py del_trans 54
+./ctrl_ctf.py del_trans 53
+./ctrl_ctf.py del_trans 52
+./ctrl_ctf.py del_trans 51
