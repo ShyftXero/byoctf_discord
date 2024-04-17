@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
 
-    <title>SOTB Challenge HUD </title>
+    <title>BYOCTF Challenge HUD </title>
         <script src="https://unpkg.com/htmx.org@1.8.0"
         integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
         crossorigin="anonymous"></script>
@@ -17,7 +17,7 @@
 </head>
 <body>
 	<div class='container' hx-get="/chall/{{chall.uuid}}" hx-trigger="every 2m" hx-swap="outerHTML">
-		<a href="/hud/" class="href"><h1>SOTB CHALLENGE HUD</h1></a> 
+		<a href="/hud/" class="href"><h1>BYOCTF CHALLENGE HUD</h1></a> 
 		<a href="/hud/" class="href"><h2>Back to User HUD</h2></a> 
 		<div class="chall_info card card-body">
 			<h2>Challenge: {{chall.title}}</h2> {% if team_owned_challenge %}<h2>TEAM OWNED CHALLENGE!!!</h2>{% endif %}
