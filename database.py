@@ -715,7 +715,7 @@ def get_team_purchased_hints(user: User, chall_id=-1):
                     ht.hint.cost,
                     ht.sender.name,
                 )
-                for ht in tm_hints
+                for ht in tm_hints if ht.hint
             ]
         else:
             data += [
@@ -727,7 +727,7 @@ def get_team_purchased_hints(user: User, chall_id=-1):
                     ht.sender.name,
                 )
                 for ht in tm_hints
-                if ht.hint.challenge.id == chall_id
+                if ht.hint and ht.hint.challenge.id == chall_id
             ]
     return data
 
@@ -1242,6 +1242,7 @@ def validateChallenge(
         "fail_reason": "",
         "external_validation": False,
         "byoc": is_byoc_challenge,
+        "visible": True,
     }
 
     # does the challenge_object have all of the fields we need?
@@ -1305,6 +1306,13 @@ def validateChallenge(
             result["fail_reason"] += "; failed tag name length"
             return result
     result["tags"] = challenge_object["tags"]
+
+    # check visibility
+    visible = challenge_object.get("visible", True)
+    if type(visible) != bool:
+        result["fail_reason"] += "; failed visible value must be a boolean"
+        return result
+    result["visible"] = visible
 
     # check the hints.
     for hint in challenge_object.get("hints", list()):
@@ -1559,6 +1567,7 @@ def buildChallenge(
         byoc_ext_url=result.get("external_validation_url"),
         byoc_ext_value=result.get("value", 0),
         uuid=result.get("uuid", ""),
+        visible=result.get("visible", True)
     )
 
     # need to do this so I can get an ID from the chall
