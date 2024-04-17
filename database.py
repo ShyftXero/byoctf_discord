@@ -1242,7 +1242,7 @@ def validateChallenge(
         "fail_reason": "",
         "external_validation": False,
         "byoc": is_byoc_challenge,
-        "visible": False,
+        "visible": True,
     }
 
     # does the challenge_object have all of the fields we need?
