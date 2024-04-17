@@ -810,7 +810,7 @@ def getHintCost(user: User, challenge_id: int = 0) -> int | float:
         # return "There are no more hints available to purchase for this challenge.", None
         return -1
 
-    sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
+    purchasable_hints = sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
 
     # print(f'hints available to purchase: {purchasable_hints}')
     cheapest_hint = purchasable_hints[0]
@@ -866,7 +866,7 @@ def buyHint(user: User, challenge_id: int = 0):
             )
         return "There are no more hints available to purchase for this challenge.", None
 
-    sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
+    purchasable_hints = sorted(purchasable_hints, key=lambda x: x.cost, reverse=False)
 
     # print(f'hints available to purchase: {purchasable_hints}')
     cheapest_hint = purchasable_hints[0]
