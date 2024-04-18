@@ -148,7 +148,7 @@ def scoreboard():
         )
 
 
-@app.post("/player/<id>")
+@app.get("/player/<id>")
 @limiter.limit("1/second")
 @db.db_session
 def get_player(id):
