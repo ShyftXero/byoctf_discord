@@ -675,7 +675,10 @@ def submit_flag():
 
 @app.get("/")
 def scoreboard_index():
-    return render_template("scoreboard/index.html")
+    return render_template(
+        "scoreboard/index.html",
+        custom_logo_url=SETTINGS["custom_logo_url"]
+    )
 
 
 @app.get("/create")
