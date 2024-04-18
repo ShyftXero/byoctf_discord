@@ -129,11 +129,13 @@ def scoreboard():
         return ret
     else:
         # return markdown2.markdown(msg)
+        show_team_scores = SETTINGS["_team_size"] > 1
         return render_template(
             "scoreboard/scores.html",
             msg=msg,
             team_scores=team_scores,
             top_players=top_players,
+            show_team_scores=show_team_scores
         )
 
 
