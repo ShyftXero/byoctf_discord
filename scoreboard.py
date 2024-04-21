@@ -381,7 +381,9 @@ def grant_points():
     admin_user = db.get_user_by_api_key(api_key)
     if admin_user == None:
         return "invalid admin api key", 403
-
+    if admin_user == None:
+        return "user is not an admin", 403
+    
     # seems legit...
     res = db.grant_points(
         requested_user=target_user, admin_user=admin_user, amount=points, msg=message
