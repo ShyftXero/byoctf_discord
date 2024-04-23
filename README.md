@@ -148,8 +148,8 @@ Key commands
 - `!solves` - show all the flags your team has submitted. 
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!rate <challenge_id> <val>` - rate a challenge on a scale (default 1-5). if others say it's garbage, don't waste your time... you can only rate if you capture at least one of the flags for the challenge. 
-- `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
-- `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
+- `!log` - all transactions you participated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
+- `!pub` - all transactions that have happened in the game. if scoreboard is private, amounts are omitted. 
 - `!psol [challenge_id]` - all solves for all challenges or just challenge_id 
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 
@@ -174,7 +174,16 @@ Key commands
     - don't rely on this. existing solves won't account for the new flag's value.   
     - see the next section. -> `Notes or guidance for developing challenges.`
 - If you don't want to risk it and avoid BYOC, use `!all !byoc` 
-  - `!` like _not_ or a logical inversion. 
+  - `!` like _not_ or a logical inversion.
+- ***Cheating in the game***
+  - The highest form of cheating is preventing others from being able to play, compete, and/or have fun.
+  - Don't do this.
+  - In my opinion, the following examples are "cheating" in various degrees of severity.  Hurting computers is mostly ok. Hurting people is not. 
+    - intentional denial of service to shared infrastructure (specific challenge or game infrastructure like scoreboard or flag submission) (highest infraction)
+    - theft of credentials by social engineering and draining those accounts. (greater infraction)
+    - abusing the game infrastructure and boosting or draining accounts. (lesser infraction) 
+    - leaking all flags from the scoreboard somehow or granting infinite points (least infraction; if unabused might be rewarded)
+  - 
 ---
 ## A few notes about creating BYOC challenges
 - ### ***There is no way to edit your challenge once you commit it***
