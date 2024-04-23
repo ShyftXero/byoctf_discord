@@ -52,7 +52,11 @@ def ctfRunning():
 def get_admin_api_key(func):
     @wraps(func)
     def check(*args, **kwargs):
-        api_key = request.cookies.get("api_key")
+        api_key = request.cookies.get("api_key") 
+        
+        if api_key == None:
+            api_key = request.cookies.get("admin_api_key") 
+
         if api_key == None:
             return "api_key not set; visit HUD first...", 403
         with db.db_session:
@@ -351,13 +355,14 @@ def buy_hint(hint_uuid):
 
 @app.post("/api/grant_points")
 @db.db_session
+@get_admin_api_key
 def grant_points():
     """
     {
         "target_user": "shyft_xero",
         "points": 1337.0,
         "message": "for solving xyz",
-        "api_key": "your_api_key"
+        "admin_api_key": "your_api_key"
     }"""
     # authed_user = db.get_user_by_api_key("bot")
     payload = request.form
