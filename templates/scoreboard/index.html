@@ -17,11 +17,20 @@
 
 <body>
 	<div class="_marquee">
-
 		<div class="glitch-wrapper">
 			<marquee  direction="down" width="100%" height="150" behavior="alternate">
 				<marquee behavior="alternate">
-					<div class="glitch header" data-glitch="BYOCTF SCOREBOARD" ><a href="/hud">BYOCTF SCOREBOARD</a></div>
+					<div class="glitch header" data-glitch="BYOCTF SCOREBOARD" >
+						<a href="/hud">
+							{% if custom_logo_url %}
+									<img src="{{custom_logo_url}}" height="150" />
+							{% endif %}
+							BYOCTF SCOREBOARD
+							{% if custom_logo_url %}
+									<img src="{{custom_logo_url}}" height="150" />
+							{% endif %}
+						</a>
+					</div>
 				</marquee>
 			</marquee>
 		</div>
