@@ -534,7 +534,7 @@ def get_challs_by_player(player: User) -> list[Challenge]:
     if player == None:
         return list()
 
-    challs = Challenge.select(c for c in Challenge if c.author == player.name)[:]
+    challs = list(select(c for c in Challenge if c.author.name == player.name))
 
     return challs
 
