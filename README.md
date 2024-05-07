@@ -307,6 +307,12 @@ Most of the following are considerations regarding building your challenge.
   - Does a required SaaS have a free tier? 
   - Do solvers need a publicly routable IP to solve? 
   - Do they need some sort of VPN? see section above `A few notes about BYOC challenges`
+ 
+---
+
+# Setup
+
+See [SETUP.md](SETUP.md)
   
 ---
 ## Submitting a challenge 
@@ -407,12 +413,11 @@ hint_text = "the flag is also easy"
 There are a couple of other examples in the `example_challenges` folder... 
 
 
----
 
-# Setup
 
-See [SETUP.md](SETUP.md)
+# other cool stuff
 
+https://github.com/tamuctf/ctfd-portable-challenges-plugin
 ---
 # Info that may be redundant... 
 This was built with Shell On The Border in mind so it may not be suitable for any other events. 
