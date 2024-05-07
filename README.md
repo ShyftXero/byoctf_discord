@@ -48,7 +48,7 @@ Watch the teaser video on YouTube
 ---
 
 ## Features
-This implements several features that are unique to SOTB or match our event's aesthetique
+This implements several features that are unique to SOTB or match our event's aesthetic
 
 - User contributed challenges meaning GMs/hosts can play too. 
   - Internally validated flags (if you trust us to not look at flags)
