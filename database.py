@@ -1450,10 +1450,12 @@ def send_tip(
     # logger.debug(
     #     f"{sender.name} to {recipient.name} ; sender points {current_points} tip amount {tip_amount}"
     # )
+    
+    tip_cost = tip_amount * SETTINGS.get('tip_cost_percent',0.1) # 0.1 default? 
 
-    if current_points < tip_amount:
+    if current_points - tip_cost < tip_amount:
         return False, current_points
-    if tip_amount < 0: 
+    if tip_amount <= 0: 
         return False, tip_amount
 
     if msg == None:
@@ -1481,8 +1483,16 @@ def send_tip(
         type="tip",
         message=msg,
     )
+    bot = db.User.get(id=0)
+    tip_buy = db.Transaction(
+        sender=sender, 
+        recipient=bot, 
+        value=tip_cost,
+        type="tip_buy",
+        message=f"tip sent to {recipient.name}", 
+    )
     commit()
-    return True, getScore(sender)  # this should be the score post-tip.
+    return True, getScore(sender)  # this should be the score post-tip and tip-buy
 
 
 @db_session()
