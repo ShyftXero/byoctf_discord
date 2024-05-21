@@ -653,6 +653,7 @@ def chall(chall_uuid):
         next_hint_cost=next_hint_cost,
         solves=solves,
         rendered_chall_description=rendered_chall_description,
+        user_score=db.getScore(user)
     )
 
 

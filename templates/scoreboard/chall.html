@@ -58,7 +58,7 @@
 		<div class="purchased_hints card card-body">
 			<h2>Purchased Hints:</h2>{% if team_owned_challenge %}<h2>TEAM OWNED CHALLENGE!!!</h2>{% endif %}
 			{% if next_hint_cost > 0 %}
-			<button hx-get="/api/buy_hint/{{chall.uuid}}" hx-confirm="Are you sure you want to buy a hint for {{next_hint_cost}} points?" hx-swap='none' >Buy a hint for {{next_hint_cost}} points</button>
+				<button {% if user_score < next_hint_cost %} disabled {% endif %} hx-get="/api/buy_hint/{{chall.uuid}}" hx-confirm="Are you sure you want to buy a hint for {{next_hint_cost}} points?" hx-swap='none' >Buy a hint for {{next_hint_cost}} points</button>
 			{% endif %}
 			<table class="table sortable">
 					<thead>
