@@ -156,7 +156,7 @@ Key commands
 ---
 
 # BYOC Challenges
-## Common criticisms of the BYOC concept
+## Common criticisms of the BYOC concept and why it sucks 
 - ***Creating an impossible challenge in an effort distract players.*** 
   - This is a possibility and always has been.
   - Part of developing your CTF skillset is to be able to recognize this and manage your time effectively. 
@@ -183,7 +183,26 @@ Key commands
     - theft of credentials by social engineering and draining those accounts. (greater infraction)
     - abusing the game infrastructure and boosting or draining accounts. (lesser infraction) 
     - leaking all flags from the scoreboard somehow or granting infinite points (least infraction; if unabused might be rewarded)
-  - 
+- ***Challenge Cloning***
+  - A player copies the text of someone else's challenge and posts it as their own.
+  - clever attempt at social engineering other players into submitting flags to you instead of the scoreboard somehow.
+  - In order to submit a challenge, you have to submit the flag (except externally validated flags)
+  - the mitigation for this is that you have to stake 50% of the total challenge value (sum of all flags) in order to have the challenge show up for other players.
+  - While it's a viable attack strat, it's a gamble because you might not get any solves.
+  - say you target a 100-point (say a zipfile cracking challenge) and clone it by posting it for 1000 to entice others to attempt it.
+    - you'd have to submit it as an externally validated flag to bypass the checks for flag uniqueness
+    - you'd have to pay the 50% posting fee (500 points in this case) to submit and post the flag for others.
+    - you'd have to get others to solve, observe the proxied results, then submit them hoping they're correct.
+    - when you get a solve you get a 25% return (250 points )
+    - you need two solves to get your money back + the 100 you submitted for the original flag.
+    - you'd get 250 points per solve; People who solve your chall get 1000 points
+    - you are limited by the number of teams (only one player per team can get points from a solve)
+  - In addition to the limited submissions you can disable the challenge and undo the transactions if the game is abused in this way.
+    - I think this is the best way.
+    - this would require you being made aware of the issue.
+    - you can delete all solves and transactions related to the problematic challenge.
+  - it doesn't exist but I could implement a command that purges all the solves and transactions related to a problematic challenge. [TODO]
+  - if you tell people about the attack path, it will seem less cool and they might not go down that path. (I'm an optimist at heart)
 ---
 ## A few notes about creating BYOC challenges
 - ### ***There is no way to edit your challenge once you commit it***
