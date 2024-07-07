@@ -1,5 +1,22 @@
 # byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
 
+## DEFCON 32 - BIC VILLAGE
+
+Come see my presentation at the Blacks In Cyber Village at DEFCON! 
+
+"BYOCTF" - Bring Your Own [Challenges||Capture] The Flag
+Speaker: Eli Mcrae 
+Day: Friday August 9, 2024
+Time: 2:00 PM
+
+https://www.blacksincyberconf.com/bic-village
+
+## 2600 shoutout from DJ PFEIF of Hack The Planet DNB show
+
+We got a ahoutout in a write up for 2600 magazine in the summer 2024 issue. 
+
+https://djpfeif.com/drum-bass-pfeif-radio-show/
+
 ## TL;DR
 A CTF framework that allows players to submit and complete challenges from other players. They are rewarded when players solve their challenges. 
 
