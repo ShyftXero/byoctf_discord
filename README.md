@@ -1,5 +1,8 @@
 # byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
 
+
+<img style="display: block;-webkit-user-select: none;margin: auto;background-color: hsl(0, 0%, 90%);" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWxqbmJicmF0bXgzaGwxajZwOW1jbWRucDE0eGF1Z3Q0cmRxYndiaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/M9TrcWs9M52TEaorKr/giphy.webp">
+
 ## DEFCON 32 - BIC VILLAGE
 
 Come see my presentation at the Blacks In Cyber Village at DEFCON! 
