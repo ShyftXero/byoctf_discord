@@ -9,4 +9,5 @@ venv
 byoctf.db.after_event
 byoctf.db.after_event_redacted
 byoctf.db.after_event.orig
+byoctf.db*
 settings.py
