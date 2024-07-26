@@ -1,6 +1,27 @@
-# Setup
+# Web only variant
+I've started using uv for project and dependency management. 
+https://astral.sh/blog/uv
 
-Running this software requires a Discord bot. Create one with the following instructions:
+See my helper aliases for managing virtual envs -> https://gist.github.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0
+
+```
+curl -fsSL https://gist.githubusercontent.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0/raw/uv_venv.sh >> ~/.zshrc
+git clone https://github.com/ShyftXero/byoctf_discord
+cd byoctf_discord
+uv venv venv --python=3.11
+source venv/bin/activate
+uv pip install -r pyproject.toml
+./ctrl_ctf.py DEV_RESET
+python scoreboard.py
+```
+
+
+
+you should be able to git clone and `uv pip install 
+
+# Discord Setup
+
+Running this software ~~requires~~ used to require a Discord bot. Create one with the following instructions:
 
 - Login to Discord and visit https://discord.com/developers/applications/
 - Click "New Application" and give it a name
