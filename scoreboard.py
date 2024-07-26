@@ -13,6 +13,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    session,
 )
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -27,7 +28,15 @@ from byoctf_discord import renderChallenge
 from settings import SETTINGS
 from vis import challs, players, trans
 
+
+from flask_oauthlib.client import OAuth
+
+from custom_secrets import flask_secret_key, google_client_id, google_client_secret
+
 app = Flask(__name__)
+oauth = OAuth(app)
+
+
 limiter = Limiter(
     get_remote_address,
     app=app,
@@ -36,7 +45,66 @@ limiter = Limiter(
 )
 
 CORS(app)
-app.secret_key = "thisisasecret"
+app.secret_key = flask_secret_key
+
+google = oauth.remote_app(
+    'google',
+    consumer_key=google_client_id,
+    consumer_secret=google_client_secret,
+    request_token_params={
+        'scope': 'email'
+    },
+    base_url='https://www.googleapis.com/oauth2/v1/',
+    request_token_url=None,
+    access_token_method='POST',
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    resp = make_response(redirect(url_for("scoreboard_index")))
+    resp.set_cookie('api_key', '', expires=0)
+    return resp
+
+@app.route('/register')
+def register():
+    # maybe add more social logins like mastadon, matrix, facebook or something in the future. now just google. 
+    return render_template('scoreboard/register.html')
+
+@app.route('/google_login')
+def google_login(): 
+    # uri_mismatch solution; adding authorized uris to the secrets-> https://simplyscheduleappointments.com/guides/400-redirect_uri_mismatch-error/
+    return google.authorize(callback=url_for('google_authorized', _external=True))
+
+@app.route('/login/authorized')
+@db.db_session
+def google_authorized():
+    response = google.authorized_response()
+    if response is None or response.get('access_token') is None:
+        return 'Access denied: reason={} error={}'.format(
+            request.args['error_reason'],
+            request.args['error_description']
+        )
+    
+    session['google_token'] = (response['access_token'], '')
+    user_info = google.get('userinfo')
+    
+    user:db.User = db.get_or_create_user_by_email(user_info.data['email'])
+        
+    print('google user ', user.name, 'exists')
+
+    # log the user in
+    resp = make_response(redirect(url_for('hud')))
+    resp.set_cookie('api_key', user.api_key)
+
+    return resp
+
+@google.tokengetter
+def get_google_oauth_token():
+    return session.get('google_token')
+
 
 def ctfRunning():
     if SETTINGS["ctf_paused"]:
@@ -87,10 +155,10 @@ def get_api_key(func):
 @db.db_session
 def send_tip():
     print('send_tip', request.form)
-    sender = db.User.get(api_key=request.cookies.get("api_key",'__invalid_api_key__'))
+    sender = db.User.get(api_key=request.cookies.get("api_key",None))
     if sender == None:
         return "api_key invalid", 404
-    recipient = db.User.get(name=request.form.get('recipient',"__invalid_recipient__"))
+    recipient = db.User.get(name=request.form.get('recipient',None))
     if recipient == None:
         return "recipient name not found", 404
     amount = float(request.form.get('amount',-1))
@@ -108,13 +176,88 @@ def send_tip():
 @limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def tip():
-    
+    if ctfRunning() == False:
+        return "ctf not running", 403
+
     user = db.User.get(api_key=request.cookies.get("api_key",'__invalid_api_key__'))
     if user == None:
         return "user not found", 404
     usernames = db.select(u.name for u in db.User if u.name != SETTINGS['_botusername'])[:]
     return render_template('scoreboard/tip.html', users=usernames)
 
+@app.route('/me')
+@db.db_session
+def my_profile():
+    return "my profile"
+
+@app.route('/join', methods=['GET', 'POST'])
+@db.db_session
+@get_api_key
+def join_team():
+    api_key = request.cookies.get("api_key")
+    if api_key == None:
+        return "api_key not set; login first", 400
+
+    user = db.get_user_by_api_key(api_key)
+    if user == None:
+        return "invalid api key; login first.", 403
+
+    if user.team.name != '__unaffiliated__': 
+        # return "can't change teams on your own. talk to an admin about switching teams", 403
+        return redirect(url_for("hud"))
+
+    
+    if request.method == "POST":
+        print([(k,v) for k,v in request.form.items()])
+        target_team = request.form.get('target_team', None)
+        team_password = request.form.get('team_password', None)
+        if target_team == None or target_team == '__invalid_team__' or team_password == None:
+            flash("target_team or password missing", 'error')
+            return redirect(url_for('hud'))
+        result = db.register_team(target_team, team_password, user.name)
+    
+        if type(result) == str:
+            flash(f'team registration failed:{result}', 'error')
+        return redirect(url_for('hud'))
+    
+    elif request.method == "GET": 
+        teams = db.select(t.name for t in db.Team)[:]
+        return render_template('scoreboard/join.html', teams=teams)
+
+    return 'bad request', 400 
+
+
+# @app.post('/me/set_team')
+# @db.db_session
+# @get_api_key
+# def set_team(a_request=None):
+#     if a_request != None:
+#         request = a_request
+#     api_key = request.cookies.get("api_key")
+#     if api_key == None:
+#         return "api_key not set; login first", 400
+
+#     user = db.get_user_by_api_key(api_key)
+#     if user == None:
+#         return "invalid api key; login first.", 403
+
+#     if user.team.name != '__unaffiliated__': 
+#         return "can't change teams on your own. talk to an admin about switching teams", 403
+        
+
+#     target_team = request.form.get('target_team', None)
+#     team_password = request.form.get('team_password', None)
+#     if target_team == None or team_password == None:
+#         return "target_team or password missing", 400 
+#     team:db.Team = db.Team.get(name=target_team)
+#     if team == None:
+#         team = db.register_team(team, team_password, user.name)
+#     else:
+#         if team.password == hashlib.sha256(team_password.strip().encode()).hexdigest(): 
+#             user.team = team
+#         else:
+#             return "check password", 401
+#     return redirect(url_for('hud'))
 
 
 @app.get("/scores")
@@ -502,11 +645,12 @@ def get_public_transactions():
 def hud():
     api_key = request.cookies.get("api_key")
     if api_key == None:
-        return "api key not present"
+        return "api_key cookie not present; try creating an account with discord or google or something; visit <a href='/register'>/register</a>", 400 
 
     user = db.get_user_by_api_key(api_key)
     if user == None:
-        return "invalid api key", 403
+        return "invalid api key; try creating an account with discord or google or something; visit <a href='/register'>/register</a>", 403
+    
     teamname = user.team.name
 
     solved_challs: list[db.Challenge] = sorted(

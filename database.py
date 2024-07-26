@@ -197,7 +197,6 @@ def generateMapping():
 
 
 def set_custom_methods():
-    ...
 
     def get_chall_value(self):
         flags = list(select(c.flags for c in Challenge if c.id == self.id))
@@ -217,9 +216,23 @@ set_custom_methods()
 
 
 @db_session
-def register_team(teamname: str, password: str, username: str) -> Team:
+def get_or_create_user_by_email(email):
+    username = email.split('@')[0]
+    user = User.get(name=username)
+    if user == None:
+        unaffiliated_team = Team.get(name="__unaffiliated__")
+        user = User(name=username, team=unaffiliated_team)
+        rotate_player_keys(user)
+    return user
+
+@db_session
+def register_team(teamname: str, password: str, username: str) -> Team|str:
+    print(teamname, password, username)
     teamname = teamname.strip()
     password = password.strip()
+    if len(password) < 8:
+        return "min password length is 8"
+
     hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
     team = Team.get(name=teamname)
@@ -227,8 +240,56 @@ def register_team(teamname: str, password: str, username: str) -> Team:
     user = User.get(name=username)
 
     if user == None:
+        logger.debug("User not yet created. Assigning to team \"__unaffiliated__\" for now")
         user = User(name=username, team=unaffiliated)
         rotate_player_keys(user)
+        db.commit()
+
+    if not user.team:
+        user.team = unaffiliated
+        db.commit()
+    
+    
+    if user.team.name != "__unaffiliated__":
+        msg = f"already registered as `{username}` on team `{user.team.name}`. talk to an admin to have your team changed..."
+        if SETTINGS["_debug"]:
+            logger.debug(msg)
+        return msg
+
+    # does the team exist?
+    if team == None:
+        team = Team(name=teamname, password=hashed_pass)
+        pub, priv = generate_keys()
+        team.public_key = pub
+        team.private_key = priv
+        db.commit()
+
+    if len(team.members) == SETTINGS["_team_size"]:
+        msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
+        if SETTINGS["_debug"]:
+            logger.debug(msg)
+        return msg
+
+
+
+    if (hashed_pass != team.password):  # if it's a new team, these should match automatically..
+        msg = f"Password incorrect for team {team.name}"
+        
+
+        if SETTINGS["_debug"]:
+            logger.debug(
+                f"{username} failed registration; Team {teamname} pass {password} hashed {hashed_pass}"
+            )
+        return msg
+
+    user.team = team
+    if team.private_key == "":
+        pub, priv = generate_keys()
+        team.public_key = pub
+        team.private_key = priv
+    db.commit()
+    return team
+
 
 
 @db_session
