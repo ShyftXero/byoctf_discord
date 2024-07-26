@@ -12,6 +12,7 @@ cd byoctf_discord
 uv venv venv --preview --python=3.11
 source venv/bin/activate
 cp settings_template.py settings.py
+cp custom_secrets_template.py custom_secrets.py
 uv pip install -r pyproject.toml
 ./ctrl_ctf.py DEV_RESET # this will populate the db with burner data. 
 python scoreboard.py
