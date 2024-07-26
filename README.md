@@ -32,8 +32,7 @@ The idea is good, I promise, but the code is questionable.
 
 You can think of BYOCTF as kind of like a potluck. The host provides a central core dish for folks to eat and everyone else brings a little something extra to chew on. 
 
-***TL;DR setup for web variant***
-https://github.com/ShyftXero/byoctf_discord/blob/master/SETUP.md#web-only-variant
+***TL;DR setup for web variant*** -> https://github.com/ShyftXero/byoctf_discord/blob/master/SETUP.md#web-only-variant
 
 ---
 #### The core features of the framework are 
