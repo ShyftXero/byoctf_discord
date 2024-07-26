@@ -12,7 +12,7 @@ cd byoctf_discord
 uv venv venv --python=3.11
 source venv/bin/activate
 uv pip install -r pyproject.toml
-./ctrl_ctf.py DEV_RESET
+./ctrl_ctf.py DEV_RESET # this will populate the db with burner data. 
 python scoreboard.py
 ```
 
