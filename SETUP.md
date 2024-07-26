@@ -4,6 +4,7 @@ https://astral.sh/blog/uv
 
 See my helper aliases for managing virtual envs -> https://gist.github.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0
 
+you should be able to get up and running with this.
 ```
 curl -fsSL https://gist.githubusercontent.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0/raw/uv_venv.sh >> ~/.zshrc
 git clone https://github.com/ShyftXero/byoctf_discord
@@ -15,9 +16,6 @@ uv pip install -r pyproject.toml
 python scoreboard.py
 ```
 
-
-
-you should be able to git clone and `uv pip install 
 
 # Discord Setup
 
