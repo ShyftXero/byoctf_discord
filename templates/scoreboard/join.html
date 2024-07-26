@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+    <title>SOTB Challenge HUD </title>
+        <script src="https://unpkg.com/htmx.org@1.8.0"
+        integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc"
+        crossorigin="anonymous"></script>
+
+ 	<script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+	<script src="/static/script.js"></script>
+
+	<script type="module" src="https://md-block.verou.me/md-block.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js" integrity="sha512-UOoJElONeUNzQbbKQbjldDf9MwOHqxNz49NNJJ1d90yp+X9edsHyJoAs6O4K19CZGaIdjI5ohK+O2y5lBTW6uQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!--for select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+</head>
+<body>
+    <div id="result">{% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class=flashes>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
+	<div class='container' hx-get="/join" hx-trigger="every 2m" hx-swap="outerHTML">
+        <div>
+            <h4>Join a team</h4>
+            Be sure to press enter if creating a new team... otherwise you're posting "__invalid_team__" as the team. 
+            Target Team
+            <form action="/join" method="post">
+                <select name="target_team" id="target_team" width="25" class="form-control">
+                    <option value="__invalid_team__"></option>
+                    {% for team in teams %}
+                        <option value="{{team}}">{{team}}</option>
+                    {% endfor %}
+                </select>
+            <!-- <input type="text" id="new_target_team" name="target_team" placeholder="1337 name here"> -->
+            <br>
+            Team password
+            <br>
+            <input type="password" id="team_password" name="team_password" placeholder="1337 password here">
+            <br>
+            <button type="submit">Join Team</button>
+            </form>
+            <script>
+                $(document).ready(function() {
+                    $('#target_team').select2({ 
+                        width: '33%', 
+                        tags:true, 
+                    });
+                });
+            </script>
+        </div>
+    </div>
+    
+</body>
+</html>

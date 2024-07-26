@@ -16,6 +16,18 @@
 </head>
 
 <body>
+	<div id="flashed_messages">
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class=flashes>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+		{% endwith %}
+	</div>
+
 	<div class="_marquee">
 		<div class="glitch-wrapper">
 			<marquee  direction="down" width="100%" height="150" behavior="alternate">
@@ -41,6 +53,7 @@
 		scores go here
 		
 	</div>
+	<a href="/google_login" class="btn btn-primary">Login with Google</a>
 	<div class="video-responsive">
 		<iframe  src="https://gif.shellontheborder.com" frameborder="0" allowfullscreen></iframe>
 	</div>
