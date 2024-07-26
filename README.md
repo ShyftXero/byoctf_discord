@@ -94,6 +94,7 @@ This implements several features that are unique to SOTB or match our event's ae
   - informal hint purchases from other players
   - provides a mechanism for players to try and social engineer points off eachother.
   - rewards for kindness
+  - 10% fee for sending a tip to reduce abuse. 
 - Team oriented
   - scores are often displayed in the context of your team.
   - hints purchased by a teammate are viewable by all teammates
