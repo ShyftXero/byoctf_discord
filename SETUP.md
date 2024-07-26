@@ -17,6 +17,12 @@ uv pip install -r pyproject.toml
 ./ctrl_ctf.py DEV_RESET # this will populate the db with burner data. 
 python scoreboard.py
 ```
+You'll either have to add users manually via `ctrl_ctf.py add_user`, `ctrl_ctf.py bulk_add_user`,  or setup the google oauth thing -> https://medium.com/@miracyuzakli/user-login-and-registration-with-flask-and-google-oauth-2-0-6f5aee1b64ad
+
+see this for the uri_mismatch error -> https://simplyscheduleappointments.com/guides/400-redirect_uri_mismatch-error/
+
+
+
 
 
 # Discord Setup
