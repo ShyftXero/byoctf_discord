@@ -9,7 +9,7 @@ you should be able to get up and running with this.
 curl -fsSL https://gist.githubusercontent.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0/raw/uv_venv.sh >> ~/.zshrc
 git clone https://github.com/ShyftXero/byoctf_discord
 cd byoctf_discord
-uv venv venv --python=3.11
+uv venv venv --preview --python=3.11
 source venv/bin/activate
 uv pip install -r pyproject.toml
 ./ctrl_ctf.py DEV_RESET # this will populate the db with burner data. 
