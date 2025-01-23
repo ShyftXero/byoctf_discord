@@ -2,6 +2,8 @@
 	<h2>{{msg}}</h2>
 </div >
 <div class='teams_and_players'>
+
+	{% if show_team_scores %}
 	<div class="top_teams card">
 		<h2>Top Teams</h2>
 		<table class="table">
@@ -19,6 +21,7 @@
 			</tbody>
 		</table>
 	</div>
+	{% endif %}
 
 	<div class="mvps card">
 		<h2>Top Scoring Players</h2>

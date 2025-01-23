@@ -455,8 +455,8 @@ class Commands:
 
         self.reinit_config()
 
-        # print("Populating test data")
-        # os.system("python populateTestData.py")
+        print("Populating test data")
+        os.system("python populateTestData.py")
 
     def top_flags(self):
         solves = db.getMostCommonFlagSolves()
@@ -744,6 +744,13 @@ class Commands:
         user = db.User(name=username, team=team)
         db.commit()
         print(f"added {user.name} with team {team.name}")
+
+    @db.db_session
+    def del_user(self, username:str):
+        user = db.User.get(name=username)
+        user.delete()
+        db.commit()
+        print(f'removed user {username}')
 
     def _find_chall_files(self, start_path: str = "."):
         valid_toml_files = []

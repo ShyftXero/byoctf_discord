@@ -19,11 +19,21 @@
 		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 		<script src="/static/script.js"></script>
+		
 </head>
 <body>
         <div class='container' hx-get="/hud" hx-trigger="every 2m" hx-swap="outerHTML">
 				<h1>BYOCTF PLAYER HUD</h1>
-				 
+				<div id="flashed_messages">{% with messages = get_flashed_messages() %}
+					{% if messages %}
+					  <ul class=flashes>
+					  {% for message in messages %}
+						<li>{{ message }}</li>
+					  {% endfor %}
+					  </ul>
+					{% endif %}
+				  {% endwith %}
+				</div> 
 				<div class="header_links">
 					<div class="private_stuff">
 						<h2><a href="/">Scoreboard</a></h2>
@@ -82,12 +92,29 @@
 
 				<div class="team_info card card-body">
 					<h2>
+						{% if teamname == '__unaffiliated__' %}
+						<style>
+							#blink {
+								font-size: 60px;
+								font-weight: bold;
+								color: #92be2d;
+								transition: 0.5s;
+							}
+						</style>
+						<marquee scrollamount="20"><div id="blink">You must visit <a href="/join">/join</a> to join a team!!!</div></marquee>
+						<script type="text/javascript">
+							var blink = document.getElementById('blink');
+							setInterval(function() {
+								blink.style.opacity = (blink.style.opacity == 0 ? 1 : 0);
+							}, 250);
+						</script>
+						{% else %}
 						Team <code>{{teamname}}</code> 
 						Total Points <code>{{total}}</code>
 						
 							(including <code>{{total_byoc_rewards}}</code> points for your BYOC challenges; see below)
 							
-						
+						{% endif %}
 					</h2>
 					<table class="table sortable">
 						<thead>

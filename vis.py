@@ -91,6 +91,9 @@ def trans(trans_type: str = "tip", user: str | None = None):
         # print(avg_trans)
         len_all_trans = len(all_trans)
         for trans in all_trans:
+            if trans.value == 0: 
+                print('invalid transaction', trans)
+                continue
             if user != None:
                 if user.id not in [trans.sender.id, trans.recipient.id]:
                     continue

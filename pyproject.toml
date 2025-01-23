@@ -10,7 +10,7 @@ dependencies = [
     "diskcache>=5.6.3",
     "Faker>=20.0.3",
     "fire>=0.5.0",
-    "flask>=3.0.0",
+    "flask==2.2.3",
     "flask_cors>=4.0.0",
     "pynacl>=1.5.0",
     "networkx>=3.1",
@@ -30,6 +30,8 @@ dependencies = [
     "flask-limiter==3.3.0",
     "ipython>=8.12.3",
     "psycopg2-binary>=2.9.9",
+    "flask-oauthlib==0.9.6",
+    "Werkzeug==2.2.2",
 ]
 readme = "README.md"
 requires-python = ">= 3.11"
