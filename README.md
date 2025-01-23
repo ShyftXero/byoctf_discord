@@ -1,5 +1,24 @@
 # byoctf_discord - Bring Your Own [Challenge || Capture] The Flag
 
+<img style="display: block;-webkit-user-select: none;margin: auto;background-color: hsl(0, 0%, 90%);" src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWc4NmtuMW5tMmhod290MzJ5NTgzcTNyOHM4bnR4cTB4dWs4Z3ZoZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9dHM/8rEjUs63Q03OZ5smM9/giphy.webp">
+
+## DEFCON 32 - BIC VILLAGE
+
+Come see my presentation at the Blacks In Cyber Village at DEFCON! 
+
+"BYOCTF" - Bring Your Own [Challenges||Capture] The Flag
+Speaker: Eli Mcrae 
+Day: Friday August 9, 2024
+Time: 2:00 PM
+
+https://www.blacksincyberconf.com/bic-village
+
+## 2600 shoutout from DJ PFEIF of Hack The Planet DNB show
+
+We got a ahoutout in a write up for 2600 magazine in the summer 2024 issue. 
+
+https://djpfeif.com/drum-bass-pfeif-radio-show/
+
 ## TL;DR
 A CTF framework that allows players to submit and complete challenges from other players. They are rewarded when players solve their challenges. 
 
@@ -13,6 +32,9 @@ The idea is good, I promise, but the code is questionable.
 
 You can think of BYOCTF as kind of like a potluck. The host provides a central core dish for folks to eat and everyone else brings a little something extra to chew on. 
 
+***TL;DR setup for web variant*** -> https://github.com/ShyftXero/byoctf_discord/blob/master/SETUP.md#web-only-variant
+
+---
 #### The core features of the framework are 
 - inter-player transactions (in-game economy for facilitating real-world info exchange).  Players can trade points amongst themselves for favors, info, etc.
 - "challenges" don't have value; "flags" do have value. A challenge is a set of one or more flags. 
@@ -48,7 +70,7 @@ Watch the teaser video on YouTube
 ---
 
 ## Features
-This implements several features that are unique to SOTB or match our event's aesthetique
+This implements several features that are unique to SOTB or match our event's aesthetic
 
 - User contributed challenges meaning GMs/hosts can play too. 
   - Internally validated flags (if you trust us to not look at flags)
@@ -75,6 +97,7 @@ This implements several features that are unique to SOTB or match our event's ae
   - informal hint purchases from other players
   - provides a mechanism for players to try and social engineer points off eachother.
   - rewards for kindness
+  - 10% fee for sending a tip to reduce abuse. 
 - Team oriented
   - scores are often displayed in the context of your team.
   - hints purchased by a teammate are viewable by all teammates
@@ -148,15 +171,15 @@ Key commands
 - `!solves` - show all the flags your team has submitted. 
 - `!unsolved` - show all of the unlocked challenges that don't have at least one submission. 
 - `!rate <challenge_id> <val>` - rate a challenge on a scale (default 1-5). if others say it's garbage, don't waste your time... you can only rate if you capture at least one of the flags for the challenge. 
-- `!log` - all transactions you particpated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
-- `!pub` - all transactions that have happened the game. if scoreboard is private, amounts are omitted. 
+- `!log` - all transactions you participated in (sender or recipient of a tip, BYOC rewards and fees, and solves among other things)
+- `!pub` - all transactions that have happened in the game. if scoreboard is private, amounts are omitted. 
 - `!psol [challenge_id]` - all solves for all challenges or just challenge_id 
 - `!help` - shows the long name of all of the commands. Most of the above commands are aliases or shorthand for a longer command.
 
 ---
 
 # BYOC Challenges
-## Common criticisms of the BYOC concept
+## Common criticisms of the BYOC concept and why it sucks 
 - ***Creating an impossible challenge in an effort distract players.*** 
   - This is a possibility and always has been.
   - Part of developing your CTF skillset is to be able to recognize this and manage your time effectively. 
@@ -174,7 +197,35 @@ Key commands
     - don't rely on this. existing solves won't account for the new flag's value.   
     - see the next section. -> `Notes or guidance for developing challenges.`
 - If you don't want to risk it and avoid BYOC, use `!all !byoc` 
-  - `!` like _not_ or a logical inversion. 
+  - `!` like _not_ or a logical inversion.
+- ***Cheating in the game***
+  - The highest form of cheating is preventing others from being able to play, compete, and/or have fun.
+  - Don't do this.
+  - In my opinion, the following examples are "cheating" in various degrees of severity.  Hurting computers is mostly ok. Hurting people is not. 
+    - intentional denial of service to shared infrastructure (specific challenge or game infrastructure like scoreboard or flag submission) (highest infraction)
+    - theft of credentials by social engineering and draining those accounts. (greater infraction)
+    - abusing the game infrastructure and boosting or draining accounts. (lesser infraction) 
+    - leaking all flags from the scoreboard somehow or granting infinite points (least infraction; if unabused might be rewarded)
+- ***Challenge Cloning***
+  - A player copies the text of someone else's challenge and posts it as their own.
+  - clever attempt at social engineering other players into submitting flags to you instead of the scoreboard somehow.
+  - In order to submit a challenge, you have to submit the flag (except externally validated flags)
+  - the mitigation for this is that you have to stake 50% of the total challenge value (sum of all flags) in order to have the challenge show up for other players.
+  - While it's a viable attack strat, it's a gamble because you might not get any solves.
+  - say you target a 100-point (say a zipfile cracking challenge) and clone it by posting it for 1000 to entice others to attempt it.
+    - you'd have to submit it as an externally validated flag to bypass the checks for flag uniqueness
+    - you'd have to pay the 50% posting fee (500 points in this case) to submit and post the flag for others.
+    - you'd have to get others to solve, observe the proxied results, then submit them hoping they're correct.
+    - when you get a solve you get a 25% return (250 points )
+    - you need two solves to get your money back + the 100 you submitted for the original flag.
+    - you'd get 250 points per solve; People who solve your chall get 1000 points
+    - you are limited by the number of teams (only one player per team can get points from a solve)
+  - In addition to the limited submissions you can disable the challenge and undo the transactions if the game is abused in this way.
+    - I think this is the best way.
+    - this would require you being made aware of the issue.
+    - you can delete all solves and transactions related to the problematic challenge.
+  - it doesn't exist but I could implement a command that purges all the solves and transactions related to a problematic challenge. [TODO]
+  - if you tell people about the attack path, it will seem less cool and they might not go down that path. (I'm an optimist at heart)
 ---
 ## A few notes about creating BYOC challenges
 - ### ***There is no way to edit your challenge once you commit it***
@@ -298,6 +349,12 @@ Most of the following are considerations regarding building your challenge.
   - Does a required SaaS have a free tier? 
   - Do solvers need a publicly routable IP to solve? 
   - Do they need some sort of VPN? see section above `A few notes about BYOC challenges`
+ 
+---
+
+# Setup
+
+See [SETUP.md](SETUP.md)
   
 ---
 ## Submitting a challenge 
@@ -398,12 +455,11 @@ hint_text = "the flag is also easy"
 There are a couple of other examples in the `example_challenges` folder... 
 
 
----
 
-# Setup
 
-See [SETUP.md](SETUP.md)
+# other cool stuff
 
+https://github.com/tamuctf/ctfd-portable-challenges-plugin
 ---
 # Info that may be redundant... 
 This was built with Shell On The Border in mind so it may not be suitable for any other events. 

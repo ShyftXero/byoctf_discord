@@ -1,6 +1,33 @@
-# Setup
+# Web only variant
+I've started using uv for project and dependency management. 
+https://astral.sh/blog/uv
 
-Running this software requires a Discord bot. Create one with the following instructions:
+See my helper aliases for managing virtual envs -> https://gist.github.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0
+
+you should be able to get up and running with this.
+```
+curl -fsSL https://gist.githubusercontent.com/ShyftXero/e2b5c02108ce426e426f872cd3d47cb0/raw/uv_venv.sh >> ~/.zshrc
+git clone https://github.com/ShyftXero/byoctf_discord
+cd byoctf_discord
+venv --python=3.11 # alias for uv venv venv --preview --python=3.11
+svenv # alias for source venv/bin/activate
+cp settings_template.py settings.py
+cp custom_secrets_template.py custom_secrets.py
+uv pip install -r pyproject.toml
+./ctrl_ctf.py DEV_RESET # this will populate the db with burner data. 
+python scoreboard.py
+```
+You'll either have to add users manually via `ctrl_ctf.py add_user`, `ctrl_ctf.py bulk_add_user`,  or setup the google oauth thing -> https://medium.com/@miracyuzakli/user-login-and-registration-with-flask-and-google-oauth-2-0-6f5aee1b64ad
+
+see this for the uri_mismatch error -> https://simplyscheduleappointments.com/guides/400-redirect_uri_mismatch-error/
+
+
+
+
+
+# Discord Setup
+
+Running this software ~~requires~~ used to require a Discord bot. Create one with the following instructions:
 
 - Login to Discord and visit https://discord.com/developers/applications/
 - Click "New Application" and give it a name

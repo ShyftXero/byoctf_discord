@@ -10,6 +10,7 @@ import custom_secrets
 def default_config():
     config = {  # KEYS THAT START WITH _ ARE CONSIDERED PRIVATE AND DON'T SHOW UP IN THE !status COMMAND
         "scoreboard_url": "https://scoreboard.byoctf.com",
+        "custom_logo_url": None,
         'ctf_base_domain': 'byoctf.com', # this is the base domain for your event
         "ctf_name": "SOTB BYOCTF",  # your name here.
         "ctf_start": -1,  # epoch timestamp UTC; -1 means ignore; https://www.epochconverter.com/
