@@ -84,4 +84,3 @@ Now you will need to edit a few files and install some dependencies.
 - Make sure to send your commands via a direct message to the bot. Avoid public channels. Here are some good initial commands to test out and confirm your setup.
     - `!help`
     - `!reg TEAM TEAMPASS`
-    
