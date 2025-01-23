@@ -499,6 +499,7 @@ def buy_hint(hint_uuid):
     return resp
 
 @app.post("/api/grant_points")
+@get_admin_api_key
 @db.db_session
 @get_admin_api_key
 def grant_points():
@@ -529,7 +530,7 @@ def grant_points():
         return "admin_api_key missing from payload", 405
     # did they present the correct one?
     admin_user = db.get_user_by_api_key(api_key)
-    if admin_user == None:
+    if admin_user == None or not admin_user.is_admin:
         return "invalid admin api key", 403
     if admin_user.is_admin == False:
         return "user is not an admin", 403
