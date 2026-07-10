@@ -52,6 +52,7 @@
 					<div class="public_stuff">
 						<h2><a href="/challenges">All Challenges</a></h2>
 						<h2><a href="/transactions">Public Transactions</a></h2>
+						{% if is_tipping_enabled %}
 						<div>
 							<h2><a href="/tip">Send a Tip</a></h2>
 							<form>
@@ -74,6 +75,7 @@
 								});
 							</script>
 						</div>
+						{% endif %}
 					</div>
 				</div>
 

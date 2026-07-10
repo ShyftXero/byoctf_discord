@@ -158,6 +158,10 @@ def send_tip():
     sender = db.User.get(api_key=request.cookies.get("api_key",None))
     if sender == None:
         return "api_key invalid", 404
+    
+    if SETTINGS['disable_custom_tips']:
+        return "custom tips are disabled for this game", 403
+    
     recipient = db.User.get(name=request.form.get('recipient',None))
     if recipient == None:
         return "recipient name not found", 404
@@ -176,6 +180,9 @@ def send_tip():
 @limiter.limit("100/second", override_defaults=False)
 @db.db_session
 def tip():
+    if SETTINGS['disable_custom_tips']:
+        return "custom tips are disabled for this game", 403
+
     if ctfRunning() == False:
         return "ctf not running", 403
 
@@ -679,6 +686,7 @@ def hud():
             purchased_hints=purchased_hints,
             api_key=api_key,
             is_admin=user.is_admin,
+            is_tipping_enabled= not SETTINGS["disable_custom_tips"],
             team_byoc_stats=team_byoc_stats,
             users=usernames,
         )

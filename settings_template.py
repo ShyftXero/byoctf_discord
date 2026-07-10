@@ -60,6 +60,7 @@ def default_config():
         "_rate_limit_window": 2,  # 2 second cooldown time; 1 submission every 2 seconds per player.  requires restart
         "rating_min": 1,  # min value for rating system
         "rating_max": 9,  # max value for rating system
+        "disable_custom_tips": False,
     }
 
     return config
