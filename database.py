@@ -2,6 +2,7 @@ import binascii
 from collections import Counter
 import hashlib
 import random
+import re
 
 from requests.sessions import session
 from settings import SETTINGS
@@ -215,14 +216,78 @@ set_custom_methods()
 #########
 
 
+VALID_HANDLE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
+
+
+@db_session
+def create_solo_player(handle: str):
+    """Create a player who is the sole member of their own team.
+
+    Returns the User, or a string describing why it couldn't be done.
+
+    Solo-by-default matters: you can't submit a flag authored by a teammate,
+    so anyone left sitting in __unaffiliated__ can't solve the challenges of
+    anyone else left sitting in __unaffiliated__. Giving every self-registered
+    player their own team means everybody can solve everybody from the start.
+    """
+    handle = (handle or "").strip()
+    if not VALID_HANDLE.match(handle):
+        return "handle must be 3-32 chars of letters, numbers, dot, dash or underscore"
+    if handle == "__unaffiliated__" or handle == SETTINGS["_botusername"]:
+        return "reserved handle"
+    if User.get(name=handle) is not None:
+        return "that handle is taken"
+    if Team.get(name=handle) is not None:
+        return "that handle is taken"
+
+    # the team password is never used to join - this team is not joinable.
+    team = Team(name=handle, password=hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest())
+    pub, priv = generate_keys()
+    team.public_key = pub
+    team.private_key = priv
+
+    user = User(name=handle, team=team)
+    rotate_player_keys(user)
+    commit()
+    return user
+
+
 @db_session
 def get_or_create_user_by_email(email):
-    username = email.split('@')[0]
+    """Look up (or create) the player behind a Google login.
+
+    Two deliberate choices here:
+      * the username is NOT the email local-part. Deriving it from the address
+        puts real names on a public scoreboard, which is not okay at a youth
+        event. We use a stable, opaque handle derived from the address instead,
+        and the player can be renamed by an admin on request.
+      * new players get their own team rather than __unaffiliated__, for the
+        same solve-blocking reason described in create_solo_player().
+    """
+    email = (email or "").strip().lower()
+    # stable per-address, but not reversible to a name by looking at the board
+    digest = hashlib.sha256(email.encode()).hexdigest()[:8]
+    username = f"player_{digest}"
+
     user = User.get(name=username)
-    if user == None:
-        unaffiliated_team = Team.get(name="__unaffiliated__")
-        user = User(name=username, team=unaffiliated_team)
-        rotate_player_keys(user)
+    if user is not None:
+        return user
+
+    # legacy accounts were named after the email local-part; keep them working
+    legacy = User.get(name=email.split("@")[0])
+    if legacy is not None:
+        return legacy
+
+    team = Team.get(name=username)
+    if team is None:
+        team = Team(name=username, password=hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest())
+        pub, priv = generate_keys()
+        team.public_key = pub
+        team.private_key = priv
+
+    user = User(name=username, team=team)
+    rotate_player_keys(user)
+    commit()
     return user
 
 @db_session

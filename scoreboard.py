@@ -70,8 +70,34 @@ def logout():
 
 @app.route('/register')
 def register():
-    # maybe add more social logins like mastadon, matrix, facebook or something in the future. now just google. 
+    # maybe add more social logins like mastadon, matrix, facebook or something in the future. now just google.
     return render_template('scoreboard/register.html')
+
+
+@app.post('/quickreg')
+@limiter.limit("10/minute")
+@db.db_session
+def quickreg():
+    """Register with nothing but a handle.
+
+    Exists because the Google button is not a usable front door for every
+    audience: Google accounts require 13+, Discord's ToS is 13+, and plenty of
+    people would rather not tie a con identity to either. Youth events need a
+    path that asks for nothing.
+
+    The new player gets their own team, so they can solve everyone else's
+    challenges immediately (you can't submit a flag authored by a teammate).
+    """
+    handle = request.form.get("handle", "")
+    result = db.create_solo_player(handle)
+
+    if isinstance(result, str):
+        flash(result, "error")
+        return redirect(url_for("register"))
+
+    resp = make_response(redirect(url_for("hud")))
+    resp.set_cookie("api_key", result.api_key)
+    return resp
 
 @app.route('/google_login')
 def google_login(): 
