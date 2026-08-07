@@ -217,6 +217,10 @@ def my_profile():
     return "my profile"
 
 @app.route('/join', methods=['GET', 'POST'])
+# Was the only write route with no limiter. A wrong team password leaves the
+# player on their solo team, so the gate re-admits them -- unlimited guesses
+# against single-round sha256 of an 8-char password chosen by a teenager.
+@limiter.limit("5 per minute", methods=["POST"])
 @db.db_session
 @get_api_key
 def join_team():
@@ -237,11 +241,15 @@ def join_team():
 
     
     if request.method == "POST":
-        print([(k,v) for k,v in request.form.items()])
-        target_team = request.form.get('target_team', None)
-        team_password = request.form.get('team_password', None)
-        if target_team == None or target_team == '__invalid_team__' or team_password == None:
-            flash("target_team or password missing", 'error')
+        # Do not print the raw form; it carries team_password in cleartext.
+        if SETTINGS["_debug"]:
+            print("join_team fields:", sorted(request.form.keys()))
+        target_team = (request.form.get('target_team') or '').strip()
+        team_password = request.form.get('team_password') or ''
+        # '' used to pass this check and reach pony as a Required attribute,
+        # raising ValueError -> unhandled 500 from a single request.
+        if not target_team or target_team == '__invalid_team__' or not team_password:
+            flash("Pick or type a team name, and enter the team password.", 'error')
             return redirect(url_for('hud'))
         result = db.register_team(target_team, team_password, user.name)
     
@@ -486,7 +494,9 @@ def manual_register():
         team.public_key = pub
         team.private_key = priv
 
-    if len(team.members) == SETTINGS["_team_size"]:
+    # >= not ==: with ==, lowering _team_size below a team's current size
+    # silently disabled the cap and the team grew unbounded.
+    if len(team.members) >= SETTINGS["_team_size"]:
         msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
         logger.debug(msg)
         return { "status": False, "msg": msg}

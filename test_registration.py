@@ -146,7 +146,83 @@ def test_self_service_team_forming():
     names = db.joinable_teams()
     check("picker lists the real team", "bic_crew" in names, str(names))
     check("picker hides solo teams", "joiner_erin" not in names and "nosy_frank" not in names, str(names))
-    check("picker hides internal teams", "__unaffiliated__" not in names and "botteam" not in names, str(names))
+    # The bot team is created as __botteam__ by database.py and as botteam by
+    # ctrl_ctf.py INIT, so assert on both. Asserting only "botteam" passed while
+    # __botteam__ was in fact being offered to every player.
+    with db.db_session:
+        for bot_team_name in ("__botteam__", "botteam"):
+            if db.Team.get(name=bot_team_name) is None:
+                db.Team(name=bot_team_name, password=bot_team_name)
+    names = db.joinable_teams()
+    check("picker hides __botteam__", "__botteam__" not in names, str(names))
+    check("picker hides botteam", "botteam" not in names, str(names))
+    check("picker hides __unaffiliated__", "__unaffiliated__" not in names, str(names))
+
+    # Empty teams are not joinable and must not be advertised.
+    with db.db_session:
+        if db.Team.get(name="ghost_team") is None:
+            db.Team(name="ghost_team", password="x" * 64)
+    check("picker hides member-less teams", "ghost_team" not in db.joinable_teams(), str(db.joinable_teams()))
+
+
+def test_input_validation():
+    """Hostile /join input must be refused, never raise."""
+    print("\nteam name validation (500-prevention)")
+    solo = db.create_solo_player("victim_val")
+    db.commit()
+
+    for label, name in [
+        ("empty string", ""),
+        ("whitespace only", "   "),
+        ("tabs/newlines", "\t\n"),
+        ("1 char", "a"),
+        ("33 chars", "z" * 33),
+        ("100k chars", "Z" * 100000),
+        ("null byte", "team\x00name"),
+        ("spaces inside", "my team"),
+        ("reserved unaffiliated", "__unaffiliated__"),
+        ("reserved botteam", "__botteam__"),
+        ("squat player_ shape", "player_c8e69d11"),
+    ]:
+        try:
+            res = db.register_team(name, "longenough123", "victim_val")
+            check(f"refused: {label}", isinstance(res, str), f"returned {type(res).__name__}")
+        except Exception as e:
+            check(f"refused: {label}", False, f"RAISED {type(e).__name__}: {e}")
+
+    with db.db_session:
+        u = db.User.get(name="victim_val")
+        check("still on own solo team after all refusals", u.team.name == "victim_val", u.team.name)
+
+    check("valid name still accepted",
+          not isinstance(db.register_team("good_team", "longenough123", "victim_val"), str))
+
+
+def test_google_team_squat():
+    """Pre-creating a Google player's team name must not capture them."""
+    print("\ngoogle team squat")
+    email = "organizer@defcon.org"
+    import hashlib as _h
+    squat = "player_" + _h.sha256(email.encode()).hexdigest()[:8]
+
+    db.create_solo_player("squatter")
+    db.commit()
+    res = db.register_team(squat, "password123", "squatter")
+    check("register_team refuses the reserved player_ shape", isinstance(res, str), str(res))
+
+    # Even if such a team exists by another route, the victim must not join it.
+    with db.db_session:
+        if db.Team.get(name=squat) is None:
+            t = db.Team(name=squat, password="x" * 64)
+            db.User(name="planted_member", team=t)
+    victim = db.get_or_create_user_by_email(email)
+    with db.db_session:
+        v = db.User.get(name=victim.name)
+        members = sorted(m.name for m in v.team.members)
+        check("victim is alone on their team", members == [v.name], str(members))
+        check("victim did not land in the squatted team", v.team.name != squat or len(members) == 1,
+              f"team={v.team.name} members={members}")
+        check("victim can still form a team", db.is_own_solo_team(v))
 
 
 if __name__ == "__main__":
@@ -157,6 +233,8 @@ if __name__ == "__main__":
     test_google_path()
     test_cross_team_solve()
     test_self_service_team_forming()
+    test_input_validation()
+    test_google_team_squat()
     print("\n%d passed, %d failed" % (len(PASS), len(FAIL)))
     if FAIL:
         print("failed: " + ", ".join(FAIL))
