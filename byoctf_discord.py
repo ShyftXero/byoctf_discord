@@ -423,7 +423,9 @@ async def register(
             team.public_key = pub
             team.private_key = priv
 
-        if len(team.members) == SETTINGS["_team_size"]:
+        # >= not ==: with ==, lowering _team_size below a team's current size
+        # silently disabled the cap and the team grew unbounded.
+        if len(team.members) >= SETTINGS["_team_size"]:
             msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
             await ctx.send(msg)
             if SETTINGS["_debug"]:

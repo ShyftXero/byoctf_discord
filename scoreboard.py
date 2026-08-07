@@ -70,8 +70,34 @@ def logout():
 
 @app.route('/register')
 def register():
-    # maybe add more social logins like mastadon, matrix, facebook or something in the future. now just google. 
+    # maybe add more social logins like mastadon, matrix, facebook or something in the future. now just google.
     return render_template('scoreboard/register.html')
+
+
+@app.post('/quickreg')
+@limiter.limit("10/minute")
+@db.db_session
+def quickreg():
+    """Register with nothing but a handle.
+
+    Exists because the Google button is not a usable front door for every
+    audience: Google accounts require 13+, Discord's ToS is 13+, and plenty of
+    people would rather not tie a con identity to either. Youth events need a
+    path that asks for nothing.
+
+    The new player gets their own team, so they can solve everyone else's
+    challenges immediately (you can't submit a flag authored by a teammate).
+    """
+    handle = request.form.get("handle", "")
+    result = db.create_solo_player(handle)
+
+    if isinstance(result, str):
+        flash(result, "error")
+        return redirect(url_for("register"))
+
+    resp = make_response(redirect(url_for("hud")))
+    resp.set_cookie("api_key", result.api_key)
+    return resp
 
 @app.route('/google_login')
 def google_login(): 
@@ -198,6 +224,10 @@ def my_profile():
     return "my profile"
 
 @app.route('/join', methods=['GET', 'POST'])
+# Was the only write route with no limiter. A wrong team password leaves the
+# player on their solo team, so the gate re-admits them -- unlimited guesses
+# against single-round sha256 of an 8-char password chosen by a teenager.
+@limiter.limit("5 per minute", methods=["POST"])
 @db.db_session
 @get_api_key
 def join_team():
@@ -209,17 +239,24 @@ def join_team():
     if user == None:
         return "invalid api key; login first.", 403
 
-    if user.team.name != '__unaffiliated__': 
-        # return "can't change teams on your own. talk to an admin about switching teams", 403
+    # Players sitting on the solo team signup gave them still get to form or
+    # join a real one; only members of an actual team are held here.
+    if user.team.name != '__unaffiliated__' and not db.is_own_solo_team(user):
+        # Used to redirect with no explanation, which just looked broken.
+        flash(f"You're already on team `{user.team.name}`. Talk to an admin to switch.", 'error')
         return redirect(url_for("hud"))
 
     
     if request.method == "POST":
-        print([(k,v) for k,v in request.form.items()])
-        target_team = request.form.get('target_team', None)
-        team_password = request.form.get('team_password', None)
-        if target_team == None or target_team == '__invalid_team__' or team_password == None:
-            flash("target_team or password missing", 'error')
+        # Do not print the raw form; it carries team_password in cleartext.
+        if SETTINGS["_debug"]:
+            print("join_team fields:", sorted(request.form.keys()))
+        target_team = (request.form.get('target_team') or '').strip()
+        team_password = request.form.get('team_password') or ''
+        # '' used to pass this check and reach pony as a Required attribute,
+        # raising ValueError -> unhandled 500 from a single request.
+        if not target_team or target_team == '__invalid_team__' or not team_password:
+            flash("Pick or type a team name, and enter the team password.", 'error')
             return redirect(url_for('hud'))
         result = db.register_team(target_team, team_password, user.name)
     
@@ -227,9 +264,11 @@ def join_team():
             flash(f'team registration failed:{result}', 'error')
         return redirect(url_for('hud'))
     
-    elif request.method == "GET": 
-        teams = db.select(t.name for t in db.Team)[:]
-        return render_template('scoreboard/join.html', teams=teams)
+    elif request.method == "GET":
+        teams = db.joinable_teams()
+        return render_template('scoreboard/join.html', teams=teams,
+                               current_team=user.team.name,
+                               team_size=SETTINGS["_team_size"])
 
     return 'bad request', 400 
 
@@ -462,7 +501,9 @@ def manual_register():
         team.public_key = pub
         team.private_key = priv
 
-    if len(team.members) == SETTINGS["_team_size"]:
+    # >= not ==: with ==, lowering _team_size below a team's current size
+    # silently disabled the cap and the team grew unbounded.
+    if len(team.members) >= SETTINGS["_team_size"]:
         msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
         logger.debug(msg)
         return { "status": False, "msg": msg}

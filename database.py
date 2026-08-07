@@ -2,6 +2,7 @@ import binascii
 from collections import Counter
 import hashlib
 import random
+import re
 
 from requests.sessions import session
 from settings import SETTINGS
@@ -105,8 +106,15 @@ class DelayedSolve(Solve):
 class Team(db.Entity):
     id = PrimaryKey(int, auto=True)
     members = Set(User)
-    name = Required(str)
+    # unique: duplicate rows made Team.get(name=...) raise
+    # MultipleObjectsFoundError, a permanent 500 for that name everywhere.
+    name = Required(str, unique=True)
     password = Required(str)
+    # True for the one-person team signup auto-creates for a player. Stored
+    # rather than inferred from team.name == user.name, because that inference
+    # broke on any rename: an admin renaming a solo team, or a name collision
+    # forcing a suffix, silently locked the player out of forming a team.
+    is_solo = Required(bool, default=False)
     uuid = Required(str, default=lambda: str(uuid.uuid4()))
     public_key = Optional(str, default="")
     private_key = Optional(str, default="")
@@ -215,27 +223,185 @@ set_custom_methods()
 #########
 
 
+VALID_HANDLE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
+
+# Team names get the same treatment as handles. register_team previously only
+# stripped whitespace, which let "" through to pony (unhandled 500) and let a
+# megabyte-long name commit.
+VALID_TEAMNAME = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
+
+# Internal teams, plus the shape get_or_create_user_by_email() mints for Google
+# logins. Squatting `player_<8 hex>` let an attacker pre-create the team a known
+# email address would land on and capture that player permanently.
+RESERVED_TEAM_NAMES = {"__unaffiliated__", "__botteam__", "botteam"}
+RESERVED_TEAM_RE = re.compile(r"^(player_[0-9a-f]{8}|__.*__)$")
+
+
+@db_session
+def create_solo_player(handle: str):
+    """Create a player who is the sole member of their own team.
+
+    Returns the User, or a string describing why it couldn't be done.
+
+    Solo-by-default matters: you can't submit a flag authored by a teammate,
+    so anyone left sitting in __unaffiliated__ can't solve the challenges of
+    anyone else left sitting in __unaffiliated__. Giving every self-registered
+    player their own team means everybody can solve everybody from the start.
+    """
+    handle = (handle or "").strip()
+    if not VALID_HANDLE.match(handle):
+        return "handle must be 3-32 chars of letters, numbers, dot, dash or underscore"
+    if handle == "__unaffiliated__" or handle == SETTINGS["_botusername"]:
+        return "reserved handle"
+    if User.get(name=handle) is not None:
+        return "that handle is taken"
+    if Team.get(name=handle) is not None:
+        return "that handle is taken"
+
+    # the team password is never used to join - this team is not joinable.
+    team = Team(name=handle, password=hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest(), is_solo=True)
+    pub, priv = generate_keys()
+    team.public_key = pub
+    team.private_key = priv
+
+    user = User(name=handle, team=team)
+    rotate_player_keys(user)
+    commit()
+    return user
+
+
 @db_session
 def get_or_create_user_by_email(email):
-    username = email.split('@')[0]
+    """Look up (or create) the player behind a Google login.
+
+    Two deliberate choices here:
+      * the username is NOT the email local-part. Deriving it from the address
+        puts real names on a public scoreboard, which is not okay at a youth
+        event. We use a stable, opaque handle derived from the address instead,
+        and the player can be renamed by an admin on request.
+      * new players get their own team rather than __unaffiliated__, for the
+        same solve-blocking reason described in create_solo_player().
+    """
+    email = (email or "").strip().lower()
+    # stable per-address, but not reversible to a name by looking at the board
+    digest = hashlib.sha256(email.encode()).hexdigest()[:8]
+    username = f"player_{digest}"
+
     user = User.get(name=username)
-    if user == None:
-        unaffiliated_team = Team.get(name="__unaffiliated__")
-        user = User(name=username, team=unaffiliated_team)
-        rotate_player_keys(user)
+    if user is not None:
+        return user
+
+    # legacy accounts were named after the email local-part; keep them working
+    legacy = User.get(name=email.split("@")[0])
+    if legacy is not None:
+        return legacy
+
+    team = Team.select(lambda t: t.name == username).first()
+    if team is not None and len(team.members) > 0:
+        # Someone already holds a team by this name. Reusing it would drop this
+        # player into a stranger's team with no way out -- which was a working
+        # capture: pre-create `player_<sha256(email)[:8]>` for a known address
+        # and the owner of that address lands in your team permanently. Mint a
+        # distinct one instead. register_team also now refuses this name shape.
+        suffix = uuid.uuid4().hex[:6]
+        team = None
+        username_team = f"{username}_{suffix}"
+    else:
+        username_team = username
+
+    if team is None:
+        team = Team(name=username_team, password=hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest(), is_solo=True)
+        pub, priv = generate_keys()
+        team.public_key = pub
+        team.private_key = priv
+
+    user = User(name=username, team=team)
+    rotate_player_keys(user)
+    commit()
     return user
+
+def is_own_solo_team(user) -> bool:
+    """True when the user is alone on the team that signup auto-created for them.
+
+    quickreg() and the Google flow both put a new player on their own team named
+    after their handle, so nobody is stuck unable to solve anyone else's
+    challenges. That team was never a choice the player made, so it must not
+    stand between them and creating or joining a real team.
+
+    Deliberately narrow: name matches the handle AND they are the only member.
+    Once they join a real team the name no longer matches, so this stops being
+    true and the usual "talk to an admin" rule applies again -- joining is
+    one-way and players still cannot hop between real teams on their own.
+    """
+    team = user.team
+    if team is None:
+        return False
+    if team.name == "__unaffiliated__":
+        return False
+    if len(team.members) != 1:
+        return False
+    # Trust the stored flag. Fall back to the old name check so accounts created
+    # before the flag existed still behave.
+    return bool(getattr(team, "is_solo", False)) or team.name == user.name
+
+
+@db_session
+def joinable_teams() -> list:
+    """Team names a player could actually join, for the /join picker.
+
+    Selecting every Team would list one un-joinable solo team per registered
+    player (their password is a random uuid nobody knows), plus the internal
+    __unaffiliated__ and bot teams. Players would pick those and just get
+    "Password incorrect".
+    """
+    names = []
+    for team in Team.select():
+        # Match the __name__ convention rather than a hand-listed set. The old
+        # set listed "botteam" and SETTINGS["_botusername"], but the bot team is
+        # created as "__botteam__" by database.py and _botusername is a USER
+        # name that is never a team name -- so __botteam__ was offered to every
+        # player, and picking it can never succeed because its password column
+        # holds a raw string rather than a sha256.
+        if team.name in RESERVED_TEAM_NAMES or RESERVED_TEAM_RE.match(team.name):
+            continue
+        member_count = len(team.members)
+        # Abandoned teams with nobody on them are not a thing to join.
+        if member_count < 1:
+            continue
+        # someone's auto-created signup team; not joinable by anyone else
+        # (its password is a random uuid hash nobody knows)
+        if getattr(team, "is_solo", False):
+            continue
+        if member_count == 1 and any(m.name == team.name for m in team.members):
+            continue
+        if member_count >= SETTINGS["_team_size"]:
+            continue  # full
+        names.append(team.name)
+    return sorted(names)
+
 
 @db_session
 def register_team(teamname: str, password: str, username: str) -> Team|str:
-    print(teamname, password, username)
-    teamname = teamname.strip()
-    password = password.strip()
+    teamname = (teamname or "").strip()
+    password = (password or "").strip()
+
+    # Validate the name to the same standard as create_solo_player. Without
+    # this, "" reached Team.get(name="") and pony raised ValueError on the
+    # Required attribute -- an unhandled 500 from one curl. An unbounded name
+    # also committed multi-MB rows that every later page render carried.
+    if not VALID_TEAMNAME.match(teamname):
+        return "team name must be 3-32 chars of letters, numbers, dot, dash or underscore"
+    if teamname in RESERVED_TEAM_NAMES or RESERVED_TEAM_RE.match(teamname):
+        return "that team name is reserved"
+
     if len(password) < 8:
         return "min password length is 8"
 
     hashed_pass = hashlib.sha256(password.encode()).hexdigest()
 
-    team = Team.get(name=teamname)
+    # .first() not .get(): a pre-existing DB may already hold duplicate names
+    # from before the unique constraint, and .get() would raise on them.
+    team = Team.select(lambda t: t.name == teamname).first()
     unaffiliated = Team.get(name="__unaffiliated__")
     user = User.get(name=username)
 
@@ -250,43 +416,70 @@ def register_team(teamname: str, password: str, username: str) -> Team|str:
         db.commit()
     
     
-    if user.team.name != "__unaffiliated__":
+    # A player on their auto-created solo team has not really picked a team yet,
+    # so let them through. Without this, self-service registration and
+    # self-service team forming are mutually exclusive.
+    if user.team.name != "__unaffiliated__" and not is_own_solo_team(user):
         msg = f"already registered as `{username}` on team `{user.team.name}`. talk to an admin to have your team changed..."
         if SETTINGS["_debug"]:
             logger.debug(msg)
         return msg
 
-    # does the team exist?
-    if team == None:
-        team = Team(name=teamname, password=hashed_pass)
-        pub, priv = generate_keys()
-        team.public_key = pub
-        team.private_key = priv
-        db.commit()
+    if teamname == user.team.name:
+        return f"you are already on team `{teamname}`"
 
-    if len(team.members) == SETTINGS["_team_size"]:
-        msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
-        if SETTINGS["_debug"]:
-            logger.debug(msg)
-        return msg
+    vacated_team = user.team if is_own_solo_team(user) else None
 
+    # Reject BEFORE creating anything. This block used to create and commit the
+    # team first, so a request that then failed the capacity or password check
+    # left a committed member-less team behind that the picker advertised.
+    if team is not None:
+        # >= not ==. With ==, lowering _team_size past a team's current size
+        # made the cap silently stop applying while joinable_teams() (correctly
+        # using >=) hid the team, so it grew unbounded and invisibly.
+        if len(team.members) >= SETTINGS["_team_size"]:
+            msg = f"No room on the team... currently limited to {SETTINGS['_team_size']} members per team."
+            if SETTINGS["_debug"]:
+                logger.debug(msg)
+            return msg
 
-
-    if (hashed_pass != team.password):  # if it's a new team, these should match automatically..
-        msg = f"Password incorrect for team {team.name}"
-        
-
-        if SETTINGS["_debug"]:
-            logger.debug(
-                f"{username} failed registration; Team {teamname} pass {password} hashed {hashed_pass}"
-            )
-        return msg
+        if hashed_pass != team.password:
+            msg = f"Password incorrect for team {team.name}"
+            if SETTINGS["_debug"]:
+                # Never log the cleartext attempt; these are shared secrets and
+                # the logfile outlives the event.
+                logger.debug(
+                    f"{username} failed registration for team {teamname}; hash {hashed_pass}"
+                )
+            return msg
+    else:
+        # Creating it. Guard the check-then-create race: Team.name carries a
+        # unique constraint now, so a concurrent writer that won makes this
+        # raise, and we re-read and fall through to joining instead of ending up
+        # with duplicate rows that turn Team.get(name=...) into a permanent 500.
+        try:
+            team = Team(name=teamname, password=hashed_pass)
+            pub, priv = generate_keys()
+            team.public_key = pub
+            team.private_key = priv
+            db.flush()
+        except TransactionIntegrityError:
+            db.rollback()
+            return f"team `{teamname}` was just created by someone else; try joining it"
 
     user.team = team
     if team.private_key == "":
         pub, priv = generate_keys()
         team.public_key = pub
         team.private_key = priv
+    db.flush()
+
+    # Remove the abandoned one-person signup team so the board is not littered
+    # with empty teams. Safe to delete: nothing references Team except
+    # Team.members, so no solve or transaction history hangs off it.
+    if vacated_team is not None and vacated_team is not team and len(vacated_team.members) == 0:
+        vacated_team.delete()
+
     db.commit()
     return team
 

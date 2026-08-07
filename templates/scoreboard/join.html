@@ -32,9 +32,18 @@
     </div>
 	<div class='container' hx-get="/join" hx-trigger="every 2m" hx-swap="outerHTML">
         <div>
-            <h4>Join a team</h4>
-            Be sure to press enter if creating a new team... otherwise you're posting "__invalid_team__" as the team. 
-            Target Team
+            <h4>Create or join a team</h4>
+            <p>
+                You're playing solo as <strong>{{ current_team }}</strong>.
+                Pick an existing team below, or <strong>type a new name and press
+                Enter</strong> to start your own. Teams hold up to {{ team_size }} players.
+            </p>
+            <p>
+                Joining is one-way &mdash; ask an admin if you need to move afterwards.
+                Everyone joining the same team must enter the same password
+                (minimum 8 characters). Whoever creates it picks it.
+            </p>
+            Target team
             <form action="/join" method="post">
                 <select name="target_team" id="target_team" width="25" class="form-control">
                     <option value="__invalid_team__"></option>
@@ -42,13 +51,13 @@
                         <option value="{{team}}">{{team}}</option>
                     {% endfor %}
                 </select>
-            <!-- <input type="text" id="new_target_team" name="target_team" placeholder="1337 name here"> -->
             <br>
             Team password
             <br>
-            <input type="password" id="team_password" name="team_password" placeholder="1337 password here">
+            <input type="password" id="team_password" name="team_password"
+                   placeholder="8+ characters" minlength="8" required>
             <br>
-            <button type="submit">Join Team</button>
+            <button type="submit">Create / join team</button>
             </form>
             <script>
                 $(document).ready(function() {

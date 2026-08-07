@@ -1,0 +1,241 @@
+#!/usr/bin/env python3
+"""Smoke test for self-service registration.
+
+Run against a throwaway sqlite file — it will not touch byoctf.db:
+
+    BYOCTF_TEST_DB=/tmp/regtest.db python3 test_registration.py
+
+The property that actually matters is the last one. You cannot submit a flag
+authored by someone on your own team, so if registration parks everybody in a
+shared team then nobody can solve anybody's challenge — silently. Every other
+check here is in service of that one.
+"""
+import os
+import sys
+import uuid
+
+TEST_DB = os.environ.get("BYOCTF_TEST_DB", "/tmp/byoctf_regtest.db")
+if os.path.exists(TEST_DB):
+    os.remove(TEST_DB)
+
+from settings import SETTINGS  # noqa: E402
+
+SETTINGS["_db_type"] = "sqlite"
+SETTINGS["_db_database"] = TEST_DB
+SETTINGS["_debug"] = False
+
+import database as db  # noqa: E402
+
+PASS, FAIL = [], []
+
+
+def check(name, cond, detail=""):
+    (PASS if cond else FAIL).append(name)
+    print(("  ok   " if cond else "  FAIL ") + name + (("  -- " + detail) if detail and not cond else ""))
+
+
+@db.db_session
+def seed():
+    if db.Team.get(name="__unaffiliated__") is None:
+        db.Team(name="__unaffiliated__", password="x" * 64)
+    if db.User.get(name=SETTINGS["_botusername"]) is None:
+        bot = db.User(name=SETTINGS["_botusername"], team=db.Team.get(name="__unaffiliated__"))
+        db.rotate_player_keys(bot)
+    db.commit()
+
+
+@db.db_session
+def test_quickreg_shape():
+    print("\nquickreg")
+    u = db.create_solo_player("alice")
+    check("returns a User", not isinstance(u, str), repr(u))
+    check("gets its own team", u.team.name == "alice", u.team.name)
+    check("team has exactly one member", len(u.team.members) == 1)
+    check("not parked in __unaffiliated__", u.team.name != "__unaffiliated__")
+    check("has an api_key", bool(u.api_key))
+
+
+@db.db_session
+def test_rejections():
+    print("\nrejections")
+    check("duplicate handle rejected", isinstance(db.create_solo_player("alice"), str))
+    check("too short rejected", isinstance(db.create_solo_player("ab"), str))
+    check("too long rejected", isinstance(db.create_solo_player("z" * 33), str))
+    check("spaces rejected", isinstance(db.create_solo_player("two words"), str))
+    check("html rejected", isinstance(db.create_solo_player("<script>"), str))
+    check("__unaffiliated__ reserved", isinstance(db.create_solo_player("__unaffiliated__"), str))
+
+
+@db.db_session
+def test_google_path():
+    print("\ngoogle path")
+    u = db.get_or_create_user_by_email("Jane.Smith@example.com")
+    check("no real name on the board", "jane" not in u.name.lower(), u.name)
+    check("gets its own team", u.team.name != "__unaffiliated__", u.team.name)
+    same = db.get_or_create_user_by_email("jane.smith@EXAMPLE.com")
+    check("same address returns same user (case-insensitive)", same.name == u.name)
+    other = db.get_or_create_user_by_email("someone.else@example.com")
+    check("different address, different team", other.team.name != u.team.name)
+
+
+@db.db_session
+def test_cross_team_solve():
+    """The one that matters."""
+    print("\ncross-team solve (the point of all this)")
+    author = db.create_solo_player("author_bob")
+    solver = db.create_solo_player("solver_carol")
+    db.commit()
+
+    check("author and solver are on different teams", author.team.name != solver.team.name)
+
+    chall = db.Challenge(title="regtest-" + uuid.uuid4().hex[:6], description="d",
+                         author=author, uuid=str(uuid.uuid4()), byoc=True)
+    flag = db.Flag(flag="FLAG{regtest_" + uuid.uuid4().hex[:6] + "}", value=100.0,
+                   author=author, byoc=True, description="f", challenges=[chall])
+    db.commit()
+
+    # createSolve returns a message string either way; a successful solve says
+    # "<user> solved <flag> for <n> points", a refusal explains itself.
+    msg = str(db.createSolve(user=solver, flag=flag))
+    check("a different team CAN solve it", "solved" in msg and "trying to submit" not in msg, msg)
+
+    msg2 = str(db.createSolve(user=author, flag=flag))
+    check("the author CANNOT solve their own", "trying to submit" in msg2, msg2)
+
+
+def test_self_service_team_forming():
+    """A self-registered player must be able to form and join a real team.
+
+    Registration parks every new player on their own solo team, and both
+    register_team() and /join used to refuse anyone not sitting in
+    __unaffiliated__ -- so self-service registration silently made self-service
+    team forming impossible.
+    """
+    print("\nself-service team forming")
+    founder = db.create_solo_player("founder_dana")
+    joiner = db.create_solo_player("joiner_erin")
+    db.commit()
+
+    with db.db_session:
+        u = db.User.get(name="founder_dana")
+        check("starts on own solo team", u.team.name == "founder_dana")
+        check("is_own_solo_team recognises it", db.is_own_solo_team(u))
+
+    res = db.register_team("bic_crew", "supersecret123", "founder_dana")
+    check("solo player CAN create a team", not isinstance(res, str), str(res))
+    with db.db_session:
+        u = db.User.get(name="founder_dana")
+        check("founder moved onto the new team", u.team.name == "bic_crew", u.team.name)
+        check("vacated solo team cleaned up", db.Team.get(name="founder_dana") is None)
+        check("no longer counts as solo", not db.is_own_solo_team(u))
+
+    res2 = db.register_team("bic_crew", "supersecret123", "joiner_erin")
+    check("second solo player CAN join it", not isinstance(res2, str), str(res2))
+    with db.db_session:
+        team = db.Team.get(name="bic_crew")
+        check("team now has two members", len(team.members) == 2, str(len(team.members)))
+
+    bad = db.register_team("bic_crew", "wrongpassword", db.create_solo_player("nosy_frank").name)
+    check("wrong team password still refused", isinstance(bad, str), str(bad))
+
+    with db.db_session:
+        u = db.User.get(name="founder_dana")
+        again = db.register_team("some_other_team", "supersecret123", u.name)
+    check("cannot hop once on a real team", isinstance(again, str), str(again))
+
+    names = db.joinable_teams()
+    check("picker lists the real team", "bic_crew" in names, str(names))
+    check("picker hides solo teams", "joiner_erin" not in names and "nosy_frank" not in names, str(names))
+    # The bot team is created as __botteam__ by database.py and as botteam by
+    # ctrl_ctf.py INIT, so assert on both. Asserting only "botteam" passed while
+    # __botteam__ was in fact being offered to every player.
+    with db.db_session:
+        for bot_team_name in ("__botteam__", "botteam"):
+            if db.Team.get(name=bot_team_name) is None:
+                db.Team(name=bot_team_name, password=bot_team_name)
+    names = db.joinable_teams()
+    check("picker hides __botteam__", "__botteam__" not in names, str(names))
+    check("picker hides botteam", "botteam" not in names, str(names))
+    check("picker hides __unaffiliated__", "__unaffiliated__" not in names, str(names))
+
+    # Empty teams are not joinable and must not be advertised.
+    with db.db_session:
+        if db.Team.get(name="ghost_team") is None:
+            db.Team(name="ghost_team", password="x" * 64)
+    check("picker hides member-less teams", "ghost_team" not in db.joinable_teams(), str(db.joinable_teams()))
+
+
+def test_input_validation():
+    """Hostile /join input must be refused, never raise."""
+    print("\nteam name validation (500-prevention)")
+    solo = db.create_solo_player("victim_val")
+    db.commit()
+
+    for label, name in [
+        ("empty string", ""),
+        ("whitespace only", "   "),
+        ("tabs/newlines", "\t\n"),
+        ("1 char", "a"),
+        ("33 chars", "z" * 33),
+        ("100k chars", "Z" * 100000),
+        ("null byte", "team\x00name"),
+        ("spaces inside", "my team"),
+        ("reserved unaffiliated", "__unaffiliated__"),
+        ("reserved botteam", "__botteam__"),
+        ("squat player_ shape", "player_c8e69d11"),
+    ]:
+        try:
+            res = db.register_team(name, "longenough123", "victim_val")
+            check(f"refused: {label}", isinstance(res, str), f"returned {type(res).__name__}")
+        except Exception as e:
+            check(f"refused: {label}", False, f"RAISED {type(e).__name__}: {e}")
+
+    with db.db_session:
+        u = db.User.get(name="victim_val")
+        check("still on own solo team after all refusals", u.team.name == "victim_val", u.team.name)
+
+    check("valid name still accepted",
+          not isinstance(db.register_team("good_team", "longenough123", "victim_val"), str))
+
+
+def test_google_team_squat():
+    """Pre-creating a Google player's team name must not capture them."""
+    print("\ngoogle team squat")
+    email = "organizer@defcon.org"
+    import hashlib as _h
+    squat = "player_" + _h.sha256(email.encode()).hexdigest()[:8]
+
+    db.create_solo_player("squatter")
+    db.commit()
+    res = db.register_team(squat, "password123", "squatter")
+    check("register_team refuses the reserved player_ shape", isinstance(res, str), str(res))
+
+    # Even if such a team exists by another route, the victim must not join it.
+    with db.db_session:
+        if db.Team.get(name=squat) is None:
+            t = db.Team(name=squat, password="x" * 64)
+            db.User(name="planted_member", team=t)
+    victim = db.get_or_create_user_by_email(email)
+    with db.db_session:
+        v = db.User.get(name=victim.name)
+        members = sorted(m.name for m in v.team.members)
+        check("victim is alone on their team", members == [v.name], str(members))
+        check("victim did not land in the squatted team", v.team.name != squat or len(members) == 1,
+              f"team={v.team.name} members={members}")
+        check("victim can still form a team", db.is_own_solo_team(v))
+
+
+if __name__ == "__main__":
+    print("db: " + TEST_DB)
+    seed()
+    test_quickreg_shape()
+    test_rejections()
+    test_google_path()
+    test_cross_team_solve()
+    test_self_service_team_forming()
+    test_input_validation()
+    test_google_team_squat()
+    print("\n%d passed, %d failed" % (len(PASS), len(FAIL)))
+    if FAIL:
+        print("failed: " + ", ".join(FAIL))
+    sys.exit(1 if FAIL else 0)

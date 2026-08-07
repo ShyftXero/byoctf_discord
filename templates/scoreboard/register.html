@@ -1,1 +1,49 @@
-<a href="/google_login" class="btn btn-primary">Login with Google</a>
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BYOCTF — Register</title>
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.2.3/vapor/bootstrap.min.css"
+		integrity="sha512-f3fDhRxPxRct3q1hRKC9qEOkqNtlrNCktLDRAOpGFuQLezKoBDUCXPJrEa2VwQilrUj5f7SPx6asfwfKNNwkvw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+<div class="container py-5" style="max-width: 34rem;">
+
+	<h1 class="mb-4">Pick a name. Start playing.</h1>
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-danger">{{ message }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
+	<form method="post" action="/quickreg" class="mb-4">
+		<label for="handle" class="form-label">Your handle</label>
+		<input type="text" class="form-control form-control-lg" name="handle" id="handle"
+			placeholder="shyft" autocomplete="off" autocapitalize="none" autofocus
+			pattern="[A-Za-z0-9_.\-]{3,32}" required>
+		<div class="form-text mb-3">
+			3&ndash;32 characters. Letters, numbers, dot, dash, underscore. This is what everyone
+			sees on the scoreboard, so don&rsquo;t use your real name unless you want to.
+		</div>
+		<button type="submit" class="btn btn-primary btn-lg w-100">Let me in</button>
+	</form>
+
+	<p class="text-muted">
+		You get your own team, so you can solve everybody else&rsquo;s challenges straight away.
+		No email, no password, nothing to verify.
+	</p>
+
+	<hr class="my-4">
+
+	<p class="text-muted mb-2">Already have a Google account and would rather use it?</p>
+	<a href="/google_login" class="btn btn-outline-secondary">Log in with Google</a>
+
+</div>
+</body>
+</html>
