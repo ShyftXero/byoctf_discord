@@ -290,6 +290,50 @@ def get_or_create_user_by_email(email):
     commit()
     return user
 
+def is_own_solo_team(user) -> bool:
+    """True when the user is alone on the team that signup auto-created for them.
+
+    quickreg() and the Google flow both put a new player on their own team named
+    after their handle, so nobody is stuck unable to solve anyone else's
+    challenges. That team was never a choice the player made, so it must not
+    stand between them and creating or joining a real team.
+
+    Deliberately narrow: name matches the handle AND they are the only member.
+    Once they join a real team the name no longer matches, so this stops being
+    true and the usual "talk to an admin" rule applies again -- joining is
+    one-way and players still cannot hop between real teams on their own.
+    """
+    team = user.team
+    if team is None:
+        return False
+    if team.name == "__unaffiliated__":
+        return False
+    return team.name == user.name and len(team.members) == 1
+
+
+@db_session
+def joinable_teams() -> list:
+    """Team names a player could actually join, for the /join picker.
+
+    Selecting every Team would list one un-joinable solo team per registered
+    player (their password is a random uuid nobody knows), plus the internal
+    __unaffiliated__ and bot teams. Players would pick those and just get
+    "Password incorrect".
+    """
+    hidden = {"__unaffiliated__", SETTINGS["_botusername"], "botteam"}
+    names = []
+    for team in Team.select():
+        if team.name in hidden:
+            continue
+        # someone's auto-created signup team; not joinable by anyone else
+        if len(team.members) == 1 and any(m.name == team.name for m in team.members):
+            continue
+        if len(team.members) >= SETTINGS["_team_size"]:
+            continue  # full
+        names.append(team.name)
+    return sorted(names)
+
+
 @db_session
 def register_team(teamname: str, password: str, username: str) -> Team|str:
     print(teamname, password, username)
@@ -315,11 +359,19 @@ def register_team(teamname: str, password: str, username: str) -> Team|str:
         db.commit()
     
     
-    if user.team.name != "__unaffiliated__":
+    # A player on their auto-created solo team has not really picked a team yet,
+    # so let them through. Without this, self-service registration and
+    # self-service team forming are mutually exclusive.
+    if user.team.name != "__unaffiliated__" and not is_own_solo_team(user):
         msg = f"already registered as `{username}` on team `{user.team.name}`. talk to an admin to have your team changed..."
         if SETTINGS["_debug"]:
             logger.debug(msg)
         return msg
+
+    if teamname == user.team.name:
+        return f"you are already on team `{teamname}`"
+
+    vacated_team = user.team if is_own_solo_team(user) else None
 
     # does the team exist?
     if team == None:
@@ -352,6 +404,14 @@ def register_team(teamname: str, password: str, username: str) -> Team|str:
         pub, priv = generate_keys()
         team.public_key = pub
         team.private_key = priv
+    db.flush()
+
+    # Remove the abandoned one-person signup team so the board is not littered
+    # with empty teams. Safe to delete: nothing references Team except
+    # Team.members, so no solve or transaction history hangs off it.
+    if vacated_team is not None and vacated_team is not team and len(vacated_team.members) == 0:
+        vacated_team.delete()
+
     db.commit()
     return team
 

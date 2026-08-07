@@ -103,6 +103,52 @@ def test_cross_team_solve():
     check("the author CANNOT solve their own", "trying to submit" in msg2, msg2)
 
 
+def test_self_service_team_forming():
+    """A self-registered player must be able to form and join a real team.
+
+    Registration parks every new player on their own solo team, and both
+    register_team() and /join used to refuse anyone not sitting in
+    __unaffiliated__ -- so self-service registration silently made self-service
+    team forming impossible.
+    """
+    print("\nself-service team forming")
+    founder = db.create_solo_player("founder_dana")
+    joiner = db.create_solo_player("joiner_erin")
+    db.commit()
+
+    with db.db_session:
+        u = db.User.get(name="founder_dana")
+        check("starts on own solo team", u.team.name == "founder_dana")
+        check("is_own_solo_team recognises it", db.is_own_solo_team(u))
+
+    res = db.register_team("bic_crew", "supersecret123", "founder_dana")
+    check("solo player CAN create a team", not isinstance(res, str), str(res))
+    with db.db_session:
+        u = db.User.get(name="founder_dana")
+        check("founder moved onto the new team", u.team.name == "bic_crew", u.team.name)
+        check("vacated solo team cleaned up", db.Team.get(name="founder_dana") is None)
+        check("no longer counts as solo", not db.is_own_solo_team(u))
+
+    res2 = db.register_team("bic_crew", "supersecret123", "joiner_erin")
+    check("second solo player CAN join it", not isinstance(res2, str), str(res2))
+    with db.db_session:
+        team = db.Team.get(name="bic_crew")
+        check("team now has two members", len(team.members) == 2, str(len(team.members)))
+
+    bad = db.register_team("bic_crew", "wrongpassword", db.create_solo_player("nosy_frank").name)
+    check("wrong team password still refused", isinstance(bad, str), str(bad))
+
+    with db.db_session:
+        u = db.User.get(name="founder_dana")
+        again = db.register_team("some_other_team", "supersecret123", u.name)
+    check("cannot hop once on a real team", isinstance(again, str), str(again))
+
+    names = db.joinable_teams()
+    check("picker lists the real team", "bic_crew" in names, str(names))
+    check("picker hides solo teams", "joiner_erin" not in names and "nosy_frank" not in names, str(names))
+    check("picker hides internal teams", "__unaffiliated__" not in names and "botteam" not in names, str(names))
+
+
 if __name__ == "__main__":
     print("db: " + TEST_DB)
     seed()
@@ -110,6 +156,7 @@ if __name__ == "__main__":
     test_rejections()
     test_google_path()
     test_cross_team_solve()
+    test_self_service_team_forming()
     print("\n%d passed, %d failed" % (len(PASS), len(FAIL)))
     if FAIL:
         print("failed: " + ", ".join(FAIL))

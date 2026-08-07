@@ -228,8 +228,11 @@ def join_team():
     if user == None:
         return "invalid api key; login first.", 403
 
-    if user.team.name != '__unaffiliated__': 
-        # return "can't change teams on your own. talk to an admin about switching teams", 403
+    # Players sitting on the solo team signup gave them still get to form or
+    # join a real one; only members of an actual team are held here.
+    if user.team.name != '__unaffiliated__' and not db.is_own_solo_team(user):
+        # Used to redirect with no explanation, which just looked broken.
+        flash(f"You're already on team `{user.team.name}`. Talk to an admin to switch.", 'error')
         return redirect(url_for("hud"))
 
     
@@ -246,9 +249,11 @@ def join_team():
             flash(f'team registration failed:{result}', 'error')
         return redirect(url_for('hud'))
     
-    elif request.method == "GET": 
-        teams = db.select(t.name for t in db.Team)[:]
-        return render_template('scoreboard/join.html', teams=teams)
+    elif request.method == "GET":
+        teams = db.joinable_teams()
+        return render_template('scoreboard/join.html', teams=teams,
+                               current_team=user.team.name,
+                               team_size=SETTINGS["_team_size"])
 
     return 'bad request', 400 
 
